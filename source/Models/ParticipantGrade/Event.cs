@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace EventGradingSystem.Models.ParticipantGrade
+namespace ConventionGradingSystem.Models.ParticipantGrade
 {
     public class Event
     {

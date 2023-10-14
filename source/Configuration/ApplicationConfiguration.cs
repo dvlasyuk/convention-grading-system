@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 
-using EventGradingSystem.Configuration.Events;
-using EventGradingSystem.Configuration.Participants;
+using ConventionGradingSystem.Configuration.Events;
+using ConventionGradingSystem.Configuration.Participants;
 
-namespace EventGradingSystem.Configuration
+namespace ConventionGradingSystem.Configuration
 {
     public class ApplicationConfiguration
     {

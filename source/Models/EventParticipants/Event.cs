@@ -1,4 +1,4 @@
-﻿namespace EventGradingSystem.Models.EventParticipants
+﻿namespace ConventionGradingSystem.Models.EventParticipants
 {
     public class Event
     {

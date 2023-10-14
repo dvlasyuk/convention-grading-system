@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventGradingSystem", "EventGradingSystem.csproj", "{733211A3-23E2-497B-9EAD-10F0DD8DFABF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConventionGradingSystem", "ConventionGradingSystem.csproj", "{733211A3-23E2-497B-9EAD-10F0DD8DFABF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,4 +1,4 @@
-﻿namespace EventGradingSystem.Configuration
+﻿namespace ConventionGradingSystem.Configuration
 {
     public class SecurityConfiguration
     {

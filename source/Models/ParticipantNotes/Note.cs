@@ -1,4 +1,4 @@
-﻿namespace EventGradingSystem.Models.ParticipantNotes
+﻿namespace ConventionGradingSystem.Models.ParticipantNotes
 {
     public class Note
     {

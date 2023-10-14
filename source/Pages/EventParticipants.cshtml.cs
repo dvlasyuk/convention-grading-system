@@ -3,10 +3,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
-using EventGradingSystem.Configuration;
-using EventGradingSystem.Database;
-using EventGradingSystem.Database.Entities;
-using EventGradingSystem.Models.EventParticipants;
+using ConventionGradingSystem.Configuration;
+using ConventionGradingSystem.Database;
+using ConventionGradingSystem.Database.Entities;
+using ConventionGradingSystem.Models.EventParticipants;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace EventGradingSystem.Pages
+namespace ConventionGradingSystem.Pages
 {
     [Authorize(Roles = "Adminstrator,Organizer")]
     public class EventParticipantsModel : PageModel

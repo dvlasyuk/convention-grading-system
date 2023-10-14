@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace EventGradingSystem.Models.EventsList
+namespace ConventionGradingSystem.Models.EventsList
 {
     public class EventType
     {

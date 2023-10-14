@@ -4,16 +4,16 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
-using EventGradingSystem.Configuration;
-using EventGradingSystem.Database;
-using EventGradingSystem.Models.EventsList;
+using ConventionGradingSystem.Configuration;
+using ConventionGradingSystem.Database;
+using ConventionGradingSystem.Models.EventsList;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace EventGradingSystem.Pages
+namespace ConventionGradingSystem.Pages
 {
     [Authorize(Roles = "Adminstrator")]
     public class EventsListModel : PageModel

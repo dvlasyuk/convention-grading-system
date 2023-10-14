@@ -1,4 +1,4 @@
-﻿namespace EventGradingSystem.Models.ExpertGrade
+﻿namespace ConventionGradingSystem.Models.ExpertGrade
 {
     public enum GradeState
     {

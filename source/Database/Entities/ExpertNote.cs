@@ -1,4 +1,4 @@
-﻿namespace EventGradingSystem.Database.Entities
+﻿namespace ConventionGradingSystem.Database.Entities
 {
     public class ExpertNote
     {

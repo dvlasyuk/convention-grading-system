@@ -1,4 +1,4 @@
-﻿namespace EventGradingSystem.Models.Index
+﻿namespace ConventionGradingSystem.Models.Index
 {
     public class EventType
     {

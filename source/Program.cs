@@ -1,5 +1,5 @@
-using EventGradingSystem.Configuration;
-using EventGradingSystem.Database;
+using ConventionGradingSystem.Configuration;
+using ConventionGradingSystem.Database;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace EventGradingSystem
+namespace ConventionGradingSystem
 {
     public static class Program
     {

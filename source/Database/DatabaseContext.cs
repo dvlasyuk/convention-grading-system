@@ -1,10 +1,10 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-using EventGradingSystem.Database.Entities;
+using ConventionGradingSystem.Database.Entities;
 
 using Microsoft.EntityFrameworkCore;
 
-namespace EventGradingSystem.Database
+namespace ConventionGradingSystem.Database
 {
     public class DatabaseContext : DbContext
     {

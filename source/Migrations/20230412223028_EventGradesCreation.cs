@@ -2,7 +2,7 @@
 
 using Microsoft.EntityFrameworkCore.Migrations;
 
-namespace EventGradingSystem.Migrations
+namespace ConventionGradingSystem.Migrations
 {
     public partial class EventGradesCreation : Migration
     {

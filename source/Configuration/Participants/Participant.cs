@@ -1,4 +1,4 @@
-﻿namespace EventGradingSystem.Configuration.Participants
+﻿namespace ConventionGradingSystem.Configuration.Participants
 {
     public class Participant
     {

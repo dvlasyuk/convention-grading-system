@@ -1,4 +1,4 @@
-﻿namespace EventGradingSystem.Models.ExpertNotes
+﻿namespace ConventionGradingSystem.Models.ExpertNotes
 {
     public class Event
     {

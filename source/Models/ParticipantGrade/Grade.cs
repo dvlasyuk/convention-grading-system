@@ -1,4 +1,4 @@
-﻿namespace EventGradingSystem.Models.ParticipantGrade
+﻿namespace ConventionGradingSystem.Models.ParticipantGrade
 {
     public class Grade
     {

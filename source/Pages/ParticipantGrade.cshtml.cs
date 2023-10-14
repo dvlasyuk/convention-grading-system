@@ -4,17 +4,17 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
-using EventGradingSystem.Configuration;
-using EventGradingSystem.Database;
-using EventGradingSystem.Database.Entities;
-using EventGradingSystem.Models.ParticipantGrade;
+using ConventionGradingSystem.Configuration;
+using ConventionGradingSystem.Database;
+using ConventionGradingSystem.Database.Entities;
+using ConventionGradingSystem.Models.ParticipantGrade;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 
-namespace EventGradingSystem.Pages
+namespace ConventionGradingSystem.Pages
 {
     public class ParticipantGradeModel : PageModel
     {
