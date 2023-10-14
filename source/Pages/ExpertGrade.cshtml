@@ -1,0 +1,64 @@
+﻿@page "{eventTypeId}/{eventId}"
+@model EventGradingSystem.Pages.ExpertGradeModel
+@using EventGradingSystem.Models.ExpertGrade
+
+@{
+    ViewData["Title"] = "Оценка мероприятия экспертом";
+    ViewData["AllowNavigation"] = false;
+}
+
+@switch (Model.GradeState)
+{
+    case GradeState.NotExisted:
+        <label class="name">Приветствуем тебя, эксперт! Извини, но такого мероприятия не существует</label>
+        break;
+
+    case GradeState.NotGraded:
+
+        <label class="name">Приветствуем тебя, эксперт! Оцени, пожалуйста, мероприятие, в котором принял участие</label>
+        <label class="description">Категория мероприятия: @Model.Event.EventTypeName</label>
+        <label class="description">Название мероприятия: @Model.Event.EventName</label>
+
+        <form method="post">
+            @for (var number = 0; number < Model.Event.GradeTypes.Count; number++)
+            {
+                <div class="grade">
+                    <label class="name" for="Grades[@number].GradeValue">@Model.Event.GradeTypes[number].Name</label>
+                    <label class="description" for="Grades[@number].GradeValue">@Model.Event.GradeTypes[number].Description</label>
+
+                    <input type="hidden"
+                            id="Grades[@number].GradeTypeId"
+                            name="Grades[@number].GradeTypeId"
+                            value="@Model.Event.GradeTypes[number].Identifier" />
+
+                    <input type="range"
+                            id="Grades[@number].GradeValue"
+                            name="Grades[@number].GradeValue"
+                            min="@Model.Event.GradeTypes[number].MinimalGrage"
+                            max="@Model.Event.GradeTypes[number].MaximalGrage"
+                            value="@Model.Event.GradeTypes[number].MaximalGrage"
+                            oninput="this.nextElementSibling.value = this.value"/>
+
+                    <output for="Grades[@number].GradeValue">@Model.Event.GradeTypes[number].MaximalGrage</output>
+                </div>
+            }
+
+            <div class="grade">
+                <label class="name" for="Note">Дополнительный комментарий</label>
+                <label class="description" for="Note">Можешь оставить произвольный дополнительный комментарий, если хочешь сообщить что-то организаторам слёт или данного мероприятия</label>
+                <textarea id="Note" name="Note"></textarea>
+            </div>
+
+            <input type="submit" value="Отправить оценки" />
+        </form>
+
+        break;
+
+    case GradeState.JustGraded:
+        <label class="name">Твоя оценка принята! Большое спасибо за помощь</label>
+        break;
+
+    case GradeState.PreviouslyGraded:
+        <label class="name">Приветствуем тебя, эксперт! Ты уже оценивал данное мероприятие. Большое спасибо за помощь</label>
+        break;
+ }

@@ -1,0 +1,26 @@
+﻿@page "{eventTypeId}/{eventId}"
+@model EventGradingSystem.Pages.ExpertNotesModel
+
+@{
+    ViewData["Title"] = "Комментарии экспертов";
+    ViewData["AllowNavigation"] = true;
+}
+
+<table>
+
+    <caption>Комментарии экспертов к мероприятию "@Model.Event.EventName" категории "@Model.Event.EventTypeName"</caption>
+
+    <tr>
+        <th>#</th>
+        <th>Комментарий</th>
+    </tr>
+
+    @foreach (var item in Model.Notes)
+    {
+        <tr>
+            <td>@item.Identifier</td>
+            <td>@item.Content</td>
+        </tr>
+    }
+
+</table>

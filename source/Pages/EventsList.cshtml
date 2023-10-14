@@ -1,0 +1,110 @@
+﻿@page "{eventTypeId}"
+@model EventGradingSystem.Pages.EventsListModel
+
+@{
+    ViewData["Title"] = "Список мероприятий";
+    ViewData["AllowNavigation"] = true;
+}
+
+<table>
+
+    <caption>Мероприятия категории "@Model.EventType.Name"</caption>
+
+    <tr>
+        <th rowspan="2">#</th>
+        <th rowspan="2">Название мероприятия</th>
+
+        @if (Model.EventType.ExpertGrades.Count > 0)
+        {
+            <th colspan="@(Model.EventType.ExpertGrades.Count + 2)">Оценки экспертов</th>
+        }
+        @if (Model.EventType.ParticipantGrades.Count > 0)
+        {
+            <th colspan="@(Model.EventType.ParticipantGrades.Count + 2)">Оценки участников</th>
+        }
+
+        <th rowspan="2">Общая оценка</th>
+        <th rowspan="2">Ссылки</th>
+    </tr>
+
+    <tr>
+
+        @foreach (var item in Model.EventType.ExpertGrades)
+        {
+            <th class="tooltip">
+                @item.Identifier
+                <span class="tooltiptext">@item.Name</span>
+            </th>
+        }
+
+        @if (Model.EventType.ExpertGrades.Count > 0)
+        {
+            <th>Кол.</th>
+            <th>Общая</th>
+        }
+
+        @foreach (var item in Model.EventType.ParticipantGrades)
+        {
+            <th class="tooltip">
+                @item.Identifier
+                <span class="tooltiptext">@item.Name</span>
+            </th>
+        }
+
+        @if (Model.EventType.ParticipantGrades.Count > 0)
+        {
+            <th>Кол.</th>
+            <th>Общая</th>
+        }
+
+    </tr>
+
+    @foreach (var eventItem in Model.Events)
+    {
+        <tr>
+            <td>@eventItem.Identifier</td>
+            <td>@eventItem.Name</td>
+
+            @foreach (var gradeItem in Model.EventType.ExpertGrades)
+            {
+                <td>@eventItem.ExpertGrades[gradeItem.Identifier].ToString("0.0")</td>
+            }
+            @if (Model.EventType.ExpertGrades.Count > 0)
+            {
+                <td>@eventItem.ExprertGradesQuantity</td>
+                <td>@eventItem.TotalExpertGrade.ToString("0.00")</td>
+            }
+
+            @foreach (var gradeItem in Model.EventType.ParticipantGrades)
+            {
+                <td>@eventItem.ParticipantGrades[gradeItem.Identifier].ToString("0.0")</td>
+            }
+            @if (Model.EventType.ParticipantGrades.Count > 0)
+            {
+                <td>@eventItem.ParticipantGradesQuantity</td>
+                <td>@eventItem.TotalParticipantGrade.ToString("0.00")</td>
+            }
+
+            <td>@eventItem.TotalGrade.ToString("0.00")</td>
+
+            <td>
+                @if (eventItem.WithParticipants)
+                {
+                    <a class="table" href="/EventParticipants/@Model.EventType.Identifier/@eventItem.Identifier">Форма проводящего</a>
+                }
+                @if (Model.EventType.ExpertGrades.Count > 0)
+                {
+                    <a class="table" href="/ExpertGrade/@Model.EventType.Identifier/@eventItem.Identifier">Форма эксперта</a>
+                    <a class="table" href="/ExpertNotes/@Model.EventType.Identifier/@eventItem.Identifier">Комментарии экспертов</a>
+                }
+                @if (Model.EventType.ParticipantGrades.Count > 0)
+                {
+                    <a class="table" href="/ParticipantGrade/@Model.EventType.Identifier/@eventItem.Identifier">Форма участника</a>
+                    <a class="table" href="/ParticipantNotes/@Model.EventType.Identifier/@eventItem.Identifier">Комментарии участников</a>
+                }
+            </td>
+
+        </tr>
+    }
+
+</table> 

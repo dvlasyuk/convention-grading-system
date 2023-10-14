@@ -1,0 +1,59 @@
+﻿@page
+@model EventGradingSystem.Pages.IndexModel
+
+@{
+    ViewData["Title"] = "Главная страница";
+    ViewData["AllowNavigation"] = true;
+}
+
+<table>
+
+    <caption>Категории мероприятий</caption>
+
+    <tr>
+        <th>#</th>
+        <th>Название типа мероприятия</th>
+        <th>Количество мероприятий</th>
+        <th>Ссылка на страницу категории</th>
+    </tr>
+
+    @foreach (var item in Model.EventTypes)
+    {
+        <tr>
+            <td>@item.Identifier</td>
+            <td>@item.Name</td>
+            <td>@item.EventsQuantity</td>
+            <td>
+                <a class="table" href="/EventsList/@item.Identifier">Ссылка</a>
+            </td>
+        </tr>
+    }
+
+</table>
+
+<table>
+
+    <caption>Список команд</caption>
+
+    <tr>
+        <th>Название команды</th>
+        <th>Количество участников</th>
+        <th>Регистрации на мероприятия</th>
+        <th>Отметки об участии</th>
+        <th>Отметки о пропуске</th>
+        <th>Особые отметки</th>
+    </tr>
+
+    @foreach (var item in Model.Teams)
+    {
+        <tr>
+            <td>@item.Name</td>
+            <td>@item.ParticipantsQuantity</td>
+            <td>@item.ParticipationRegistrationsQuantity</td>
+            <td>@item.ParticipationMarksQuantity</td>
+            <td>@(item.ParticipationRegistrationsQuantity - item.ParticipationMarksQuantity)</td>
+            <td>@item.SpecialMarksQuantity</td>
+        </tr>
+    }
+
+</table>
