@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace ConventionGradingSystem.Models.EventsList;
 
 public record ViewModel(
@@ -9,6 +11,7 @@ public record ViewModel(
 
 public record GradeType(int Identifier, string Name);
 
+[SuppressMessage("Naming", "CA1716:Identifiers should not match keywords")]
 public record Event(
     int Identifier,
     string Name,

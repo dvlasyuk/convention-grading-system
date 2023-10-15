@@ -16,22 +16,20 @@ public class LoginModel : PageModel
 {
     private readonly SecurityConfiguration _configuration;
 
-    public LoginModel([NotNull] IOptionsSnapshot<SecurityConfiguration> configuration)
-    {
+    public LoginModel([NotNull] IOptionsSnapshot<SecurityConfiguration> configuration) =>
         _configuration = configuration.Value;
-    }
 
     [BindProperty]
     public FormModel FormModel { get; set; }
 
-    public async Task<IActionResult> OnPost(string returnUrl)
+    public async Task<IActionResult> OnPost(Uri returnUrl)
     {
         string user;
-        if (string.Equals(FormModel.Secret, _configuration.AdministratorSecret))
+        if (string.Equals(FormModel.Secret, _configuration.AdministratorSecret, StringComparison.Ordinal))
         {
             user = "Adminstrator";
         }
-        else if (string.Equals(FormModel.Secret, _configuration.OrganizerSecret))
+        else if (string.Equals(FormModel.Secret, _configuration.OrganizerSecret, StringComparison.Ordinal))
         {
             user = "Organizer";
         }
@@ -50,8 +48,6 @@ public class LoginModel : PageModel
                 },
                 authenticationType: CookieAuthenticationDefaults.AuthenticationScheme)));
 
-        return Redirect(string.IsNullOrEmpty(returnUrl)
-            ? "/Index"
-            : returnUrl);
+        return Redirect(returnUrl?.ToString() ?? "/Index");
     }
 }

@@ -7,6 +7,17 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <PropertyGroup>
+    <WarningLevel>5</WarningLevel>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors></WarningsNotAsErrors>
+    <NoWarn>CS1573,CS1591,CS1712,CA2007</NoWarn>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <AnalysisMode>All</AnalysisMode>
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup>
     <VersionPrefix>0.1.0</VersionPrefix>
     <Copyright>© Dmitriy Vlasyuk</Copyright>
   </PropertyGroup>
@@ -16,5 +27,10 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="7.0.5" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Remove="*.db" />
+    <None Remove="*.db-shm" />
+    <None Remove="*.db-wal" />
   </ItemGroup>
 </Project>
