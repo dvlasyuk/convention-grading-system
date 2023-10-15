@@ -47,7 +47,7 @@ public static class Program
         application.UseRouting();
         application.UseAuthentication();
         application.UseAuthorization();
-        application.UseEndpoints(endpoints => endpoints.MapRazorPages());
+        application.MapRazorPages();
 
         application.Run();
     }
