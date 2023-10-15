@@ -2,8 +2,8 @@ namespace ConventionGradingSystem.Configuration.Participants;
 
 public class Participant
 {
-    public string Identifier { get; set; }
-    public string Name { get; set; }
-    public string Brigade { get; set; }
-    public string Team { get; set; }
+    public string Identifier { get; set; } = string.Empty;
+    public string Name { get; set; } = "Неизвестное имя";
+    public string Brigade { get; set; } = "Неизвестный отряд";
+    public string Team { get; set; } = "Неизвестная команда";
 }

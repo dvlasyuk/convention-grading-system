@@ -20,10 +20,15 @@ public class LoginModel : PageModel
         _configuration = configuration.Value;
 
     [BindProperty]
-    public FormModel FormModel { get; set; }
+    public FormModel? FormModel { get; set; }
 
     public async Task<IActionResult> OnPost(Uri returnUrl)
     {
+        if (FormModel == null)
+        {
+            throw new InvalidOperationException("Модель формы должна быть заполнена при выполнении POST-запроса");
+        }
+
         string user;
         if (string.Equals(FormModel.Secret, _configuration.AdministratorSecret, StringComparison.Ordinal))
         {

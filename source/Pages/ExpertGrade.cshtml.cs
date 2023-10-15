@@ -31,7 +31,7 @@ public class ExpertGradeModel : PageModel
         GradeTypes: new List<GradeType>());
 
     [BindProperty]
-    public FormModel FormModel { get; set; }
+    public FormModel? FormModel { get; set; }
 
     public void OnGet(int eventTypeId, int eventId)
     {
@@ -76,6 +76,10 @@ public class ExpertGradeModel : PageModel
         if (FormState == FormState.PreviouslyGraded)
         {
             return;
+        }
+        if (FormModel == null)
+        {
+            throw new InvalidOperationException("Модель формы должна быть заполнена при выполнении POST-запроса");
         }
 
         foreach (var item in FormModel.Grades)

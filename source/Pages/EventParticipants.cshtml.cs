@@ -33,13 +33,18 @@ public class EventParticipantsModel : PageModel
         Participants: new List<Participant>());
 
     [BindProperty]
-    public FormModel FormModel { get; set; }
+    public FormModel? FormModel { get; set; }
 
     public async Task OnGetAsync(int eventTypeId, int eventId) =>
         await InitializeModel(eventTypeId, eventId);
 
     public async Task OnPostAsync(int eventTypeId, int eventId)
     {
+        if (FormModel == null)
+        {
+            throw new InvalidOperationException("Модель формы должна быть заполнена при выполнении POST-запроса");
+        }
+
         var participationMarks = await _databaseContext.ParticipationMarks
             .Where(item => item.EventTypeId == eventTypeId)
             .Where(item => item.EventId == eventId)
@@ -120,7 +125,7 @@ public class EventParticipantsModel : PageModel
         {
             Participants = @event.Participants
                 .Select(identifier => _configuration.Participants
-                    .FirstOrDefault(participant => participant.Identifier == identifier))
+                    .First(participant => participant.Identifier == identifier))
                 .Select(participant => new Participant(
                     Identifier: participant.Identifier,
                     Name: participant.Name,

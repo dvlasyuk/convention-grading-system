@@ -8,6 +8,6 @@ public record ViewModel(
 public record GradeType(
     int Identifier,
     string Name,
-    string Description,
+    string? Description,
     int MinimalGrade,
     int MaximalGrade);

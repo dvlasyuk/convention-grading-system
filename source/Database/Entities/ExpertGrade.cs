@@ -6,8 +6,8 @@ namespace ConventionGradingSystem.Database.Entities;
 public class ExpertGrade
 {
     public int Identifier { get; set; }
-    public int EventTypeId { get; set; }
-    public int EventId { get; set; }
-    public int GradeTypeId { get; set; }
-    public int GradeValue { get; set; }
+    public required int EventTypeId { get; set; }
+    public required int EventId { get; set; }
+    public required int GradeTypeId { get; set; }
+    public required int GradeValue { get; set; }
 }
