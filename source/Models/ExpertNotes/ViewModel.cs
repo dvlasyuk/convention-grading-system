@@ -1,7 +1,7 @@
 namespace ConventionGradingSystem.Models.ExpertNotes;
 
 public record ViewModel(
-    string EventTypeName,
+    string ContestName,
     string EventName,
     IReadOnlyCollection<Note> Notes);
 

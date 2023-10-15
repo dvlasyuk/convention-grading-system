@@ -1,9 +1,6 @@
-using System.Diagnostics.CodeAnalysis;
+namespace ConventionGradingSystem.Configuration.Contests;
 
-namespace ConventionGradingSystem.Configuration.Events;
-
-[SuppressMessage("Naming", "CA1716:Identifiers should not match keywords")]
-public class Event
+public class ContestEvent
 {
     public int Identifier { get; set; } = int.MinValue;
     public string Name { get; set; } = "Неизвестное мероприятие";

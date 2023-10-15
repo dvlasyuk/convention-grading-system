@@ -8,16 +8,16 @@
 
 <table>
 
-    <caption>Категории мероприятий</caption>
+    <caption>Конкурсы мероприятий</caption>
 
     <tr>
         <th>#</th>
-        <th>Название типа мероприятия</th>
+        <th>Название конкурса</th>
         <th>Количество мероприятий</th>
-        <th>Ссылка на страницу категории</th>
+        <th>Ссылка на страницу конкурса</th>
     </tr>
 
-	@foreach (var item in Model.ViewModel.EventTypes)
+	@foreach (var item in Model.ViewModel.Contests)
     {
         <tr>
             <td>@item.Identifier</td>

@@ -1,18 +1,15 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace ConventionGradingSystem.Models.EventsList;
 
 public record ViewModel(
-    int EventTypeId,
-    string EventTypeName,
-    IReadOnlyCollection<GradeType> ExpertGradeTypes,
-    IReadOnlyCollection<GradeType> ParticipantGradeTypes,
-    IReadOnlyCollection<Event> Events);
+    int ContestId,
+    string ContestName,
+    IReadOnlyCollection<GradeCriterion> ExpertCriterions,
+    IReadOnlyCollection<GradeCriterion> ParticipantCriterions,
+    IReadOnlyCollection<ContestEvent> Events);
 
-public record GradeType(int Identifier, string Name);
+public record GradeCriterion(int Identifier, string Name);
 
-[SuppressMessage("Naming", "CA1716:Identifiers should not match keywords")]
-public record Event(
+public record ContestEvent(
     int Identifier,
     string Name,
     int ExprertGradesQuantity,

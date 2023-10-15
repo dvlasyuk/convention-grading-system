@@ -27,30 +27,30 @@ public class ExpertNotesModel : PageModel
     }
 
     public ViewModel ViewModel { get; set; } = new ViewModel(
-        EventTypeName: "Неизвестная категория",
+        ContestName: "Неизвестный конкурс",
         EventName: "Неизвестное мероприятие",
         Notes: new List<Note>());
 
-    public async Task OnGetAsync(int eventTypeId, int eventId)
+    public async Task OnGetAsync(int contestId, int eventId)
     {
-        var eventType = _configuration.EventTypes.FirstOrDefault(item => item.Identifier == eventTypeId);
+        var eventType = _configuration.Contests.FirstOrDefault(item => item.Identifier == contestId);
         if (eventType == null)
         {
             return;
         }
 
-        ViewModel = ViewModel with { EventTypeName = eventType.Name };
+        ViewModel = ViewModel with { ContestName = eventType.Name };
 
-        var @event = eventType.Events.FirstOrDefault(item => item.Identifier == eventId);
-        if (@event == null)
+        var contestEvent = eventType.Events.FirstOrDefault(item => item.Identifier == eventId);
+        if (contestEvent == null)
         {
             return;
         }
 
-        ViewModel = ViewModel with { EventName = @event.Name };
+        ViewModel = ViewModel with { EventName = contestEvent.Name };
 
         var notes = await _databaseContext.ExpertNotes
-            .Where(item => item.EventTypeId == eventTypeId)
+            .Where(item => item.ContestId == contestId)
             .Where(item => item.EventId == eventId)
             .ToListAsync();
 

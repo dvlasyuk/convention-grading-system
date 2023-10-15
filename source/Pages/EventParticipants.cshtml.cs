@@ -28,17 +28,17 @@ public class EventParticipantsModel : PageModel
     }
 
     public ViewModel ViewModel { get; private set; } = new ViewModel(
-        EventTypeName: "Неизвестная категория",
+        ContestName: "Неизвестный конкурс",
         EventName: "Неизвестное мероприятие",
         Participants: new List<Participant>());
 
     [BindProperty]
     public FormModel? FormModel { get; set; }
 
-    public async Task OnGetAsync(int eventTypeId, int eventId) =>
-        await InitializeModel(eventTypeId, eventId);
+    public async Task OnGetAsync(int contestId, int eventId) =>
+        await InitializeModel(contestId, eventId);
 
-    public async Task OnPostAsync(int eventTypeId, int eventId)
+    public async Task OnPostAsync(int contestId, int eventId)
     {
         if (FormModel == null)
         {
@@ -46,7 +46,7 @@ public class EventParticipantsModel : PageModel
         }
 
         var participationMarks = await _databaseContext.ParticipationMarks
-            .Where(item => item.EventTypeId == eventTypeId)
+            .Where(item => item.ContestId == contestId)
             .Where(item => item.EventId == eventId)
             .ToListAsync();
 
@@ -56,7 +56,7 @@ public class EventParticipantsModel : PageModel
             .Select(participantId => new ParticipationMark
             {
                 ParticipantId = participantId,
-                EventTypeId = eventTypeId,
+                ContestId = contestId,
                 EventId = eventId
             })
             .ToList());
@@ -67,7 +67,7 @@ public class EventParticipantsModel : PageModel
             .ToList());
 
         var specialMarks = await _databaseContext.SpecialMarks
-            .Where(item => item.EventTypeId == eventTypeId)
+            .Where(item => item.ContestId == contestId)
             .Where(item => item.EventId == eventId)
             .ToListAsync();
 
@@ -77,7 +77,7 @@ public class EventParticipantsModel : PageModel
             .Select(participantId => new SpecialMark
             {
                 ParticipantId = participantId,
-                EventTypeId = eventTypeId,
+                ContestId = contestId,
                 EventId = eventId
             })
             .ToList());
@@ -88,42 +88,42 @@ public class EventParticipantsModel : PageModel
             .ToList());
 
         await _databaseContext.SaveChangesAsync();
-        await InitializeModel(eventTypeId, eventId);
+        await InitializeModel(contestId, eventId);
     }
 
-    private async Task InitializeModel(int eventTypeId, int eventId)
+    private async Task InitializeModel(int contestId, int eventId)
     {
-        var eventType = _configuration.EventTypes.FirstOrDefault(item => item.Identifier == eventTypeId);
-        if (eventType == null)
+        var contest = _configuration.Contests.FirstOrDefault(item => item.Identifier == contestId);
+        if (contest == null)
         {
             return;
         }
 
-        ViewModel = ViewModel with { EventTypeName = eventType.Name };
+        ViewModel = ViewModel with { ContestName = contest.Name };
 
-        var @event = eventType.Events.FirstOrDefault(item => item.Identifier == eventId);
-        if (@event == null)
+        var contestEvent = contest.Events.FirstOrDefault(item => item.Identifier == eventId);
+        if (contestEvent == null)
         {
             return;
         }
 
-        ViewModel = ViewModel with { EventName = @event.Name };
+        ViewModel = ViewModel with { EventName = contestEvent.Name };
 
         var participationMarks = await _databaseContext.ParticipationMarks
-            .Where(item => item.EventTypeId == eventTypeId)
+            .Where(item => item.ContestId == contestId)
             .Where(item => item.EventId == eventId)
             .Select(item => item.ParticipantId)
             .ToListAsync();
 
         var specialMarks = await _databaseContext.SpecialMarks
-            .Where(item => item.EventTypeId == eventTypeId)
+            .Where(item => item.ContestId == contestId)
             .Where(item => item.EventId == eventId)
             .Select(item => item.ParticipantId)
             .ToListAsync();
 
         ViewModel = ViewModel with
         {
-            Participants = @event.Participants
+            Participants = contestEvent.Participants
                 .Select(identifier => _configuration.Participants
                     .First(participant => participant.Identifier == identifier))
                 .Select(participant => new Participant(

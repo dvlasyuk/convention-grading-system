@@ -1,4 +1,4 @@
-@page "{eventTypeId}/{eventId}"
+@page "{contestId}/{eventId}"
 @model ConventionGradingSystem.Pages.ExpertGradeModel
 @using ConventionGradingSystem.Models.ExpertGrade
 
@@ -16,30 +16,30 @@
 	case FormState.NotGraded:
 
         <label class="name">Приветствуем тебя, эксперт! Оцени, пожалуйста, мероприятие, в котором принял участие</label>
-        <label class="description">Категория мероприятия: @Model.ViewModel.EventTypeName</label>
+        <label class="description">Название конкурса: @Model.ViewModel.ContestName</label>
         <label class="description">Название мероприятия: @Model.ViewModel.EventName</label>
 
         <form method="post">
-            @for (var number = 0; number < Model.ViewModel.GradeTypes.Count; number++)
+            @for (var number = 0; number < Model.ViewModel.Criterions.Count; number++)
             {
                 <div class="grade">
-                    <label class="name" for="FormModel.Grades[@number].GradeValue">@Model.ViewModel.GradeTypes[number].Name</label>
-					<label class="description" for="FormModel.Grades[@number].GradeValue">@Model.ViewModel.GradeTypes[number].Description</label>
+					<label class="name" for="FormModel.Grades[@number].GradeValue">@Model.ViewModel.Criterions[number].Name</label>
+					<label class="description" for="FormModel.Grades[@number].GradeValue">@Model.ViewModel.Criterions[number].Description</label>
 
                     <input type="hidden"
-						   id="FormModel.Grades[@number].GradeTypeId"
-						   name="FormModel.Grades[@number].GradeTypeId"
-                           value="@Model.ViewModel.GradeTypes[number].Identifier" />
+						   id="FormModel.Grades[@number].CriterionId"
+						   name="FormModel.Grades[@number].CriterionId"
+						   value="@Model.ViewModel.Criterions[number].Identifier" />
 
                     <input type="range"
 						   id="FormModel.Grades[@number].GradeValue"
 						   name="FormModel.Grades[@number].GradeValue"
-                           min="@Model.ViewModel.GradeTypes[number].MinimalGrade"
-                           max="@Model.ViewModel.GradeTypes[number].MaximalGrade"
-                           value="@Model.ViewModel.GradeTypes[number].MaximalGrade"
+						   min="@Model.ViewModel.Criterions[number].MinimalGrade"
+						   max="@Model.ViewModel.Criterions[number].MaximalGrade"
+						   value="@Model.ViewModel.Criterions[number].MaximalGrade"
                            oninput="this.nextElementSibling.value = this.value"/>
 
-					<output for="FormModel.Grades[@number].GradeValue">@Model.ViewModel.GradeTypes[number].MaximalGrade</output>
+					<output for="FormModel.Grades[@number].GradeValue">@Model.ViewModel.Criterions[number].MaximalGrade</output>
                 </div>
             }
 

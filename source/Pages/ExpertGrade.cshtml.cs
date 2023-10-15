@@ -26,27 +26,27 @@ public class ExpertGradeModel : PageModel
 
     public FormState FormState { get; private set; } = FormState.NotExisted;
     public ViewModel ViewModel { get; private set; } = new ViewModel(
-        EventTypeName: "Неизвестная категория",
+        ContestName: "Неизвестный конкурс",
         EventName: "Неизвестное мероприятие",
-        GradeTypes: new List<GradeType>());
+        Criterions: new List<GradeCriterion>());
 
     [BindProperty]
     public FormModel? FormModel { get; set; }
 
-    public void OnGet(int eventTypeId, int eventId)
+    public void OnGet(int contestId, int eventId)
     {
-        var eventType = _configuration.EventTypes.FirstOrDefault(item => item.Identifier == eventTypeId);
-        if (eventType == null)
+        var contest = _configuration.Contests.FirstOrDefault(item => item.Identifier == contestId);
+        if (contest == null)
         {
             return;
         }
 
         ViewModel = ViewModel with
         {
-            EventTypeName = eventType.Name,
-            GradeTypes = eventType.ExpertGrades
+            ContestName = contest.Name,
+            Criterions = contest.ExpertCriterions
                 .OrderBy(item => item.Identifier)
-                .Select(item => new GradeType(
+                .Select(item => new GradeCriterion(
                     Identifier: item.Identifier,
                     Name: item.Name,
                     Description: item.Description,
@@ -55,21 +55,21 @@ public class ExpertGradeModel : PageModel
                 .ToList()
         };
 
-        var @event = eventType.Events.FirstOrDefault(item => item.Identifier == eventId);
-        if (@event == null)
+        var contestEvent = contest.Events.FirstOrDefault(item => item.Identifier == eventId);
+        if (contestEvent == null)
         {
             return;
         }
 
-        ViewModel = ViewModel with { EventName = @event.Name };
-        FormState = Request.Cookies.Any(item => item.Key == GetCookieName(eventTypeId, eventId))
+        ViewModel = ViewModel with { EventName = contestEvent.Name };
+        FormState = Request.Cookies.Any(item => item.Key == GetCookieName(contestId, eventId))
             ? FormState.PreviouslyGraded
             : FormState.NotGraded;
     }
 
-    public async Task OnPostAsync(int eventTypeId, int eventId)
+    public async Task OnPostAsync(int contestId, int eventId)
     {
-        FormState = Request.Cookies.Any(item => item.Key == GetCookieName(eventTypeId, eventId))
+        FormState = Request.Cookies.Any(item => item.Key == GetCookieName(contestId, eventId))
             ? FormState.PreviouslyGraded
             : FormState.JustGraded;
 
@@ -86,9 +86,9 @@ public class ExpertGradeModel : PageModel
         {
             _databaseContext.ExpertGrades.Add(new ExpertGrade
             {
-                EventTypeId = eventTypeId,
+                ContestId = contestId,
                 EventId = eventId,
-                GradeTypeId = item.GradeTypeId,
+                CriterionId = item.CriterionId,
                 GradeValue = item.GradeValue
             });
         }
@@ -97,7 +97,7 @@ public class ExpertGradeModel : PageModel
         {
             _databaseContext.ExpertNotes.Add(new ExpertNote
             {
-                EventTypeId = eventTypeId,
+                ContestId = contestId,
                 EventId = eventId,
                 Note = FormModel.Note
             });
@@ -106,7 +106,7 @@ public class ExpertGradeModel : PageModel
         await _databaseContext.SaveChangesAsync();
 
         Response.Cookies.Append(
-            key: GetCookieName(eventTypeId, eventId),
+            key: GetCookieName(contestId, eventId),
             value: "Мероприятие оценено",
             options: new CookieOptions
             {
@@ -114,6 +114,6 @@ public class ExpertGradeModel : PageModel
             });
     }
 
-    private static string GetCookieName(int eventTypeId, int eventId) =>
-        $"ExpertGrade-{eventTypeId}-{eventId}";
+    private static string GetCookieName(int contestId, int eventId) =>
+        $"ExpertGrade-{contestId}-{eventId}";
 }

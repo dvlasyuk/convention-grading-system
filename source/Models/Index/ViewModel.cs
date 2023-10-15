@@ -1,10 +1,10 @@
 namespace ConventionGradingSystem.Models.Index;
 
 public record ViewModel(
-    IReadOnlyCollection<EventType> EventTypes,
+    IReadOnlyCollection<Contest> Contests,
     IReadOnlyCollection<Team> Teams);
 
-public record EventType(
+public record Contest(
     int Identifier,
     string Name,
     int EventsQuantity);

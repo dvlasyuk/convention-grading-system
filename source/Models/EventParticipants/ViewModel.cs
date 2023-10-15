@@ -1,7 +1,7 @@
 namespace ConventionGradingSystem.Models.EventParticipants;
 
 public record ViewModel(
-    string EventTypeName,
+    string ContestName,
     string EventName,
     IReadOnlyCollection<Participant> Participants);
 

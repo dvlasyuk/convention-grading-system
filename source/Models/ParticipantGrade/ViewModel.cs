@@ -1,11 +1,11 @@
 namespace ConventionGradingSystem.Models.ParticipantGrade;
 
 public record ViewModel(
-    string EventTypeName,
+    string ContestName,
     string EventName,
-    IReadOnlyList<GradeType> GradeTypes);
+    IReadOnlyList<GradeCriterion> Criterions);
 
-public record GradeType(
+public record GradeCriterion(
     int Identifier,
     string Name,
     string? Description,

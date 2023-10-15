@@ -1,6 +1,6 @@
-namespace ConventionGradingSystem.Configuration.Events;
+namespace ConventionGradingSystem.Configuration.Contests;
 
-public class GradeType
+public class GradeCriterion
 {
     public int Identifier { get; set; } = int.MinValue;
     public string Name { get; set; } = "Неизвестный критерий";

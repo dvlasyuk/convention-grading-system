@@ -1,4 +1,4 @@
-@page "{eventTypeId}/{eventId}"
+@page "{contestId}/{eventId}"
 @model ConventionGradingSystem.Pages.EventParticipantsModel
 
 @{
@@ -7,7 +7,7 @@
 }
 
 <label class="name">Приветствуем тебя, проводящий! Оцени, пожалуйста, участников мероприятия, которое провёл</label>
-<label class="description">Категория мероприятия: @Model.ViewModel.EventTypeName</label>
+<label class="description">Название конкурса: @Model.ViewModel.ContestName</label>
 <label class="description">Название мероприятия: @Model.ViewModel.EventName</label>
 
 <form method="post">

@@ -26,23 +26,23 @@ public class IndexModel : PageModel
     }
 
     public ViewModel ViewModel { get; private set; } = new ViewModel(
-        EventTypes: new List<EventType>(),
+        Contests: new List<Contest>(),
         Teams: new List<Team>());
 
     public async Task OnGetAsync()
     {
         ViewModel = ViewModel with
         {
-            EventTypes = _configuration.EventTypes
+            Contests = _configuration.Contests
                 .OrderBy(item => item.Identifier)
-                .Select(item => new EventType(
+                .Select(item => new Contest(
                     Identifier: item.Identifier,
                     Name: item.Name,
                     EventsQuantity: item.Events.Count))
                 .ToList()
         };
 
-        var eventParticipants = _configuration.EventTypes
+        var eventParticipants = _configuration.Contests
             .SelectMany(item => item.Events)
             .SelectMany(item => item.Participants)
             .ToList();

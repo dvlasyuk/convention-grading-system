@@ -1,4 +1,4 @@
-@page "{eventTypeId}/{eventId}"
+@page "{contestId}/{eventId}"
 @model ConventionGradingSystem.Pages.ParticipantNotesModel
 
 @{
@@ -8,7 +8,7 @@
 
 <table>
 
-	<caption>Комментарии участников к мероприятию "@Model.ViewModel.EventName" категории "@Model.ViewModel.EventTypeName"</caption>
+	<caption>Комментарии участников к мероприятию "@Model.ViewModel.EventName" в рамках конкурса "@Model.ViewModel.ContestName"</caption>
 
     <tr>
         <th>#</th>
