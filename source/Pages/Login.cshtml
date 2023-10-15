@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model ConventionGradingSystem.Pages.LoginModel
 
 @{
@@ -9,7 +9,7 @@
 <label class="name">Приветствуем тебя, важный пирожочек! Подтверди, пожалуйста, что у тебя есть доступ к этой странице</label>
 
 <form method="post">
-    <label class="description" for="Secret">Введи, пожалуйста, секретную фразу</label>
-    <input type="password" id="Secret" name="Secret"/>
+	<label class="description" for="FormModel.Secret">Введи, пожалуйста, секретную фразу</label>
+	<input type="password" id="FormModel.Secret" name="FormModel.Secret" />
     <input type="submit" value="Подтвердить доступ" />
 </form>

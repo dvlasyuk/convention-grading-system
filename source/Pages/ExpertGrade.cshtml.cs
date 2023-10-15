@@ -24,19 +24,14 @@ public class ExpertGradeModel : PageModel
         _databaseContext = databaseContext;
     }
 
-    public GradeState GradeState { get; set; } = GradeState.NotExisted;
-    public Event Event { get; set; } = new Event
-    {
-        EventTypeName = "Неизвестная категория",
-        EventName = "Неизвестное мероприятие",
-        GradeTypes = new List<GradeType>()
-    };
+    public FormState FormState { get; private set; } = FormState.NotExisted;
+    public ViewModel ViewModel { get; private set; } = new ViewModel(
+        EventTypeName: "Неизвестная категория",
+        EventName: "Неизвестное мероприятие",
+        GradeTypes: new List<GradeType>());
 
     [BindProperty]
-    public List<Grade> Grades { get; set; }
-
-    [BindProperty]
-    public string Note { get; set; }
+    public FormModel FormModel { get; set; }
 
     public void OnGet(int eventTypeId, int eventId)
     {
@@ -46,18 +41,19 @@ public class ExpertGradeModel : PageModel
             return;
         }
 
-        Event.EventTypeName = eventType.Name;
-        Event.GradeTypes = eventType.ExpertGrades
-            .OrderBy(item => item.Identifier)
-            .Select(item => new GradeType
-            {
-                Identifier = item.Identifier,
-                Name = item.Name,
-                Description = item.Description,
-                MinimalGrage = item.MinimalGrage,
-                MaximalGrage = item.MaximalGrage
-            })
-            .ToList();
+        ViewModel = ViewModel with
+        {
+            EventTypeName = eventType.Name,
+            GradeTypes = eventType.ExpertGrades
+                .OrderBy(item => item.Identifier)
+                .Select(item => new GradeType(
+                    Identifier: item.Identifier,
+                    Name: item.Name,
+                    Description: item.Description,
+                    MinimalGrage: item.MinimalGrage,
+                    MaximalGrage: item.MaximalGrage))
+                .ToList()
+        };
 
         var @event = eventType.Events.FirstOrDefault(item => item.Identifier == eventId);
         if (@event == null)
@@ -65,24 +61,24 @@ public class ExpertGradeModel : PageModel
             return;
         }
 
-        Event.EventName = @event.Name;
-        GradeState = Request.Cookies.Any(item => item.Key == GetCookieName(eventTypeId, eventId))
-            ? GradeState.PreviouslyGraded
-            : GradeState.NotGraded;
+        ViewModel = ViewModel with { EventName = @event.Name };
+        FormState = Request.Cookies.Any(item => item.Key == GetCookieName(eventTypeId, eventId))
+            ? FormState.PreviouslyGraded
+            : FormState.NotGraded;
     }
 
     public async Task OnPostAsync(int eventTypeId, int eventId)
     {
-        GradeState = Request.Cookies.Any(item => item.Key == GetCookieName(eventTypeId, eventId))
-            ? GradeState.PreviouslyGraded
-            : GradeState.JustGraded;
+        FormState = Request.Cookies.Any(item => item.Key == GetCookieName(eventTypeId, eventId))
+            ? FormState.PreviouslyGraded
+            : FormState.JustGraded;
 
-        if (GradeState == GradeState.PreviouslyGraded)
+        if (FormState == FormState.PreviouslyGraded)
         {
             return;
         }
 
-        foreach (var item in Grades)
+        foreach (var item in FormModel.Grades)
         {
             _databaseContext.ExpertGrades.Add(new ExpertGrade
             {
@@ -93,13 +89,13 @@ public class ExpertGradeModel : PageModel
             });
         }
 
-        if (!string.IsNullOrWhiteSpace(Note))
+        if (!string.IsNullOrWhiteSpace(FormModel.Note))
         {
             _databaseContext.ExpertNotes.Add(new ExpertNote
             {
                 EventTypeId = eventTypeId,
                 EventId = eventId,
-                Note = Note
+                Note = FormModel.Note
             });
         }
 
@@ -114,8 +110,6 @@ public class ExpertGradeModel : PageModel
             });
     }
 
-    private static string GetCookieName(int eventTypeId, int eventId)
-    {
-        return $"ExpertGrade-{eventTypeId}-{eventId}";
-    }
+    private static string GetCookieName(int eventTypeId, int eventId) =>
+        $"ExpertGrade-{eventTypeId}-{eventId}";
 }

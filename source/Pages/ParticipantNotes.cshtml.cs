@@ -25,13 +25,10 @@ public class ParticipantNotesModel : PageModel
         _databaseContext = databaseContext;
     }
 
-    public Event Event { get; set; } = new Event
-    {
-        EventTypeName = "Неизвестная категория",
-        EventName = "Неизвестное мероприятие"
-    };
-
-    public List<Note> Notes { get; set; } = new List<Note>();
+    public ViewModel ViewModel { get; private set; } = new ViewModel(
+        EventTypeName: "Неизвестная категория",
+        EventName: "Неизвестное мероприятие",
+        Notes: new List<Note>());
 
     public async Task OnGetAsync(int eventTypeId, int eventId)
     {
@@ -41,7 +38,7 @@ public class ParticipantNotesModel : PageModel
             return;
         }
 
-        Event.EventTypeName = eventType.Name;
+        ViewModel = ViewModel with { EventTypeName = eventType.Name };
 
         var @event = eventType.Events.FirstOrDefault(item => item.Identifier == eventId);
         if (@event == null)
@@ -49,20 +46,21 @@ public class ParticipantNotesModel : PageModel
             return;
         }
 
-        Event.EventName = @event.Name;
+        ViewModel = ViewModel with { EventName = @event.Name };
 
         var notes = await _databaseContext.ParticipantNotes
             .Where(item => item.EventTypeId == eventTypeId)
             .Where(item => item.EventId == eventId)
             .ToListAsync();
 
-        Notes = notes
-            .OrderBy(item => item.Identifier)
-            .Select(item => new Note
-            {
-                Identifier = item.Identifier,
-                Content = item.Note
-            })
-            .ToList();
+        ViewModel = ViewModel with
+        {
+            Notes = notes
+                .OrderBy(item => item.Identifier)
+                .Select(item => new Note(
+                    Identifier: item.Identifier,
+                    Content: item.Note))
+                .ToList()
+        };
     }
 }

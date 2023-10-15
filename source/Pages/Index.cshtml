@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model ConventionGradingSystem.Pages.IndexModel
 
 @{
@@ -17,7 +17,7 @@
         <th>Ссылка на страницу категории</th>
     </tr>
 
-    @foreach (var item in Model.EventTypes)
+	@foreach (var item in Model.ViewModel.EventTypes)
     {
         <tr>
             <td>@item.Identifier</td>
@@ -44,7 +44,7 @@
         <th>Особые отметки</th>
     </tr>
 
-    @foreach (var item in Model.Teams)
+	@foreach (var item in Model.ViewModel.Teams)
     {
         <tr>
             <td>@item.Name</td>

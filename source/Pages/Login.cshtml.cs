@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 
 using ConventionGradingSystem.Configuration;
+using ConventionGradingSystem.Models.Login;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -21,16 +22,16 @@ public class LoginModel : PageModel
     }
 
     [BindProperty]
-    public string Secret { get; set; }
+    public FormModel FormModel { get; set; }
 
     public async Task<IActionResult> OnPost(string returnUrl)
     {
         string user;
-        if (string.Equals(Secret, _configuration.AdministratorSecret))
+        if (string.Equals(FormModel.Secret, _configuration.AdministratorSecret))
         {
             user = "Adminstrator";
         }
-        else if (string.Equals(Secret, _configuration.OrganizerSecret))
+        else if (string.Equals(FormModel.Secret, _configuration.OrganizerSecret))
         {
             user = "Organizer";
         }
@@ -49,7 +50,7 @@ public class LoginModel : PageModel
                 },
                 authenticationType: CookieAuthenticationDefaults.AuthenticationScheme)));
 
-        return Redirect(string.IsNullOrEmpty(returnUrl) 
+        return Redirect(string.IsNullOrEmpty(returnUrl)
             ? "/Index"
             : returnUrl);
     }

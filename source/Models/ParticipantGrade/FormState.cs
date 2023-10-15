@@ -1,6 +1,6 @@
 namespace ConventionGradingSystem.Models.ParticipantGrade;
 
-public enum GradeState
+public enum FormState
 {
     NotExisted,
     NotGraded,

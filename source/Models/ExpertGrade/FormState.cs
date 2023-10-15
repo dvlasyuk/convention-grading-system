@@ -1,6 +1,6 @@
 namespace ConventionGradingSystem.Models.ExpertGrade;
 
-public enum GradeState
+public enum FormState
 {
     NotExisted,
     NotGraded,

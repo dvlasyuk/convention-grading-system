@@ -24,19 +24,14 @@ public class ParticipantGradeModel : PageModel
         _databaseContext = databaseContext;
     }
 
-    public GradeState GradeState { get; set; } = GradeState.NotExisted;
-    public Event Event { get; set; } = new Event
-    {
-        EventTypeName = "Неизвестная категория",
-        EventName = "Неизвестное мероприятие",
-        GradeTypes = new List<GradeType>()
-    };
+    public FormState FormState { get; private set; } = FormState.NotExisted;
+    public ViewModel ViewModel { get; private set; } = new ViewModel(
+        EventTypeName: "Неизвестная категория",
+        EventName: "Неизвестное мероприятие",
+        GradeTypes: new List<GradeType>());
 
     [BindProperty]
-    public List<Grade> Grades { get; set; }
-
-    [BindProperty]
-    public string Note { get; set; }
+    public FormModel FormModel { get; set; }
 
     public void OnGet(int eventTypeId, int eventId)
     {
@@ -46,18 +41,19 @@ public class ParticipantGradeModel : PageModel
             return;
         }
 
-        Event.EventTypeName = eventType.Name;
-        Event.GradeTypes = eventType.ParticipantGrades
-            .OrderBy(item => item.Identifier)
-            .Select(item => new GradeType
-            {
-                Identifier = item.Identifier,
-                Name = item.Name,
-                Description = item.Description,
-                MinimalGrage = item.MinimalGrage,
-                MaximalGrage = item.MaximalGrage
-            })
-            .ToList();
+        ViewModel = ViewModel with
+        {
+            EventTypeName = eventType.Name,
+            GradeTypes = eventType.ParticipantGrades
+                .OrderBy(item => item.Identifier)
+                .Select(item => new GradeType(
+                    Identifier: item.Identifier,
+                    Name: item.Name,
+                    Description: item.Description,
+                    MinimalGrage: item.MinimalGrage,
+                    MaximalGrage: item.MaximalGrage))
+                .ToList()
+        };
 
         var @event = eventType.Events.FirstOrDefault(item => item.Identifier == eventId);
         if (@event == null)
@@ -65,24 +61,24 @@ public class ParticipantGradeModel : PageModel
             return;
         }
 
-        Event.EventName = @event.Name;
-        GradeState = Request.Cookies.Any(item => item.Key == GetCookieName(eventTypeId))
-            ? GradeState.PreviouslyGraded
-            : GradeState.NotGraded;
+        ViewModel = ViewModel with { EventName = @event.Name };
+        FormState = Request.Cookies.Any(item => item.Key == GetCookieName(eventTypeId))
+            ? FormState.PreviouslyGraded
+            : FormState.NotGraded;
     }
 
     public async Task OnPostAsync(int eventTypeId, int eventId)
     {
-        GradeState = Request.Cookies.Any(item => item.Key == GetCookieName(eventTypeId))
-            ? GradeState.PreviouslyGraded
-            : GradeState.JustGraded;
+        FormState = Request.Cookies.Any(item => item.Key == GetCookieName(eventTypeId))
+            ? FormState.PreviouslyGraded
+            : FormState.JustGraded;
 
-        if (GradeState == GradeState.PreviouslyGraded)
+        if (FormState == FormState.PreviouslyGraded)
         {
             return;
         }
 
-        foreach (var item in Grades)
+        foreach (var item in FormModel.Grades)
         {
             _databaseContext.ParticipantGrades.Add(new ParticipantGrade
             {
@@ -93,13 +89,13 @@ public class ParticipantGradeModel : PageModel
             });
         }
 
-        if (!string.IsNullOrWhiteSpace(Note))
+        if (!string.IsNullOrWhiteSpace(FormModel.Note))
         {
             _databaseContext.ParticipantNotes.Add(new ParticipantNote
             {
                 EventTypeId = eventTypeId,
                 EventId = eventId,
-                Note = Note
+                Note = FormModel.Note
             });
         }
 

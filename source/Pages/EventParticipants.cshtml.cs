@@ -27,24 +27,16 @@ public class EventParticipantsModel : PageModel
         _databaseContext = databaseContext;
     }
 
-    public Event Event { get; set; } = new Event
-    {
-        EventTypeName = "Неизвестная категория",
-        EventName = "Неизвестное мероприятие"
-    };
-
-    public List<Participant> Participants { get; set; } = new List<Participant>();
+    public ViewModel ViewModel { get; private set; } = new ViewModel(
+        EventTypeName: "Неизвестная категория",
+        EventName: "Неизвестное мероприятие",
+        Participants: new List<Participant>());
 
     [BindProperty]
-    public List<string> ParticipationMarks { get; set; }
+    public FormModel FormModel { get; set; }
 
-    [BindProperty]
-    public List<string> SpecialMarks { get; set; }
-
-    public async Task OnGetAsync(int eventTypeId, int eventId)
-    {
+    public async Task OnGetAsync(int eventTypeId, int eventId) =>
         await InitializeModel(eventTypeId, eventId);
-    }
 
     public async Task OnPostAsync(int eventTypeId, int eventId)
     {
@@ -53,7 +45,7 @@ public class EventParticipantsModel : PageModel
             .Where(item => item.EventId == eventId)
             .ToListAsync();
 
-        _databaseContext.ParticipationMarks.AddRange(ParticipationMarks
+        _databaseContext.ParticipationMarks.AddRange(FormModel.ParticipationMarks
             .Where(participantId => !participationMarks
                 .Any(mark => mark.ParticipantId == participantId))
             .Select(participantId => new ParticipationMark
@@ -65,7 +57,7 @@ public class EventParticipantsModel : PageModel
             .ToList());
 
         _databaseContext.ParticipationMarks.RemoveRange(participationMarks
-            .Where(mark => !ParticipationMarks
+            .Where(mark => !FormModel.ParticipationMarks
                 .Any(participantId => participantId == mark.ParticipantId))
             .ToList());
 
@@ -74,7 +66,7 @@ public class EventParticipantsModel : PageModel
             .Where(item => item.EventId == eventId)
             .ToListAsync();
 
-        _databaseContext.SpecialMarks.AddRange(SpecialMarks
+        _databaseContext.SpecialMarks.AddRange(FormModel.SpecialMarks
             .Where(participantId => !specialMarks
                 .Any(mark => mark.ParticipantId == participantId))
             .Select(participantId => new SpecialMark
@@ -86,7 +78,7 @@ public class EventParticipantsModel : PageModel
             .ToList());
 
         _databaseContext.SpecialMarks.RemoveRange(specialMarks
-            .Where(mark => !SpecialMarks
+            .Where(mark => !FormModel.SpecialMarks
                 .Any(participantId => participantId == mark.ParticipantId))
             .ToList());
 
@@ -102,7 +94,7 @@ public class EventParticipantsModel : PageModel
             return;
         }
 
-        Event.EventTypeName = eventType.Name;
+        ViewModel = ViewModel with { EventTypeName = eventType.Name };
 
         var @event = eventType.Events.FirstOrDefault(item => item.Identifier == eventId);
         if (@event == null)
@@ -110,7 +102,7 @@ public class EventParticipantsModel : PageModel
             return;
         }
 
-        Event.EventName = @event.Name;
+        ViewModel = ViewModel with { EventName = @event.Name };
 
         var participationMarks = await _databaseContext.ParticipationMarks
             .Where(item => item.EventTypeId == eventTypeId)
@@ -124,18 +116,19 @@ public class EventParticipantsModel : PageModel
             .Select(item => item.ParticipantId)
             .ToListAsync();
 
-        Participants = @event.Participants
-            .Select(identifier => _configuration.Participants
-                .FirstOrDefault(participant => participant.Identifier == identifier))
-            .Select(participant => new Participant
-            {
-                Identifier = participant.Identifier,
-                Name = participant.Name,
-                Brigade = participant.Brigade,
-                Team = participant.Team,
-                ParticipitionMark = participationMarks.Contains(participant.Identifier),
-                SpecialMark = specialMarks.Contains(participant.Identifier)
-            })
-            .ToList();
+        ViewModel = ViewModel with
+        {
+            Participants = @event.Participants
+                .Select(identifier => _configuration.Participants
+                    .FirstOrDefault(participant => participant.Identifier == identifier))
+                .Select(participant => new Participant(
+                    Identifier: participant.Identifier,
+                    Name: participant.Name,
+                    Brigade: participant.Brigade,
+                    Team: participant.Team,
+                    ParticipitionMark: participationMarks.Contains(participant.Identifier),
+                    SpecialMark: specialMarks.Contains(participant.Identifier)))
+                .ToList()
+        };
     }
 }

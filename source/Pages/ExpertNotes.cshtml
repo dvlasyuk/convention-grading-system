@@ -1,4 +1,4 @@
-﻿@page "{eventTypeId}/{eventId}"
+@page "{eventTypeId}/{eventId}"
 @model ConventionGradingSystem.Pages.ExpertNotesModel
 
 @{
@@ -8,14 +8,14 @@
 
 <table>
 
-    <caption>Комментарии экспертов к мероприятию "@Model.Event.EventName" категории "@Model.Event.EventTypeName"</caption>
+	<caption>Комментарии экспертов к мероприятию "@Model.ViewModel.EventName" категории "@Model.ViewModel.EventTypeName"</caption>
 
     <tr>
         <th>#</th>
         <th>Комментарий</th>
     </tr>
 
-    @foreach (var item in Model.Notes)
+	@foreach (var item in Model.ViewModel.Notes)
     {
         <tr>
             <td>@item.Identifier</td>

@@ -26,14 +26,12 @@ public class EventsListModel : PageModel
         _databaseContext = databaseContext;
     }
 
-    public EventType EventType { get; set; } = new EventType
-    {
-        Name = "Неизвестная категория",
-        ExpertGrades = new List<GradeType>(),
-        ParticipantGrades = new List<GradeType>()
-    };
-
-    public List<Event> Events { get; set; } = new List<Event>();
+    public ViewModel ViewModel { get; private set; } = new ViewModel(
+        EventTypeId: default,
+        EventTypeName: "Неизвестная категория",
+        ExpertGradeTypes: new List<GradeType>(),
+        ParticipantGradeTypes: new List<GradeType>(),
+        Events: new List<Event>());
 
     public async Task OnGetAsync(int eventTypeId)
     {
@@ -43,26 +41,23 @@ public class EventsListModel : PageModel
             return;
         }
 
-        EventType.Identifier = eventType.Identifier;
-        EventType.Name = eventType.Name;
-
-        EventType.ExpertGrades = eventType.ExpertGrades
-            .OrderBy(item => item.Identifier)
-            .Select(item => new GradeType
-            {
-                Identifier = item.Identifier,
-                Name = item.Name
-            })
-            .ToList();
-
-        EventType.ParticipantGrades = eventType.ParticipantGrades
-            .OrderBy(item => item.Identifier)
-            .Select(item => new GradeType
-            {
-                Identifier = item.Identifier,
-                Name = item.Name
-            })
-            .ToList();
+        ViewModel = ViewModel with
+        {
+            EventTypeId = eventType.Identifier,
+            EventTypeName = eventType.Name,
+            ExpertGradeTypes = eventType.ExpertGrades
+                .OrderBy(item => item.Identifier)
+                .Select(item => new GradeType(
+                    Identifier: item.Identifier,
+                    Name: item.Name))
+                .ToList(),
+            ParticipantGradeTypes = eventType.ParticipantGrades
+                .OrderBy(item => item.Identifier)
+                .Select(item => new GradeType(
+                    Identifier: item.Identifier,
+                    Name: item.Name))
+                .ToList()
+        };
 
         if (eventType.Events.Count == 0)
         {
@@ -128,55 +123,56 @@ public class EventsListModel : PageModel
                 group => group.Key,
                 group => group.Sum(item => item.Value));
 
-        Events = eventType.Events
-            .OrderBy(eventItem => eventItem.Identifier)
-            .Select(eventItem => new Event
-            {
-                Identifier = eventItem.Identifier,
-                Name = eventItem.Name,
-                ExprertGradesQuantity = eventType.ExpertGrades.Count > 0
-                    ? expertGradeQuantities.TryGetValue(eventItem.Identifier, out var expertGradesQuantity)
-                        ? expertGradesQuantity / eventType.ExpertGrades.Count
-                        : 0
-                    : 0,
-                ParticipantGradesQuantity = eventType.ParticipantGrades.Count > 0
-                    ? participantGradeQuantities.TryGetValue(eventItem.Identifier, out var participantGradesQuantity)
-                        ? participantGradesQuantity / eventType.ParticipantGrades.Count
-                        : 0
-                    : 0,
-                ExpertGrades = eventType.ExpertGrades.Count > 0
-                    ? eventType.ExpertGrades
-                        .OrderBy(gradeItem => gradeItem.Identifier)
-                        .ToDictionary(
-                            gradeItem => gradeItem.Identifier,
-                            gradeItem => expertGradeAverageValues.TryGetValue(eventItem.Identifier, out var expertGrades)
-                                ? expertGrades.TryGetValue(gradeItem.Identifier, out var expertGrade)
-                                    ? expertGrade
-                                    : 0f
-                                : 0f)
-                    : new Dictionary<int, float>(),
-                ParticipantGrades = eventType.ParticipantGrades.Count > 0
-                    ? eventType.ParticipantGrades
-                        .OrderBy(gradeItem => gradeItem.Identifier)
-                        .ToDictionary(
-                            gradeItem => gradeItem.Identifier,
-                            gradeItem => participantGradeAverageValues.TryGetValue(eventItem.Identifier, out var participantGrades)
-                                ? participantGrades.TryGetValue(gradeItem.Identifier, out var participantGrade)
-                                    ? participantGrade
-                                    : 0f
-                                : 0f)
-                    : new Dictionary<int, float>(),
-                TotalExpertGrade = expertGradeTotalValues.TryGetValue(eventItem.Identifier, out var totalExpertGrade)
-                    ? totalExpertGrade
-                    : 0f,
-                TotalParticipantGrade = participantGradeTotalValues.TryGetValue(eventItem.Identifier, out var totalParticipantGrade)
-                    ? totalParticipantGrade
-                    : 0f,
-                TotalGrade = totalGradeValues.TryGetValue(eventItem.Identifier, out var totalGrade)
-                    ? totalGrade
-                    : 0f,
-                WithParticipants = eventItem.Participants.Count > 0
-            })
-            .ToList();
+        ViewModel = ViewModel with
+        {
+            Events = eventType.Events
+                .OrderBy(eventItem => eventItem.Identifier)
+                .Select(eventItem => new Event(
+                    Identifier: eventItem.Identifier,
+                    Name: eventItem.Name,
+                    ExprertGradesQuantity: eventType.ExpertGrades.Count > 0
+                        ? expertGradeQuantities.TryGetValue(eventItem.Identifier, out var expertGradesQuantity)
+                            ? expertGradesQuantity / eventType.ExpertGrades.Count
+                            : 0
+                        : 0,
+                    ParticipantGradesQuantity: eventType.ParticipantGrades.Count > 0
+                        ? participantGradeQuantities.TryGetValue(eventItem.Identifier, out var participantGradesQuantity)
+                            ? participantGradesQuantity / eventType.ParticipantGrades.Count
+                            : 0
+                        : 0,
+                    ExpertGrades: eventType.ExpertGrades.Count > 0
+                        ? eventType.ExpertGrades
+                            .OrderBy(gradeItem => gradeItem.Identifier)
+                            .ToDictionary(
+                                gradeItem => gradeItem.Identifier,
+                                gradeItem => expertGradeAverageValues.TryGetValue(eventItem.Identifier, out var expertGrades)
+                                    ? expertGrades.TryGetValue(gradeItem.Identifier, out var expertGrade)
+                                        ? expertGrade
+                                        : 0f
+                                    : 0f)
+                        : new Dictionary<int, float>(),
+                    ParticipantGrades: eventType.ParticipantGrades.Count > 0
+                        ? eventType.ParticipantGrades
+                            .OrderBy(gradeItem => gradeItem.Identifier)
+                            .ToDictionary(
+                                gradeItem => gradeItem.Identifier,
+                                gradeItem => participantGradeAverageValues.TryGetValue(eventItem.Identifier, out var participantGrades)
+                                    ? participantGrades.TryGetValue(gradeItem.Identifier, out var participantGrade)
+                                        ? participantGrade
+                                        : 0f
+                                    : 0f)
+                        : new Dictionary<int, float>(),
+                    TotalExpertGrade: expertGradeTotalValues.TryGetValue(eventItem.Identifier, out var totalExpertGrade)
+                        ? totalExpertGrade
+                        : 0f,
+                    TotalParticipantGrade: participantGradeTotalValues.TryGetValue(eventItem.Identifier, out var totalParticipantGrade)
+                        ? totalParticipantGrade
+                        : 0f,
+                    TotalGrade: totalGradeValues.TryGetValue(eventItem.Identifier, out var totalGrade)
+                        ? totalGrade
+                        : 0f,
+                    WithParticipants: eventItem.Participants.Count > 0))
+                .ToList()
+        };
     }
 }

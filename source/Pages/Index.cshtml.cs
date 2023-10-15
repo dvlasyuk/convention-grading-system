@@ -25,20 +25,22 @@ public class IndexModel : PageModel
         _databaseContext = databaseContext;
     }
 
-    public List<EventType> EventTypes { get; set; } = new List<EventType>();
-    public List<Team> Teams { get; set; } = new List<Team>();
+    public ViewModel ViewModel { get; private set; } = new ViewModel(
+        EventTypes: new List<EventType>(),
+        Teams: new List<Team>());
 
     public async Task OnGetAsync()
     {
-        EventTypes = _configuration.EventTypes
-            .OrderBy(item => item.Identifier)
-            .Select(item => new EventType
-            {
-                Identifier = item.Identifier,
-                Name = item.Name,
-                EventsQuantity = item.Events.Count
-            })
-            .ToList();
+        ViewModel = ViewModel with
+        {
+            EventTypes = _configuration.EventTypes
+                .OrderBy(item => item.Identifier)
+                .Select(item => new EventType(
+                    Identifier: item.Identifier,
+                    Name: item.Name,
+                    EventsQuantity: item.Events.Count))
+                .ToList()
+        };
 
         var eventParticipants = _configuration.EventTypes
             .SelectMany(item => item.Events)
@@ -48,27 +50,28 @@ public class IndexModel : PageModel
         var participationMarks = await _databaseContext.ParticipationMarks.ToListAsync();
         var specialMarks = await _databaseContext.SpecialMarks.ToListAsync();
 
-        Teams = _configuration.Participants
-            .GroupBy(participant => participant.Team)
-            .Select(group => new Team
-            {
-                Name = group.Key,
-                ParticipantsQuantity = group.Count(),
-                ParticipationRegistrationsQuantity = group
-                    .SelectMany(item => eventParticipants
-                        .Where(identifier => identifier == item.Identifier))
-                    .Count(),
-                ParticipationMarksQuantity = group
-                    .SelectMany(item => participationMarks
-                        .Where(mark => mark.ParticipantId == item.Identifier))
-                    .Count(),
-                SpecialMarksQuantity = group
-                    .SelectMany(item => specialMarks
-                        .Where(mark => mark.ParticipantId == item.Identifier))
-                    .Count()
-            })
-            .OrderBy(team => team.Name.Length)
-            .ThenBy(team => team.Name)
-            .ToList();
+        ViewModel = ViewModel with
+        {
+            Teams = _configuration.Participants
+                .GroupBy(participant => participant.Team)
+                .Select(group => new Team(
+                    Name: group.Key,
+                    ParticipantsQuantity: group.Count(),
+                    ParticipationRegistrationsQuantity: group
+                        .SelectMany(item => eventParticipants
+                            .Where(identifier => identifier == item.Identifier))
+                        .Count(),
+                    ParticipationMarksQuantity: group
+                        .SelectMany(item => participationMarks
+                            .Where(mark => mark.ParticipantId == item.Identifier))
+                        .Count(),
+                    SpecialMarksQuantity: group
+                        .SelectMany(item => specialMarks
+                            .Where(mark => mark.ParticipantId == item.Identifier))
+                        .Count()))
+                .OrderBy(team => team.Name.Length)
+                .ThenBy(team => team.Name)
+                .ToList()
+        };
     }
 }

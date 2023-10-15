@@ -1,4 +1,4 @@
-﻿@page "{eventTypeId}"
+@page "{eventTypeId}"
 @model ConventionGradingSystem.Pages.EventsListModel
 
 @{
@@ -8,19 +8,19 @@
 
 <table>
 
-    <caption>Мероприятия категории "@Model.EventType.Name"</caption>
+    <caption>Мероприятия категории "@Model.ViewModel.EventTypeName"</caption>
 
     <tr>
         <th rowspan="2">#</th>
         <th rowspan="2">Название мероприятия</th>
 
-        @if (Model.EventType.ExpertGrades.Count > 0)
+		@if (Model.ViewModel.ExpertGradeTypes.Count > 0)
         {
-            <th colspan="@(Model.EventType.ExpertGrades.Count + 2)">Оценки экспертов</th>
+			<th colspan="@(Model.ViewModel.ExpertGradeTypes.Count + 2)">Оценки экспертов</th>
         }
-        @if (Model.EventType.ParticipantGrades.Count > 0)
+		@if (Model.ViewModel.ParticipantGradeTypes.Count > 0)
         {
-            <th colspan="@(Model.EventType.ParticipantGrades.Count + 2)">Оценки участников</th>
+			<th colspan="@(Model.ViewModel.ParticipantGradeTypes.Count + 2)">Оценки участников</th>
         }
 
         <th rowspan="2">Общая оценка</th>
@@ -29,7 +29,7 @@
 
     <tr>
 
-        @foreach (var item in Model.EventType.ExpertGrades)
+		@foreach (var item in Model.ViewModel.ExpertGradeTypes)
         {
             <th class="tooltip">
                 @item.Identifier
@@ -37,13 +37,13 @@
             </th>
         }
 
-        @if (Model.EventType.ExpertGrades.Count > 0)
+		@if (Model.ViewModel.ExpertGradeTypes.Count > 0)
         {
             <th>Кол.</th>
             <th>Общая</th>
         }
 
-        @foreach (var item in Model.EventType.ParticipantGrades)
+		@foreach (var item in Model.ViewModel.ParticipantGradeTypes)
         {
             <th class="tooltip">
                 @item.Identifier
@@ -51,7 +51,7 @@
             </th>
         }
 
-        @if (Model.EventType.ParticipantGrades.Count > 0)
+		@if (Model.ViewModel.ParticipantGradeTypes.Count > 0)
         {
             <th>Кол.</th>
             <th>Общая</th>
@@ -59,27 +59,27 @@
 
     </tr>
 
-    @foreach (var eventItem in Model.Events)
+	@foreach (var eventItem in Model.ViewModel.Events)
     {
         <tr>
             <td>@eventItem.Identifier</td>
             <td>@eventItem.Name</td>
 
-            @foreach (var gradeItem in Model.EventType.ExpertGrades)
+			@foreach (var gradeItem in Model.ViewModel.ExpertGradeTypes)
             {
                 <td>@eventItem.ExpertGrades[gradeItem.Identifier].ToString("0.0")</td>
             }
-            @if (Model.EventType.ExpertGrades.Count > 0)
+			@if (Model.ViewModel.ExpertGradeTypes.Count > 0)
             {
                 <td>@eventItem.ExprertGradesQuantity</td>
                 <td>@eventItem.TotalExpertGrade.ToString("0.00")</td>
             }
 
-            @foreach (var gradeItem in Model.EventType.ParticipantGrades)
+			@foreach (var gradeItem in Model.ViewModel.ParticipantGradeTypes)
             {
                 <td>@eventItem.ParticipantGrades[gradeItem.Identifier].ToString("0.0")</td>
             }
-            @if (Model.EventType.ParticipantGrades.Count > 0)
+			@if (Model.ViewModel.ParticipantGradeTypes.Count > 0)
             {
                 <td>@eventItem.ParticipantGradesQuantity</td>
                 <td>@eventItem.TotalParticipantGrade.ToString("0.00")</td>
@@ -90,17 +90,17 @@
             <td>
                 @if (eventItem.WithParticipants)
                 {
-                    <a class="table" href="/EventParticipants/@Model.EventType.Identifier/@eventItem.Identifier">Форма проводящего</a>
+					<a class="table" href="/EventParticipants/@Model.ViewModel.EventTypeId/@eventItem.Identifier">Форма проводящего</a>
                 }
-                @if (Model.EventType.ExpertGrades.Count > 0)
+				@if (Model.ViewModel.ExpertGradeTypes.Count > 0)
                 {
-                    <a class="table" href="/ExpertGrade/@Model.EventType.Identifier/@eventItem.Identifier">Форма эксперта</a>
-                    <a class="table" href="/ExpertNotes/@Model.EventType.Identifier/@eventItem.Identifier">Комментарии экспертов</a>
+					<a class="table" href="/ExpertGrade/@Model.ViewModel.EventTypeId/@eventItem.Identifier">Форма эксперта</a>
+					<a class="table" href="/ExpertNotes/@Model.ViewModel.EventTypeId/@eventItem.Identifier">Комментарии экспертов</a>
                 }
-                @if (Model.EventType.ParticipantGrades.Count > 0)
+				@if (Model.ViewModel.ParticipantGradeTypes.Count > 0)
                 {
-                    <a class="table" href="/ParticipantGrade/@Model.EventType.Identifier/@eventItem.Identifier">Форма участника</a>
-                    <a class="table" href="/ParticipantNotes/@Model.EventType.Identifier/@eventItem.Identifier">Комментарии участников</a>
+					<a class="table" href="/ParticipantGrade/@Model.ViewModel.EventTypeId/@eventItem.Identifier">Форма участника</a>
+					<a class="table" href="/ParticipantNotes/@Model.ViewModel.EventTypeId/@eventItem.Identifier">Комментарии участников</a>
                 }
             </td>
 
