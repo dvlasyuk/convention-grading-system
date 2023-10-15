@@ -46,31 +46,25 @@ public class EventsListModel : PageModel
         EventType.Identifier = eventType.Identifier;
         EventType.Name = eventType.Name;
 
-        if (eventType.ExpertGrades?.Any() ?? false)
-        {
-            EventType.ExpertGrades = eventType.ExpertGrades
-                .OrderBy(item => item.Identifier)
-                .Select(item => new GradeType
-                {
-                    Identifier = item.Identifier,
-                    Name = item.Name
-                })
-                .ToList();
-        }
+        EventType.ExpertGrades = eventType.ExpertGrades
+            .OrderBy(item => item.Identifier)
+            .Select(item => new GradeType
+            {
+                Identifier = item.Identifier,
+                Name = item.Name
+            })
+            .ToList();
 
-        if (eventType.ParticipantGrades?.Any() ?? false)
-        {
-            EventType.ParticipantGrades = eventType.ParticipantGrades
-                .OrderBy(item => item.Identifier)
-                .Select(item => new GradeType
-                {
-                    Identifier = item.Identifier,
-                    Name = item.Name
-                })
-                .ToList();
-        }
+        EventType.ParticipantGrades = eventType.ParticipantGrades
+            .OrderBy(item => item.Identifier)
+            .Select(item => new GradeType
+            {
+                Identifier = item.Identifier,
+                Name = item.Name
+            })
+            .ToList();
 
-        if (!eventType.Events?.Any() ?? true)
+        if (eventType.Events.Count == 0)
         {
             return;
         }
@@ -140,17 +134,17 @@ public class EventsListModel : PageModel
             {
                 Identifier = eventItem.Identifier,
                 Name = eventItem.Name,
-                ExprertGradesQuantity = eventType.ExpertGrades?.Any() ?? false
+                ExprertGradesQuantity = eventType.ExpertGrades.Count > 0
                     ? expertGradeQuantities.TryGetValue(eventItem.Identifier, out var expertGradesQuantity)
                         ? expertGradesQuantity / eventType.ExpertGrades.Count
                         : 0
                     : 0,
-                ParticipantGradesQuantity = eventType.ParticipantGrades?.Any() ?? false
+                ParticipantGradesQuantity = eventType.ParticipantGrades.Count > 0
                     ? participantGradeQuantities.TryGetValue(eventItem.Identifier, out var participantGradesQuantity)
                         ? participantGradesQuantity / eventType.ParticipantGrades.Count
                         : 0
                     : 0,
-                ExpertGrades = eventType.ExpertGrades?.Any() ?? false
+                ExpertGrades = eventType.ExpertGrades.Count > 0
                     ? eventType.ExpertGrades
                         .OrderBy(gradeItem => gradeItem.Identifier)
                         .ToDictionary(
@@ -161,7 +155,7 @@ public class EventsListModel : PageModel
                                     : 0f
                                 : 0f)
                     : new Dictionary<int, float>(),
-                ParticipantGrades = eventType.ParticipantGrades?.Any() ?? false
+                ParticipantGrades = eventType.ParticipantGrades.Count > 0
                     ? eventType.ParticipantGrades
                         .OrderBy(gradeItem => gradeItem.Identifier)
                         .ToDictionary(
@@ -181,7 +175,7 @@ public class EventsListModel : PageModel
                 TotalGrade = totalGradeValues.TryGetValue(eventItem.Identifier, out var totalGrade)
                     ? totalGrade
                     : 0f,
-                WithParticipants = eventItem.Participants?.Any() ?? false
+                WithParticipants = eventItem.Participants.Count > 0
             })
             .ToList();
     }

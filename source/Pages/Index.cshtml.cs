@@ -42,7 +42,7 @@ public class IndexModel : PageModel
 
         var eventParticipants = _configuration.EventTypes
             .SelectMany(item => item.Events)
-            .SelectMany(item => item.Participants ?? new List<string>())
+            .SelectMany(item => item.Participants)
             .ToList();
 
         var participationMarks = await _databaseContext.ParticipationMarks.ToListAsync();

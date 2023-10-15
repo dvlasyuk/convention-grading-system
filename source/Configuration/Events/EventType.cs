@@ -4,7 +4,7 @@ public class EventType
 {
     public int Identifier { get; set; }
     public string Name { get; set; }
-    public List<GradeType> ExpertGrades { get; set; }
-    public List<GradeType> ParticipantGrades { get; set; }
-    public List<Event> Events { get; set; }
+    public ICollection<GradeType> ExpertGrades { get; } = new List<GradeType>();
+    public ICollection<GradeType> ParticipantGrades { get; } = new List<GradeType>();
+    public ICollection<Event> Events { get; } = new List<Event>();
 }

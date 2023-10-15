@@ -5,6 +5,6 @@ namespace ConventionGradingSystem.Configuration;
 
 public class ApplicationConfiguration
 {
-    public List<EventType> EventTypes { get; set; }
-    public List<Participant> Participants { get; set; }
+    public ICollection<EventType> EventTypes { get; } = new List<EventType>();
+    public ICollection<Participant> Participants { get; } = new List<Participant>();
 }

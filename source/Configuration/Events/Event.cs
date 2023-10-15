@@ -4,5 +4,5 @@ public class Event
 {
     public int Identifier { get; set; }
     public string Name { get; set; }
-    public List<string> Participants { get; set; }
+    public ICollection<string> Participants { get; } = new List<string>();
 }
