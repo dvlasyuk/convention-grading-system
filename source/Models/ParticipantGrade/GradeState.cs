@@ -1,10 +1,9 @@
-﻿namespace ConventionGradingSystem.Models.ParticipantGrade
+namespace ConventionGradingSystem.Models.ParticipantGrade;
+
+public enum GradeState
 {
-    public enum GradeState
-    {
-        NotExisted,
-        NotGraded,
-        JustGraded,
-        PreviouslyGraded
-    }
+    NotExisted,
+    NotGraded,
+    JustGraded,
+    PreviouslyGraded
 }

@@ -1,127 +1,121 @@
-using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Threading.Tasks;
 
 using ConventionGradingSystem.Configuration;
 using ConventionGradingSystem.Database;
 using ConventionGradingSystem.Database.Entities;
 using ConventionGradingSystem.Models.ExpertGrade;
 
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 
-namespace ConventionGradingSystem.Pages
+namespace ConventionGradingSystem.Pages;
+
+public class ExpertGradeModel : PageModel
 {
-    public class ExpertGradeModel : PageModel
+    private readonly ApplicationConfiguration _configuration;
+    private readonly DatabaseContext _databaseContext;
+
+    public ExpertGradeModel(
+        [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
+        [NotNull] DatabaseContext databaseContext)
     {
-        private readonly ApplicationConfiguration _configuration;
-        private readonly DatabaseContext _databaseContext;
+        _configuration = configuration.Value;
+        _databaseContext = databaseContext;
+    }
 
-        public ExpertGradeModel(
-            [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
-            [NotNull] DatabaseContext databaseContext)
+    public GradeState GradeState { get; set; } = GradeState.NotExisted;
+    public Event Event { get; set; } = new Event
+    {
+        EventTypeName = "РќРµРёР·РІРµСЃС‚РЅР°СЏ РєР°С‚РµРіРѕСЂРёСЏ",
+        EventName = "РќРµРёР·РІРµСЃС‚РЅРѕРµ РјРµСЂРѕРїСЂРёСЏС‚РёРµ",
+        GradeTypes = new List<GradeType>()
+    };
+
+    [BindProperty]
+    public List<Grade> Grades { get; set; }
+
+    [BindProperty]
+    public string Note { get; set; }
+
+    public void OnGet(int eventTypeId, int eventId)
+    {
+        var eventType = _configuration.EventTypes.FirstOrDefault(item => item.Identifier == eventTypeId);
+        if (eventType == null)
         {
-            _configuration = configuration.Value;
-            _databaseContext = databaseContext;
+            return;
         }
 
-        public GradeState GradeState { get; set; } = GradeState.NotExisted;
-        public Event Event { get; set; } = new Event
-        {
-            EventTypeName = "Неизвестная категория",
-            EventName = "Неизвестное мероприятие",
-            GradeTypes = new List<GradeType>()
-        };
-
-        [BindProperty]
-        public List<Grade> Grades { get; set; }
-
-        [BindProperty]
-        public string Note { get; set; }
-
-        public void OnGet(int eventTypeId, int eventId)
-        {
-            var eventType = _configuration.EventTypes.FirstOrDefault(item => item.Identifier == eventTypeId);
-            if (eventType == null)
+        Event.EventTypeName = eventType.Name;
+        Event.GradeTypes = eventType.ExpertGrades
+            .OrderBy(item => item.Identifier)
+            .Select(item => new GradeType
             {
-                return;
-            }
+                Identifier = item.Identifier,
+                Name = item.Name,
+                Description = item.Description,
+                MinimalGrage = item.MinimalGrage,
+                MaximalGrage = item.MaximalGrage
+            })
+            .ToList();
 
-            Event.EventTypeName = eventType.Name;
-            Event.GradeTypes = eventType.ExpertGrades
-                .OrderBy(item => item.Identifier)
-                .Select(item => new GradeType
-                {
-                    Identifier = item.Identifier,
-                    Name = item.Name,
-                    Description = item.Description,
-                    MinimalGrage = item.MinimalGrage,
-                    MaximalGrage = item.MaximalGrage
-                })
-                .ToList();
-
-            var @event = eventType.Events.FirstOrDefault(item => item.Identifier == eventId);
-            if (@event == null)
-            {
-                return;
-            }
-
-            Event.EventName = @event.Name;
-            GradeState = Request.Cookies.Any(item => item.Key == GetCookieName(eventTypeId, eventId))
-                ? GradeState.PreviouslyGraded
-                : GradeState.NotGraded;
+        var @event = eventType.Events.FirstOrDefault(item => item.Identifier == eventId);
+        if (@event == null)
+        {
+            return;
         }
 
-        public async Task OnPostAsync(int eventTypeId, int eventId)
+        Event.EventName = @event.Name;
+        GradeState = Request.Cookies.Any(item => item.Key == GetCookieName(eventTypeId, eventId))
+            ? GradeState.PreviouslyGraded
+            : GradeState.NotGraded;
+    }
+
+    public async Task OnPostAsync(int eventTypeId, int eventId)
+    {
+        GradeState = Request.Cookies.Any(item => item.Key == GetCookieName(eventTypeId, eventId))
+            ? GradeState.PreviouslyGraded
+            : GradeState.JustGraded;
+
+        if (GradeState == GradeState.PreviouslyGraded)
         {
-            GradeState = Request.Cookies.Any(item => item.Key == GetCookieName(eventTypeId, eventId))
-                ? GradeState.PreviouslyGraded
-                : GradeState.JustGraded;
-
-            if (GradeState == GradeState.PreviouslyGraded)
-            {
-                return;
-            }
-
-            foreach (var item in Grades)
-            {
-                _databaseContext.ExpertGrades.Add(new ExpertGrade
-                {
-                    EventTypeId = eventTypeId,
-                    EventId = eventId,
-                    GradeTypeId = item.GradeTypeId,
-                    GradeValue = item.GradeValue
-                });
-            }
-
-            if (!string.IsNullOrWhiteSpace(Note))
-            {
-                _databaseContext.ExpertNotes.Add(new ExpertNote
-                {
-                    EventTypeId = eventTypeId,
-                    EventId = eventId,
-                    Note = Note
-                });
-            }
-
-            await _databaseContext.SaveChangesAsync();
-
-            Response.Cookies.Append(
-                key: GetCookieName(eventTypeId, eventId),
-                value: "Мероприятие оценено",
-                options: new CookieOptions
-                {
-                    Expires = DateTime.Now.AddHours(4)
-                });
+            return;
         }
 
-        private static string GetCookieName(int eventTypeId, int eventId)
+        foreach (var item in Grades)
         {
-            return $"ExpertGrade-{eventTypeId}-{eventId}";
+            _databaseContext.ExpertGrades.Add(new ExpertGrade
+            {
+                EventTypeId = eventTypeId,
+                EventId = eventId,
+                GradeTypeId = item.GradeTypeId,
+                GradeValue = item.GradeValue
+            });
         }
+
+        if (!string.IsNullOrWhiteSpace(Note))
+        {
+            _databaseContext.ExpertNotes.Add(new ExpertNote
+            {
+                EventTypeId = eventTypeId,
+                EventId = eventId,
+                Note = Note
+            });
+        }
+
+        await _databaseContext.SaveChangesAsync();
+
+        Response.Cookies.Append(
+            key: GetCookieName(eventTypeId, eventId),
+            value: "РњРµСЂРѕРїСЂРёСЏС‚РёРµ РѕС†РµРЅРµРЅРѕ",
+            options: new CookieOptions
+            {
+                Expires = DateTime.Now.AddHours(4)
+            });
+    }
+
+    private static string GetCookieName(int eventTypeId, int eventId)
+    {
+        return $"ExpertGrade-{eventTypeId}-{eventId}";
     }
 }

@@ -1,10 +1,9 @@
-﻿namespace ConventionGradingSystem.Database.Entities
+namespace ConventionGradingSystem.Database.Entities;
+
+public class ExpertNote
 {
-    public class ExpertNote
-    {
-        public int Identifier { get; set; }
-        public int EventTypeId { get; set; }
-        public int EventId { get; set; }
-        public string Note { get; set; }
-    }
+    public int Identifier { get; set; }
+    public int EventTypeId { get; set; }
+    public int EventId { get; set; }
+    public string Note { get; set; }
 }

@@ -1,8 +1,7 @@
-﻿namespace ConventionGradingSystem.Models.EventParticipants
+namespace ConventionGradingSystem.Models.EventParticipants;
+
+public class Event
 {
-    public class Event
-    {
-        public string EventTypeName { get; set; }
-        public string EventName { get; set; }
-    }
+    public string EventTypeName { get; set; }
+    public string EventName { get; set; }
 }

@@ -1,8 +1,7 @@
-﻿namespace ConventionGradingSystem.Models.EventsList
+namespace ConventionGradingSystem.Models.EventsList;
+
+public class GradeType
 {
-    public class GradeType
-    {
-        public int Identifier { get; set; }
-        public string Name { get; set; }
-    }
+    public int Identifier { get; set; }
+    public string Name { get; set; }
 }

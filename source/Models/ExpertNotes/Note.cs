@@ -1,8 +1,7 @@
-﻿namespace ConventionGradingSystem.Models.ExpertNotes
+namespace ConventionGradingSystem.Models.ExpertNotes;
+
+public class Note
 {
-    public class Note
-    {
-        public int Identifier { get; set; }
-        public string Content { get; set; }
-    }
+    public int Identifier { get; set; }
+    public string Content { get; set; }
 }

@@ -1,8 +1,7 @@
-﻿namespace ConventionGradingSystem.Configuration
+namespace ConventionGradingSystem.Configuration;
+
+public class SecurityConfiguration
 {
-    public class SecurityConfiguration
-    {
-        public string AdministratorSecret { get; set; }
-        public string OrganizerSecret { get; set; }
-    }
+    public string AdministratorSecret { get; set; }
+    public string OrganizerSecret { get; set; }
 }

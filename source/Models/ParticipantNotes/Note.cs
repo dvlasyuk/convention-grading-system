@@ -1,8 +1,7 @@
-﻿namespace ConventionGradingSystem.Models.ParticipantNotes
+namespace ConventionGradingSystem.Models.ParticipantNotes;
+
+public class Note
 {
-    public class Note
-    {
-        public int Identifier { get; set; }
-        public string Content { get; set; }
-    }
+    public int Identifier { get; set; }
+    public string Content { get; set; }
 }

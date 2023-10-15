@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
+namespace ConventionGradingSystem.Models.EventsList;
 
-namespace ConventionGradingSystem.Models.EventsList
+public class EventType
 {
-    public class EventType
-    {
-        public int Identifier { get; set; }
-        public string Name { get; set; }
-        public List<GradeType> ExpertGrades { get; set; }
-        public List<GradeType> ParticipantGrades { get; set; }
-    }
+    public int Identifier { get; set; }
+    public string Name { get; set; }
+    public List<GradeType> ExpertGrades { get; set; }
+    public List<GradeType> ParticipantGrades { get; set; }
 }

@@ -1,8 +1,7 @@
-﻿namespace ConventionGradingSystem.Models.ParticipantGrade
+namespace ConventionGradingSystem.Models.ParticipantGrade;
+
+public class Grade
 {
-    public class Grade
-    {
-        public int GradeTypeId { get; set; }
-        public int GradeValue { get; set; }
-    }
+    public int GradeTypeId { get; set; }
+    public int GradeValue { get; set; }
 }

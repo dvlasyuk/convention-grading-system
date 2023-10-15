@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
+namespace ConventionGradingSystem.Configuration.Events;
 
-namespace ConventionGradingSystem.Configuration.Events
+public class Event
 {
-    public class Event
-    {
-        public int Identifier { get; set; }
-        public string Name { get; set; }
-        public List<string> Participants { get; set; }
-    }
+    public int Identifier { get; set; }
+    public string Name { get; set; }
+    public List<string> Participants { get; set; }
 }

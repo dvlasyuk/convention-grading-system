@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
+namespace ConventionGradingSystem.Models.ExpertGrade;
 
-namespace ConventionGradingSystem.Models.ExpertGrade
+public class Event
 {
-    public class Event
-    {
-        public string EventTypeName { get; set; }
-        public string EventName { get; set; }
-        public List<GradeType> GradeTypes { get; set; }
-    }
+    public string EventTypeName { get; set; }
+    public string EventName { get; set; }
+    public List<GradeType> GradeTypes { get; set; }
 }
