@@ -50,8 +50,8 @@ public class ExpertGradeModel : PageModel
                     Identifier: item.Identifier,
                     Name: item.Name,
                     Description: item.Description,
-                    MinimalGrage: item.MinimalGrage,
-                    MaximalGrage: item.MaximalGrage))
+                    MinimalGrade: item.MinimalGrade,
+                    MaximalGrade: item.MaximalGrade))
                 .ToList()
         };
 

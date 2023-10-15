@@ -9,5 +9,5 @@ public record GradeType(
     int Identifier,
     string Name,
     string Description,
-    int MinimalGrage,
-    int MaximalGrage);
+    int MinimalGrade,
+    int MaximalGrade);
