@@ -2,6 +2,7 @@ namespace ConventionGradingSystem.Configuration;
 
 public class SecurityConfiguration
 {
-    public string AdministratorSecret { get; set; } = string.Empty;
-    public string OrganizerSecret { get; set; } = string.Empty;
+    public string AdministratorSecretHash { get; set; } = string.Empty;
+    public string OrganizerSecretHash { get; set; } = string.Empty;
+    public string ExpertSecretHash { get; set; } = string.Empty;
 }

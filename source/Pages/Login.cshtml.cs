@@ -1,5 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 using ConventionGradingSystem.Configuration;
 using ConventionGradingSystem.Models.Login;
@@ -29,14 +31,26 @@ public class LoginModel : PageModel
             throw new InvalidOperationException("Модель формы должна быть заполнена при выполнении POST-запроса");
         }
 
+        var secretBytes = Encoding.UTF8.GetBytes(FormModel.Secret);
+        var hashedBytes = SHA256.HashData(secretBytes);
+        var hashedSecret = string.Empty;
+        foreach (var item in hashedBytes)
+        {
+            hashedSecret += $"{item:x2}";
+        }
+
         string user;
-        if (string.Equals(FormModel.Secret, _configuration.AdministratorSecret, StringComparison.Ordinal))
+        if (string.Equals(hashedSecret, _configuration.AdministratorSecretHash, StringComparison.Ordinal))
         {
             user = "Adminstrator";
         }
-        else if (string.Equals(FormModel.Secret, _configuration.OrganizerSecret, StringComparison.Ordinal))
+        else if (string.Equals(hashedSecret, _configuration.OrganizerSecretHash, StringComparison.Ordinal))
         {
             user = "Organizer";
+        }
+        else if (string.Equals(hashedSecret, _configuration.ExpertSecretHash, StringComparison.Ordinal))
+        {
+            user = "Expert";
         }
         else
         {

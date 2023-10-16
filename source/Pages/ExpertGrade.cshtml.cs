@@ -5,12 +5,14 @@ using ConventionGradingSystem.Database;
 using ConventionGradingSystem.Database.Entities;
 using ConventionGradingSystem.Models.ExpertGrade;
 
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Options;
 
 namespace ConventionGradingSystem.Pages;
 
+[Authorize(Roles = "Adminstrator,Expert")]
 public class ExpertGradeModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;

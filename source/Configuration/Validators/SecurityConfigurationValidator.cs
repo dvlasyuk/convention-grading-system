@@ -10,22 +10,31 @@ public class SecurityConfigurationValidator : IValidateOptions<SecurityConfigura
     {
         var failureMessages = new List<string>();
 
-        if (string.IsNullOrEmpty(options.AdministratorSecret))
+        if (string.IsNullOrEmpty(options.AdministratorSecretHash))
         {
-            failureMessages.Add("Для секретной фразы администратора задано пустое значение");
+            failureMessages.Add("Для секретной фразы администратора задан пустой хэш");
         }
-        else if (options.AdministratorSecret.Length > 100)
+        else if (options.AdministratorSecretHash.Length > 100)
         {
-            failureMessages.Add("Для секретной фразы администратора задано значение, превышающее 100 символов");
+            failureMessages.Add("Для секретной фразы администратора задан хэш, превышающий 100 символов");
         }
 
-        if (string.IsNullOrEmpty(options.OrganizerSecret))
+        if (string.IsNullOrEmpty(options.OrganizerSecretHash))
         {
-            failureMessages.Add("Для секретной фразы организатора задано пустое значение");
+            failureMessages.Add("Для секретной фразы организатора задан пустой хэш");
         }
-        else if (options.OrganizerSecret.Length > 100)
+        else if (options.OrganizerSecretHash.Length > 100)
         {
-            failureMessages.Add("Для секретной фразы организатора задано значение, превышающее 100 символов");
+            failureMessages.Add("Для секретной фразы организатора задан хэш, превышающий 100 символов");
+        }
+
+        if (string.IsNullOrEmpty(options.ExpertSecretHash))
+        {
+            failureMessages.Add("Для секретной фразы эксперта задан пустой хэш");
+        }
+        else if (options.ExpertSecretHash.Length > 100)
+        {
+            failureMessages.Add("Для секретной фразы эксперта задан хэш, превышающий 100 символов");
         }
 
         return failureMessages.Any()
