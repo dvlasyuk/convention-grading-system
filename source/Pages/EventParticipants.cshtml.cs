@@ -45,13 +45,14 @@ public class EventParticipantsModel : PageModel
             throw new InvalidOperationException("Модель формы должна быть заполнена при выполнении POST-запроса");
         }
 
-        var participationMarks = await _databaseContext.ParticipationMarks
+        var configuredParticipationMarks = FormModel.ParticipationMarks ?? new List<string>();
+        var savedParticipationMarks = await _databaseContext.ParticipationMarks
             .Where(item => item.ContestId == contestId)
             .Where(item => item.EventId == eventId)
             .ToListAsync();
 
-        _databaseContext.ParticipationMarks.AddRange(FormModel.ParticipationMarks
-            .Where(participantId => !participationMarks
+        _databaseContext.ParticipationMarks.AddRange(configuredParticipationMarks
+            .Where(participantId => !savedParticipationMarks
                 .Any(mark => mark.ParticipantId == participantId))
             .Select(participantId => new ParticipationMark
             {
@@ -61,18 +62,19 @@ public class EventParticipantsModel : PageModel
             })
             .ToList());
 
-        _databaseContext.ParticipationMarks.RemoveRange(participationMarks
-            .Where(mark => !FormModel.ParticipationMarks
+        _databaseContext.ParticipationMarks.RemoveRange(savedParticipationMarks
+            .Where(mark => !configuredParticipationMarks
                 .Any(participantId => participantId == mark.ParticipantId))
             .ToList());
 
-        var specialMarks = await _databaseContext.SpecialMarks
+        var configuredSpecialMarks = FormModel.SpecialMarks ?? new List<string>();
+        var savedSpecialMarks = await _databaseContext.SpecialMarks
             .Where(item => item.ContestId == contestId)
             .Where(item => item.EventId == eventId)
             .ToListAsync();
 
-        _databaseContext.SpecialMarks.AddRange(FormModel.SpecialMarks
-            .Where(participantId => !specialMarks
+        _databaseContext.SpecialMarks.AddRange(configuredSpecialMarks
+            .Where(participantId => !savedSpecialMarks
                 .Any(mark => mark.ParticipantId == participantId))
             .Select(participantId => new SpecialMark
             {
@@ -82,8 +84,8 @@ public class EventParticipantsModel : PageModel
             })
             .ToList());
 
-        _databaseContext.SpecialMarks.RemoveRange(specialMarks
-            .Where(mark => !FormModel.SpecialMarks
+        _databaseContext.SpecialMarks.RemoveRange(savedSpecialMarks
+            .Where(mark => !configuredSpecialMarks
                 .Any(participantId => participantId == mark.ParticipantId))
             .ToList());
 
