@@ -124,13 +124,13 @@ public class EventParticipantsModel : PageModel
         ViewModel = ViewModel with
         {
             Participants = contestEvent.Participants
-                .Select(identifier => _configuration.Participants
-                    .First(participant => participant.Identifier == identifier))
+                .Select(identifier => _configuration.Teams
+                    .SelectMany(team => team.Members)
+                    .First(member => member.Identifier == identifier))
                 .Select(participant => new Participant(
                     Identifier: participant.Identifier,
                     Name: participant.Name,
                     Brigade: participant.Brigade,
-                    Team: participant.Team,
                     ParticipitionMark: participationMarks.Contains(participant.Identifier),
                     SpecialMark: specialMarks.Contains(participant.Identifier)))
                 .ToList()

@@ -11,7 +11,7 @@ public record Contest(
 
 public record Team(
     string Name,
-    int ParticipantsQuantity,
-    int ParticipationRegistrationsQuantity,
-    int ParticipationMarksQuantity,
+    int MembersQuantity,
+    int MembersRegistrationsQuantity,
+    int MembersMarksQuantity,
     int SpecialMarksQuantity);

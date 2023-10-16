@@ -50,10 +50,10 @@
         <tr>
             <td>@(number + 1)</td>
             <td>@Model.ViewModel.Teams[number].Name</td>
-            <td>@Model.ViewModel.Teams[number].ParticipantsQuantity</td>
-            <td>@Model.ViewModel.Teams[number].ParticipationRegistrationsQuantity</td>
-            <td>@Model.ViewModel.Teams[number].ParticipationMarksQuantity</td>
-            <td>@(Model.ViewModel.Teams[number].ParticipationRegistrationsQuantity - Model.ViewModel.Teams[number].ParticipationMarksQuantity)</td>
+            <td>@Model.ViewModel.Teams[number].MembersQuantity</td>
+            <td>@Model.ViewModel.Teams[number].MembersRegistrationsQuantity</td>
+            <td>@Model.ViewModel.Teams[number].MembersMarksQuantity</td>
+            <td>@(Model.ViewModel.Teams[number].MembersRegistrationsQuantity - Model.ViewModel.Teams[number].MembersMarksQuantity)</td>
             <td>@Model.ViewModel.Teams[number].SpecialMarksQuantity</td>
         </tr>
     }

@@ -52,22 +52,21 @@ public class IndexModel : PageModel
 
         ViewModel = ViewModel with
         {
-            Teams = _configuration.Participants
-                .GroupBy(participant => participant.Team)
-                .Select(group => new Team(
-                    Name: group.Key,
-                    ParticipantsQuantity: group.Count(),
-                    ParticipationRegistrationsQuantity: group
-                        .SelectMany(item => eventParticipants
-                            .Where(identifier => identifier == item.Identifier))
+            Teams = _configuration.Teams
+                .Select(team => new Team(
+                    Name: team.Name,
+                    MembersQuantity: team.Members.Count,
+                    MembersRegistrationsQuantity: team.Members
+                        .SelectMany(member => eventParticipants
+                            .Where(identifier => identifier == member.Identifier))
                         .Count(),
-                    ParticipationMarksQuantity: group
-                        .SelectMany(item => participationMarks
-                            .Where(mark => mark.ParticipantId == item.Identifier))
+                    MembersMarksQuantity: team.Members
+                        .SelectMany(member => participationMarks
+                            .Where(mark => mark.ParticipantId == member.Identifier))
                         .Count(),
-                    SpecialMarksQuantity: group
-                        .SelectMany(item => specialMarks
-                            .Where(mark => mark.ParticipantId == item.Identifier))
+                    SpecialMarksQuantity: team.Members
+                        .SelectMany(member => specialMarks
+                            .Where(mark => mark.ParticipantId == member.Identifier))
                         .Count()))
                 .OrderBy(team => team.Name.Length)
                 .ThenBy(team => team.Name)
