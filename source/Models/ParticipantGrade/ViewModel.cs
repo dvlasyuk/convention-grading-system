@@ -6,7 +6,7 @@ public record ViewModel(
     IReadOnlyList<GradeCriterion> Criterions);
 
 public record GradeCriterion(
-    int Identifier,
+    string Identifier,
     string Name,
     string? Description,
     int MinimalGrade,

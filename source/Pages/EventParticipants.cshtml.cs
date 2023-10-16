@@ -35,10 +35,10 @@ public class EventParticipantsModel : PageModel
     [BindProperty]
     public FormModel? FormModel { get; set; }
 
-    public async Task OnGetAsync(int contestId, int eventId) =>
+    public async Task OnGetAsync(string contestId, string eventId) =>
         await InitializeModel(contestId, eventId);
 
-    public async Task OnPostAsync(int contestId, int eventId)
+    public async Task OnPostAsync(string contestId, string eventId)
     {
         if (FormModel == null)
         {
@@ -91,7 +91,7 @@ public class EventParticipantsModel : PageModel
         await InitializeModel(contestId, eventId);
     }
 
-    private async Task InitializeModel(int contestId, int eventId)
+    private async Task InitializeModel(string contestId, string eventId)
     {
         var contest = _configuration.Contests.FirstOrDefault(item => item.Identifier == contestId);
         if (contest == null)

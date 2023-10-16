@@ -8,14 +8,14 @@
 
 <table>
 
-	<caption>Комментарии экспертов к мероприятию "@Model.ViewModel.EventName" в рамках конкруса "@Model.ViewModel.ContestName"</caption>
+    <caption>Комментарии экспертов к мероприятию "@Model.ViewModel.EventName" в рамках конкруса "@Model.ViewModel.ContestName"</caption>
 
     <tr>
         <th>#</th>
         <th>Комментарий</th>
     </tr>
 
-	@foreach (var item in Model.ViewModel.Notes)
+    @foreach (var item in Model.ViewModel.Notes)
     {
         <tr>
             <td>@item.Identifier</td>

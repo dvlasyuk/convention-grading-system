@@ -9,44 +9,44 @@
 
 @switch (Model.FormState)
 {
-	case FormState.NotExisted:
+    case FormState.NotExisted:
         <label class="name">Приветствуем тебя! Извини, но такого мероприятия не существует</label>
         break;
 
-	case FormState.NotGraded:
+    case FormState.NotGraded:
 
         <label class="name">Приветствуем тебя! Оцени, пожалуйста, мероприятие, в котором принял участие</label>
-		<label class="description">Название конкурса: @Model.ViewModel.ContestName</label>
-		<label class="description">Название мероприятия: @Model.ViewModel.EventName</label>
+        <label class="description">Название конкурса: @Model.ViewModel.ContestName</label>
+        <label class="description">Название мероприятия: @Model.ViewModel.EventName</label>
 
         <form method="post">
-			@for (var number = 0; number < Model.ViewModel.Criterions.Count; number++)
+            @for (var number = 0; number < Model.ViewModel.Criterions.Count; number++)
             {
                 <div class="grade">
-					<label class="name" for="FormModel.Grades[@number].GradeValue">@Model.ViewModel.Criterions[number].Name</label>
-					<label class="description" for="FormModel.Grades[@number].GradeValue">@Model.ViewModel.Criterions[number].Description</label>
+                    <label class="name" for="FormModel.Grades[@number].GradeValue">@Model.ViewModel.Criterions[number].Name</label>
+                    <label class="description" for="FormModel.Grades[@number].GradeValue">@Model.ViewModel.Criterions[number].Description</label>
 
                     <input type="hidden"
-						   id="FormModel.Grades[@number].CriterionId"
-						   name="FormModel.Grades[@number].CriterionId"
-						   value="@Model.ViewModel.Criterions[number].Identifier" />
+                           id="FormModel.Grades[@number].CriterionId"
+                           name="FormModel.Grades[@number].CriterionId"
+                           value="@Model.ViewModel.Criterions[number].Identifier" />
 
                     <input type="range"
-						   id="FormModel.Grades[@number].GradeValue"
-						   name="FormModel.Grades[@number].GradeValue"
-						   min="@Model.ViewModel.Criterions[number].MinimalGrade"
-						   max="@Model.ViewModel.Criterions[number].MaximalGrade"
-						   value="@Model.ViewModel.Criterions[number].MaximalGrade"
+                           id="FormModel.Grades[@number].GradeValue"
+                           name="FormModel.Grades[@number].GradeValue"
+                           min="@Model.ViewModel.Criterions[number].MinimalGrade"
+                           max="@Model.ViewModel.Criterions[number].MaximalGrade"
+                           value="@Model.ViewModel.Criterions[number].MaximalGrade"
                            oninput="this.nextElementSibling.value = this.value" />
 
-					<output for="FormModel.Grades[@number].GradeValue">@Model.ViewModel.Criterions[number].MaximalGrade</output>
+                    <output for="FormModel.Grades[@number].GradeValue">@Model.ViewModel.Criterions[number].MaximalGrade</output>
                 </div>
             }
 
             <div class="grade">
-				<label class="name" for="FormModel.Note">Дополнительный комментарий</label>
-				<label class="description" for="FormModel.Note">Можешь оставить произвольный дополнительный комментарий, если хочешь сообщить что-то организаторам слёт или данного мероприятия</label>
-				<textarea id="FormModel.Note" name="FormModel.Note"></textarea>
+                <label class="name" for="FormModel.Note">Дополнительный комментарий</label>
+                <label class="description" for="FormModel.Note">Можешь оставить произвольный дополнительный комментарий, если хочешь сообщить что-то организаторам слёт или данного мероприятия</label>
+                <textarea id="FormModel.Note" name="FormModel.Note"></textarea>
             </div>
 
             <input type="submit" value="Отправить оценки" />
@@ -54,11 +54,11 @@
 
         break;
 
-	case FormState.JustGraded:
+    case FormState.JustGraded:
         <label class="name">Твоя оценка принята! Большое спасибо за помощь</label>
         break;
 
-	case FormState.PreviouslyGraded:
+    case FormState.PreviouslyGraded:
         <label class="name">Приветствуем тебя! Ты уже оценивал мероприятие данной категории. Большое спасибо за помощь</label>
         break;
  }

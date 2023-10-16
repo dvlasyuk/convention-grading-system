@@ -30,7 +30,7 @@ public class ParticipantNotesModel : PageModel
         EventName: "Неизвестное мероприятие",
         Notes: new List<Note>());
 
-    public async Task OnGetAsync(int contestId, int eventId)
+    public async Task OnGetAsync(string contestId, string eventId)
     {
         var contest = _configuration.Contests.FirstOrDefault(item => item.Identifier == contestId);
         if (contest == null)

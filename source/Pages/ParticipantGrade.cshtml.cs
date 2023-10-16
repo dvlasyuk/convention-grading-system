@@ -33,7 +33,7 @@ public class ParticipantGradeModel : PageModel
     [BindProperty]
     public FormModel? FormModel { get; set; }
 
-    public void OnGet(int contestId, int eventId)
+    public void OnGet(string contestId, string eventId)
     {
         var contest = _configuration.Contests.FirstOrDefault(item => item.Identifier == contestId);
         if (contest == null)
@@ -67,7 +67,7 @@ public class ParticipantGradeModel : PageModel
             : FormState.NotGraded;
     }
 
-    public async Task OnPostAsync(int contestId, int eventId)
+    public async Task OnPostAsync(string contestId, string eventId)
     {
         FormState = Request.Cookies.Any(item => item.Key == GetCookieName(contestId))
             ? FormState.PreviouslyGraded
@@ -114,7 +114,7 @@ public class ParticipantGradeModel : PageModel
             });
     }
 
-    private static string GetCookieName(int contestId)
+    private static string GetCookieName(string contestId)
     {
         return $"ParticipantGrade-{contestId}";
     }

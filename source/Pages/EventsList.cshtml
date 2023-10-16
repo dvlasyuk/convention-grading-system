@@ -14,13 +14,13 @@
         <th rowspan="2">#</th>
         <th rowspan="2">Название мероприятия</th>
 
-		@if (Model.ViewModel.ExpertCriterions.Count > 0)
+        @if (Model.ViewModel.ExpertCriterions.Count > 0)
         {
-			<th colspan="@(Model.ViewModel.ExpertCriterions.Count + 2)">Оценки экспертов</th>
+            <th colspan="@(Model.ViewModel.ExpertCriterions.Count + 2)">Оценки экспертов</th>
         }
-		@if (Model.ViewModel.ParticipantCriterions.Count > 0)
+        @if (Model.ViewModel.ParticipantCriterions.Count > 0)
         {
-			<th colspan="@(Model.ViewModel.ParticipantCriterions.Count + 2)">Оценки участников</th>
+            <th colspan="@(Model.ViewModel.ParticipantCriterions.Count + 2)">Оценки участников</th>
         }
 
         <th rowspan="2">Общая оценка</th>
@@ -29,29 +29,29 @@
 
     <tr>
 
-		@foreach (var item in Model.ViewModel.ExpertCriterions)
+        @for (var number = 0; number < Model.ViewModel.ExpertCriterions.Count; number++)
         {
             <th class="tooltip">
-                @item.Identifier
-                <span class="tooltiptext">@item.Name</span>
+                @(number + 1)
+                <span class="tooltiptext">@Model.ViewModel.ExpertCriterions[number].Name</span>
             </th>
         }
 
-		@if (Model.ViewModel.ExpertCriterions.Count > 0)
+        @if (Model.ViewModel.ExpertCriterions.Count > 0)
         {
             <th>Кол.</th>
             <th>Общая</th>
         }
 
-		@foreach (var item in Model.ViewModel.ParticipantCriterions)
+        @for (var number = 0; number < Model.ViewModel.ParticipantCriterions.Count; number++)
         {
             <th class="tooltip">
-                @item.Identifier
-                <span class="tooltiptext">@item.Name</span>
+                @(number + 1)
+                <span class="tooltiptext">@Model.ViewModel.ExpertCriterions[number].Name</span>
             </th>
         }
 
-		@if (Model.ViewModel.ParticipantCriterions.Count > 0)
+        @if (Model.ViewModel.ParticipantCriterions.Count > 0)
         {
             <th>Кол.</th>
             <th>Общая</th>
@@ -59,48 +59,48 @@
 
     </tr>
 
-	@foreach (var eventItem in Model.ViewModel.Events)
+	@for (var number = 0; number < Model.ViewModel.Events.Count; number++)
     {
         <tr>
-            <td>@eventItem.Identifier</td>
-            <td>@eventItem.Name</td>
+			<td>@(number + 1)</td>
+			<td>@Model.ViewModel.Events[number].Name</td>
 
-			@foreach (var gradeItem in Model.ViewModel.ExpertCriterions)
+            @foreach (var gradeItem in Model.ViewModel.ExpertCriterions)
             {
-                <td>@eventItem.ExpertGrades[gradeItem.Identifier].ToString("0.0")</td>
+				<td>@Model.ViewModel.Events[number].ExpertGrades[gradeItem.Identifier].ToString("0.0")</td>
             }
-			@if (Model.ViewModel.ExpertCriterions.Count > 0)
+            @if (Model.ViewModel.ExpertCriterions.Count > 0)
             {
-                <td>@eventItem.ExprertGradesQuantity</td>
-                <td>@eventItem.TotalExpertGrade.ToString("0.00")</td>
-            }
-
-			@foreach (var gradeItem in Model.ViewModel.ParticipantCriterions)
-            {
-                <td>@eventItem.ParticipantGrades[gradeItem.Identifier].ToString("0.0")</td>
-            }
-			@if (Model.ViewModel.ParticipantCriterions.Count > 0)
-            {
-                <td>@eventItem.ParticipantGradesQuantity</td>
-                <td>@eventItem.TotalParticipantGrade.ToString("0.00")</td>
+				<td>@Model.ViewModel.Events[number].ExprertGradesQuantity</td>
+				<td>@Model.ViewModel.Events[number].TotalExpertGrade.ToString("0.00")</td>
             }
 
-            <td>@eventItem.TotalGrade.ToString("0.00")</td>
+            @foreach (var gradeItem in Model.ViewModel.ParticipantCriterions)
+            {
+				<td>@Model.ViewModel.Events[number].ParticipantGrades[gradeItem.Identifier].ToString("0.0")</td>
+            }
+            @if (Model.ViewModel.ParticipantCriterions.Count > 0)
+            {
+				<td>@Model.ViewModel.Events[number].ParticipantGradesQuantity</td>
+				<td>@Model.ViewModel.Events[number].TotalParticipantGrade.ToString("0.00")</td>
+            }
+
+			<td>@Model.ViewModel.Events[number].TotalGrade.ToString("0.00")</td>
 
             <td>
-                @if (eventItem.WithParticipants)
+				@if (Model.ViewModel.Events[number].WithParticipants)
                 {
-					<a class="table" href="/EventParticipants/@Model.ViewModel.ContestId/@eventItem.Identifier">Форма проводящего</a>
+					<a class="table" href="/EventParticipants/@Model.ViewModel.ContestId/@Model.ViewModel.Events[number].Identifier">Форма проводящего</a>
                 }
-				@if (Model.ViewModel.ExpertCriterions.Count > 0)
+                @if (Model.ViewModel.ExpertCriterions.Count > 0)
                 {
-					<a class="table" href="/ExpertGrade/@Model.ViewModel.ContestId/@eventItem.Identifier">Форма эксперта</a>
-					<a class="table" href="/ExpertNotes/@Model.ViewModel.ContestId/@eventItem.Identifier">Комментарии экспертов</a>
+					<a class="table" href="/ExpertGrade/@Model.ViewModel.ContestId/@Model.ViewModel.Events[number].Identifier">Форма эксперта</a>
+					<a class="table" href="/ExpertNotes/@Model.ViewModel.ContestId/@Model.ViewModel.Events[number].Identifier">Комментарии экспертов</a>
                 }
-				@if (Model.ViewModel.ParticipantCriterions.Count > 0)
+                @if (Model.ViewModel.ParticipantCriterions.Count > 0)
                 {
-					<a class="table" href="/ParticipantGrade/@Model.ViewModel.ContestId/@eventItem.Identifier">Форма участника</a>
-					<a class="table" href="/ParticipantNotes/@Model.ViewModel.ContestId/@eventItem.Identifier">Комментарии участников</a>
+					<a class="table" href="/ParticipantGrade/@Model.ViewModel.ContestId/@Model.ViewModel.Events[number].Identifier">Форма участника</a>
+					<a class="table" href="/ParticipantNotes/@Model.ViewModel.ContestId/@Model.ViewModel.Events[number].Identifier">Комментарии участников</a>
                 }
             </td>
 

@@ -27,13 +27,13 @@ public class EventsListModel : PageModel
     }
 
     public ViewModel ViewModel { get; private set; } = new ViewModel(
-        ContestId: default,
+        ContestId: string.Empty,
         ContestName: "Неизвестный конкурс",
         ExpertCriterions: new List<GradeCriterion>(),
         ParticipantCriterions: new List<GradeCriterion>(),
         Events: new List<ContestEvent>());
 
-    public async Task OnGetAsync(int contestId)
+    public async Task OnGetAsync(string contestId)
     {
         var contest = _configuration.Contests.FirstOrDefault(item => item.Identifier == contestId);
         if (contest == null)
@@ -150,7 +150,7 @@ public class EventsListModel : PageModel
                                         ? expertGrade
                                         : 0f
                                     : 0f)
-                        : new Dictionary<int, float>(),
+                        : new Dictionary<string, float>(),
                     ParticipantGrades: contest.ParticipantCriterions.Count > 0
                         ? contest.ParticipantCriterions
                             .OrderBy(gradeItem => gradeItem.Identifier)
@@ -161,7 +161,7 @@ public class EventsListModel : PageModel
                                         ? participantGrade
                                         : 0f
                                     : 0f)
-                        : new Dictionary<int, float>(),
+                        : new Dictionary<string, float>(),
                     TotalExpertGrade: expertGradeTotalValues.TryGetValue(eventItem.Identifier, out var totalExpertGrade)
                         ? totalExpertGrade
                         : 0f,

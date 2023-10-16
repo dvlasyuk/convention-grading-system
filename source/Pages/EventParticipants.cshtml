@@ -22,7 +22,7 @@
             <th>Особая отметка</th>
         </tr>
 
-		@foreach (var item in Model.ViewModel.Participants)
+        @foreach (var item in Model.ViewModel.Participants)
         {
             <tr>
                 <td>@item.Name</td>
@@ -32,16 +32,16 @@
                     @if (item.ParticipitionMark)
                     {
                         <input type="checkbox"
-							   id="FormModel.ParticipationMarks"
-							   name="FormModel.ParticipationMarks"
+                               id="FormModel.ParticipationMarks"
+                               name="FormModel.ParticipationMarks"
                                value="@item.Identifier"
                                checked />
                     }
                     else
                     {
                         <input type="checkbox"
-							   id="FormModel.ParticipationMarks"
-							   name="FormModel.ParticipationMarks"
+                               id="FormModel.ParticipationMarks"
+                               name="FormModel.ParticipationMarks"
                                value="@item.Identifier" />
                     }
                 </td>
@@ -49,16 +49,16 @@
                     @if (item.SpecialMark)
                     {
                         <input type="checkbox"
-							   id="FormModel.SpecialMarks"
-							   name="FormModel.SpecialMarks"
+                               id="FormModel.SpecialMarks"
+                               name="FormModel.SpecialMarks"
                                value="@item.Identifier"
                                checked />
                     }
                     else
                     {
                         <input type="checkbox"
-							   id="FormModel.SpecialMarks"
-							   name="FormModel.SpecialMarks"
+                               id="FormModel.SpecialMarks"
+                               name="FormModel.SpecialMarks"
                                value="@item.Identifier" />
                     }
                 </td>

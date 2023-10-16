@@ -4,4 +4,4 @@ public record FormModel(
     IReadOnlyCollection<Grade> Grades,
     string Note);
 
-public record Grade(int CriterionId, int GradeValue);
+public record Grade(string CriterionId, int GradeValue);

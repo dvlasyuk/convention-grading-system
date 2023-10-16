@@ -1,21 +1,21 @@
 namespace ConventionGradingSystem.Models.EventsList;
 
 public record ViewModel(
-    int ContestId,
+    string ContestId,
     string ContestName,
-    IReadOnlyCollection<GradeCriterion> ExpertCriterions,
-    IReadOnlyCollection<GradeCriterion> ParticipantCriterions,
-    IReadOnlyCollection<ContestEvent> Events);
+    IReadOnlyList<GradeCriterion> ExpertCriterions,
+    IReadOnlyList<GradeCriterion> ParticipantCriterions,
+    IReadOnlyList<ContestEvent> Events);
 
-public record GradeCriterion(int Identifier, string Name);
+public record GradeCriterion(string Identifier, string Name);
 
 public record ContestEvent(
-    int Identifier,
+    string Identifier,
     string Name,
     int ExprertGradesQuantity,
     int ParticipantGradesQuantity,
-    IReadOnlyDictionary<int, float> ExpertGrades,
-    IReadOnlyDictionary<int, float> ParticipantGrades,
+    IReadOnlyDictionary<string, float> ExpertGrades,
+    IReadOnlyDictionary<string, float> ParticipantGrades,
     float TotalExpertGrade,
     float TotalParticipantGrade,
     float TotalGrade,

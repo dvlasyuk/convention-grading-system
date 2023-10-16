@@ -33,7 +33,7 @@ public class ExpertGradeModel : PageModel
     [BindProperty]
     public FormModel? FormModel { get; set; }
 
-    public void OnGet(int contestId, int eventId)
+    public void OnGet(string contestId, string eventId)
     {
         var contest = _configuration.Contests.FirstOrDefault(item => item.Identifier == contestId);
         if (contest == null)
@@ -67,7 +67,7 @@ public class ExpertGradeModel : PageModel
             : FormState.NotGraded;
     }
 
-    public async Task OnPostAsync(int contestId, int eventId)
+    public async Task OnPostAsync(string contestId, string eventId)
     {
         FormState = Request.Cookies.Any(item => item.Key == GetCookieName(contestId, eventId))
             ? FormState.PreviouslyGraded
@@ -114,6 +114,6 @@ public class ExpertGradeModel : PageModel
             });
     }
 
-    private static string GetCookieName(int contestId, int eventId) =>
+    private static string GetCookieName(string contestId, string eventId) =>
         $"ExpertGrade-{contestId}-{eventId}";
 }
