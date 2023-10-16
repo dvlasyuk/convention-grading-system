@@ -1,4 +1,4 @@
-namespace ConventionGradingSystem.Models.ParticipantGrade;
+namespace ConventionGradingSystem.Models.ParticipantFeedbackForm;
 
 public enum FormState
 {

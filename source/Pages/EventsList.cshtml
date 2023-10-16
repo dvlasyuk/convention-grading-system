@@ -59,48 +59,48 @@
 
     </tr>
 
-	@for (var number = 0; number < Model.ViewModel.Events.Count; number++)
+    @for (var number = 0; number < Model.ViewModel.Events.Count; number++)
     {
         <tr>
-			<td>@(number + 1)</td>
-			<td>@Model.ViewModel.Events[number].Name</td>
+            <td>@(number + 1)</td>
+            <td>@Model.ViewModel.Events[number].Name</td>
 
             @foreach (var gradeItem in Model.ViewModel.ExpertCriterions)
             {
-				<td>@Model.ViewModel.Events[number].ExpertGrades[gradeItem.Identifier].ToString("0.0")</td>
+                <td>@Model.ViewModel.Events[number].ExpertGrades[gradeItem.Identifier].ToString("0.0")</td>
             }
             @if (Model.ViewModel.ExpertCriterions.Count > 0)
             {
-				<td>@Model.ViewModel.Events[number].ExprertGradesQuantity</td>
-				<td>@Model.ViewModel.Events[number].TotalExpertGrade.ToString("0.00")</td>
+                <td>@Model.ViewModel.Events[number].ExprertFeedbacksQuantity</td>
+                <td>@Model.ViewModel.Events[number].TotalExpertGrade.ToString("0.00")</td>
             }
 
             @foreach (var gradeItem in Model.ViewModel.ParticipantCriterions)
             {
-				<td>@Model.ViewModel.Events[number].ParticipantGrades[gradeItem.Identifier].ToString("0.0")</td>
+                <td>@Model.ViewModel.Events[number].ParticipantGrades[gradeItem.Identifier].ToString("0.0")</td>
             }
             @if (Model.ViewModel.ParticipantCriterions.Count > 0)
             {
-				<td>@Model.ViewModel.Events[number].ParticipantGradesQuantity</td>
-				<td>@Model.ViewModel.Events[number].TotalParticipantGrade.ToString("0.00")</td>
+                <td>@Model.ViewModel.Events[number].ParticipantFeedbacksQuantity</td>
+                <td>@Model.ViewModel.Events[number].TotalParticipantGrade.ToString("0.00")</td>
             }
 
-			<td>@Model.ViewModel.Events[number].TotalGrade.ToString("0.00")</td>
+            <td>@Model.ViewModel.Events[number].TotalGrade.ToString("0.00")</td>
 
             <td>
-				@if (Model.ViewModel.Events[number].WithParticipants)
+                @if (Model.ViewModel.Events[number].WithParticipants)
                 {
-					<a class="table" href="/EventParticipants/@Model.ViewModel.Events[number].Identifier">Форма проводящего</a>
+                    <a class="table" href="/EventParticipants/@Model.ViewModel.Events[number].Identifier">Форма проводящего</a>
                 }
                 @if (Model.ViewModel.ExpertCriterions.Count > 0)
                 {
-					<a class="table" href="/ExpertGrade/@Model.ViewModel.Events[number].Identifier">Форма эксперта</a>
-					<a class="table" href="/ExpertNotes/@Model.ViewModel.Events[number].Identifier">Комментарии экспертов</a>
+                    <a class="table" href="/ExpertFeedbackForm/@Model.ViewModel.Events[number].Identifier">Форма эксперта</a>
+                    <a class="table" href="/ExpertFeedbacks/@Model.ViewModel.Events[number].Identifier">Оценки экспертов</a>
                 }
                 @if (Model.ViewModel.ParticipantCriterions.Count > 0)
                 {
-					<a class="table" href="/ParticipantGrade/@Model.ViewModel.Events[number].Identifier">Форма участника</a>
-					<a class="table" href="/ParticipantNotes/@Model.ViewModel.Events[number].Identifier">Комментарии участников</a>
+                    <a class="table" href="/ParticipantFeedbackForm/@Model.ViewModel.Events[number].Identifier">Форма участника</a>
+                    <a class="table" href="/ParticipantFeedbacks/@Model.ViewModel.Events[number].Identifier">Оценки участников</a>
                 }
             </td>
 

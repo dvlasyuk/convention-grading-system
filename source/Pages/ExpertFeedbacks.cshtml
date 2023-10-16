@@ -1,0 +1,43 @@
+@page "{eventId}"
+@model ConventionGradingSystem.Pages.ExpertFeedbacksModel
+
+@{
+    ViewData["Title"] = "Комментарии экспертов";
+    ViewData["AllowNavigation"] = true;
+}
+
+<table>
+
+    <caption>Оценки экспертов для мероприятия "@Model.ViewModel.EventName" в рамках конкруса "@Model.ViewModel.ContestName"</caption>
+
+    <tr>
+        <th rowspan="2">#</th>
+        <th colspan="@Model.ViewModel.Criterions.Count">Оценки</th>
+        <th rowspan="2">Комментарий</th>
+    </tr>
+
+    <tr>
+        @for (var number = 0; number < Model.ViewModel.Criterions.Count; number++)
+        {
+            <th class="tooltip">
+                @(number + 1)
+                <span class="tooltiptext">@Model.ViewModel.Criterions[number].Name</span>
+            </th>
+        }
+    </tr>
+
+    @for (var number = 0; number < Model.ViewModel.Feedbacks.Count; number++)
+    {
+        <tr>
+            <td>@(number + 1)</td>
+
+            @foreach (var item in Model.ViewModel.Criterions)
+            {
+                <td>@Model.ViewModel.Feedbacks[number].Grades[item.Identifier].ToString("0.0")</td>
+            }
+
+            <td>@Model.ViewModel.Feedbacks[number].Note</td>
+        </tr>
+    }
+
+</table>

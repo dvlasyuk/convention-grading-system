@@ -1,4 +1,4 @@
-namespace ConventionGradingSystem.Models.ExpertGrade;
+namespace ConventionGradingSystem.Models.ExpertFeedbackForm;
 
 public record ViewModel(
     string ContestName,

@@ -12,11 +12,11 @@ public class DatabaseContext : DbContext
         : base(options)
     { }
 
+    public DbSet<ExpertFeedback> ExpertFeedbacks => Set<ExpertFeedback>();
     public DbSet<ExpertGrade> ExpertGrades => Set<ExpertGrade>();
-    public DbSet<ExpertNote> ExpertNotes => Set<ExpertNote>();
 
+    public DbSet<ParticipantFeedback> ParticipantFeedbacks => Set<ParticipantFeedback>();
     public DbSet<ParticipantGrade> ParticipantGrades => Set<ParticipantGrade>();
-    public DbSet<ParticipantNote> ParticipantNotes => Set<ParticipantNote>();
 
     public DbSet<ParticipationMark> ParticipationMarks => Set<ParticipationMark>();
     public DbSet<SpecialMark> SpecialMarks => Set<SpecialMark>();
@@ -26,32 +26,42 @@ public class DatabaseContext : DbContext
         base.OnModelCreating(modelBuilder);
 
         modelBuilder
+            .Entity<ExpertFeedback>()
+            .HasKey(entity => entity.Identifier);
+
+        modelBuilder
+            .Entity<ExpertFeedback>()
+            .HasMany(entity => entity.Grades)
+            .WithOne(entity => entity.Feedback)
+            .HasForeignKey(entity => entity.FeedbackId);
+
+        modelBuilder
+            .Entity<ExpertFeedback>()
+            .Property(entity => entity.Note)
+            .HasMaxLength(1000);
+
+        modelBuilder
             .Entity<ExpertGrade>()
             .HasKey(entity => entity.Identifier);
 
         modelBuilder
-            .Entity<ExpertNote>()
+            .Entity<ParticipantFeedback>()
             .HasKey(entity => entity.Identifier);
 
         modelBuilder
-            .Entity<ExpertNote>()
+            .Entity<ParticipantFeedback>()
+            .HasMany(entity => entity.Grades)
+            .WithOne(entity => entity.Feedback)
+            .HasForeignKey(entity => entity.FeedbackId);
+
+        modelBuilder
+            .Entity<ParticipantFeedback>()
             .Property(entity => entity.Note)
-            .HasMaxLength(1000)
-            .IsRequired();
+            .HasMaxLength(1000);
 
         modelBuilder
            .Entity<ParticipantGrade>()
            .HasKey(entity => entity.Identifier);
-
-        modelBuilder
-           .Entity<ParticipantNote>()
-           .HasKey(entity => entity.Identifier);
-
-        modelBuilder
-            .Entity<ParticipantNote>()
-            .Property(entity => entity.Note)
-            .HasMaxLength(1000)
-            .IsRequired();
 
         modelBuilder
             .Entity<ParticipationMark>()

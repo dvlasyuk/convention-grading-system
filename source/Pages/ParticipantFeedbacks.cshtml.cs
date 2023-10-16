@@ -1,9 +1,8 @@
-using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
 using ConventionGradingSystem.Configuration;
 using ConventionGradingSystem.Database;
-using ConventionGradingSystem.Models.ExpertNotes;
+using ConventionGradingSystem.Models.ParticipantFeedbacks;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,12 +12,12 @@ using Microsoft.Extensions.Options;
 namespace ConventionGradingSystem.Pages;
 
 [Authorize(Roles = "Adminstrator")]
-public class ExpertNotesModel : PageModel
+public class ParticipantFeedbacksModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;
     private readonly DatabaseContext _databaseContext;
 
-    public ExpertNotesModel(
+    public ParticipantFeedbacksModel(
         [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
     {
@@ -26,10 +25,11 @@ public class ExpertNotesModel : PageModel
         _databaseContext = databaseContext;
     }
 
-    public ViewModel ViewModel { get; set; } = new ViewModel(
+    public ViewModel ViewModel { get; private set; } = new ViewModel(
         ContestName: "Неизвестный конкурс",
         EventName: "Неизвестное мероприятие",
-        Notes: new List<Note>());
+        Criterions: new List<GradeCriterion>(),
+        Feedbacks: new List<Feedback>());
 
     public async Task OnGetAsync(string eventId)
     {
@@ -46,20 +46,29 @@ public class ExpertNotesModel : PageModel
         ViewModel = ViewModel with
         {
             ContestName = contest.Name,
-            EventName = contestEvent.Name
+            EventName = contestEvent.Name,
+            Criterions = contest.ParticipantCriterions
+                .OrderBy(item => item.Identifier)
+                .Select(item => new GradeCriterion(
+                    Identifier: item.Identifier,
+                    Name: item.Name))
+                .ToList()
         };
 
-        var notes = await _databaseContext.ExpertNotes
+        var feedbacks = await _databaseContext.ParticipantFeedbacks
             .Where(item => item.EventId == eventId)
+            .Include(item => item.Grades)
             .ToListAsync();
 
         ViewModel = ViewModel with
         {
-            Notes = notes
+            Feedbacks = feedbacks
                 .OrderBy(item => item.Identifier)
-                .Select(item => new Note(
-                    Identifier: item.Identifier,
-                    Content: item.Note))
+                .Select(item => new Feedback(
+                    Grades: item.Grades.ToDictionary(
+                        item => item.CriterionId,
+                        item => item.GradeValue),
+                    Note: item.Note))
                 .ToList()
         };
     }

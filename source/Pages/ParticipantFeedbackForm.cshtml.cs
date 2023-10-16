@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using ConventionGradingSystem.Configuration;
 using ConventionGradingSystem.Database;
 using ConventionGradingSystem.Database.Entities;
-using ConventionGradingSystem.Models.ParticipantGrade;
+using ConventionGradingSystem.Models.ParticipantFeedbackForm;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -11,12 +11,12 @@ using Microsoft.Extensions.Options;
 
 namespace ConventionGradingSystem.Pages;
 
-public class ParticipantGradeModel : PageModel
+public class ParticipantFeedbackFormModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;
     private readonly DatabaseContext _databaseContext;
 
-    public ParticipantGradeModel(
+    public ParticipantFeedbackFormModel(
         [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
     {
@@ -86,25 +86,24 @@ public class ParticipantGradeModel : PageModel
             throw new InvalidOperationException("Модель формы должна быть заполнена при выполнении POST-запроса");
         }
 
+        var feedback = new ParticipantFeedback
+        {
+            EventId = eventId,
+            Note = !string.IsNullOrWhiteSpace(FormModel.Note)
+                ? FormModel.Note.Trim()
+                : null
+        };
+
         foreach (var item in FormModel.Grades)
         {
-            _databaseContext.ParticipantGrades.Add(new ParticipantGrade
+            feedback.Grades.Add(new ParticipantGrade
             {
-                EventId = eventId,
                 CriterionId = item.CriterionId,
                 GradeValue = item.GradeValue
             });
         }
 
-        if (!string.IsNullOrWhiteSpace(FormModel.Note))
-        {
-            _databaseContext.ParticipantNotes.Add(new ParticipantNote
-            {
-                EventId = eventId,
-                Note = FormModel.Note
-            });
-        }
-
+        _databaseContext.ParticipantFeedbacks.Add(feedback);
         await _databaseContext.SaveChangesAsync();
 
         Response.Cookies.Append(

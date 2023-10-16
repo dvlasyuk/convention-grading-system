@@ -1,4 +1,4 @@
-namespace ConventionGradingSystem.Models.ExpertGrade;
+namespace ConventionGradingSystem.Models.ParticipantFeedbackForm;
 
 public record FormModel(
     IReadOnlyCollection<Grade> Grades,

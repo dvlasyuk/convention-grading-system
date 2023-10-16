@@ -66,21 +66,23 @@ public class EventsListModel : PageModel
             .Select(item => item.Identifier)
             .ToList();
 
-        var expertGrades = await _databaseContext.ExpertGrades
+        var expertFeedbacks = await _databaseContext.ExpertFeedbacks
             .Where(item => eventIds.Contains(item.EventId))
+            .Include(item => item.Grades)
             .ToListAsync();
 
-        var expertGradeQuantities = expertGrades
+        var expertFeedbackQuantities = expertFeedbacks
             .GroupBy(item => item.EventId)
             .ToDictionary(
                 groupByEvent => groupByEvent.Key,
                 groupByEvent => groupByEvent.Count());
 
-        var expertGradeAverageValues = expertGrades
+        var expertGradeAverageValues = expertFeedbacks
             .GroupBy(item => item.EventId)
             .ToDictionary(
                 groupByEvent => groupByEvent.Key,
                 groupByEvent => groupByEvent
+                    .SelectMany(item => item.Grades)
                     .GroupBy(item => item.CriterionId)
                     .ToDictionary(
                         groupByGrade => groupByGrade.Key,
@@ -92,21 +94,23 @@ public class EventsListModel : PageModel
             .ToDictionary(item => item.Key, item => item.Value
                 .Sum(item => item.Value));
 
-        var participantGrades = await _databaseContext.ParticipantGrades
+        var participantFeedbacks = await _databaseContext.ParticipantFeedbacks
             .Where(item => eventIds.Contains(item.EventId))
+            .Include(item => item.Grades)
             .ToListAsync();
 
-        var participantGradeQuantities = participantGrades
+        var participantFeedbacksQuantities = participantFeedbacks
             .GroupBy(item => item.EventId)
             .ToDictionary(
                 groupByEvent => groupByEvent.Key,
                 groupByEvent => groupByEvent.Count());
 
-        var participantGradeAverageValues = participantGrades
+        var participantGradeAverageValues = participantFeedbacks
             .GroupBy(item => item.EventId)
             .ToDictionary(
                 groupByEvent => groupByEvent.Key,
                 groupByEvent => groupByEvent
+                    .SelectMany(item => item.Grades)
                     .GroupBy(item => item.CriterionId)
                     .ToDictionary(
                         groupByGrade => groupByGrade.Key,
@@ -132,15 +136,11 @@ public class EventsListModel : PageModel
                 .Select(eventItem => new ContestEvent(
                     Identifier: eventItem.Identifier,
                     Name: eventItem.Name,
-                    ExprertGradesQuantity: contest.ExpertCriterions.Count > 0
-                        ? expertGradeQuantities.TryGetValue(eventItem.Identifier, out var expertGradesQuantity)
-                            ? expertGradesQuantity / contest.ExpertCriterions.Count
-                            : 0
+                    ExprertFeedbacksQuantity: expertFeedbackQuantities.TryGetValue(eventItem.Identifier, out var expertFeedbacksQuantity)
+                        ? expertFeedbacksQuantity
                         : 0,
-                    ParticipantGradesQuantity: contest.ParticipantCriterions.Count > 0
-                        ? participantGradeQuantities.TryGetValue(eventItem.Identifier, out var participantGradesQuantity)
-                            ? participantGradesQuantity / contest.ParticipantCriterions.Count
-                            : 0
+                    ParticipantFeedbacksQuantity: participantFeedbacksQuantities.TryGetValue(eventItem.Identifier, out var participantGradesQuantity)
+                        ? participantGradesQuantity
                         : 0,
                     ExpertGrades: contest.ExpertCriterions.Count > 0
                         ? contest.ExpertCriterions

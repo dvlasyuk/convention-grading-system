@@ -11,8 +11,8 @@ public record GradeCriterion(string Identifier, string Name);
 public record ContestEvent(
     string Identifier,
     string Name,
-    int ExprertGradesQuantity,
-    int ParticipantGradesQuantity,
+    int ExprertFeedbacksQuantity,
+    int ParticipantFeedbacksQuantity,
     IReadOnlyDictionary<string, float> ExpertGrades,
     IReadOnlyDictionary<string, float> ParticipantGrades,
     float TotalExpertGrade,
