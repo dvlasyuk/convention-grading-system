@@ -1,4 +1,4 @@
-namespace ConventionGradingSystem.Configuration.Contests;
+namespace ConventionGradingSystem.Configuration.Models;
 
 public class Contest
 {

@@ -1,4 +1,4 @@
-namespace ConventionGradingSystem.Configuration.Participants;
+namespace ConventionGradingSystem.Configuration.Models;
 
 public class Participant
 {

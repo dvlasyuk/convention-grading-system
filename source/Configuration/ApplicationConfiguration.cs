@@ -1,5 +1,4 @@
-using ConventionGradingSystem.Configuration.Contests;
-using ConventionGradingSystem.Configuration.Participants;
+using ConventionGradingSystem.Configuration.Models;
 
 namespace ConventionGradingSystem.Configuration;
 

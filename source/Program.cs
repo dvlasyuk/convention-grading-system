@@ -1,9 +1,11 @@
 using ConventionGradingSystem.Configuration;
+using ConventionGradingSystem.Configuration.Validators;
 using ConventionGradingSystem.Database;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace ConventionGradingSystem;
 
@@ -30,13 +32,11 @@ public static class Program
             .UseSqlite(applicationBuilder.Configuration.GetConnectionString("Database"))
             .EnableSensitiveDataLogging());
 
-        applicationBuilder.Services
-            .AddOptions<ApplicationConfiguration>()
-            .BindConfiguration("ApplicationConfiguration");
+        applicationBuilder.Services.AddSingleton<IValidateOptions<ApplicationConfiguration>, ApplicationConfigurationValidator>();
+        applicationBuilder.Services.AddSingleton<IValidateOptions<SecurityConfiguration>, SecurityConfigurationValidator>();
 
-        applicationBuilder.Services
-            .AddOptions<SecurityConfiguration>()
-            .BindConfiguration("SecurityConfiguration");
+        applicationBuilder.Services.Configure<ApplicationConfiguration>(applicationBuilder.Configuration.GetSection("ApplicationConfiguration"));
+        applicationBuilder.Services.Configure<SecurityConfiguration>(applicationBuilder.Configuration.GetSection("SecurityConfiguration"));
 
         var application = applicationBuilder.Build();
 
