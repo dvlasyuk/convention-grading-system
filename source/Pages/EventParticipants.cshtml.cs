@@ -35,10 +35,10 @@ public class EventParticipantsModel : PageModel
     [BindProperty]
     public FormModel? FormModel { get; set; }
 
-    public async Task OnGetAsync(string contestId, string eventId) =>
-        await InitializeModel(contestId, eventId);
+    public async Task OnGetAsync(string eventId) =>
+        await InitializeModel(eventId);
 
-    public async Task OnPostAsync(string contestId, string eventId)
+    public async Task OnPostAsync(string eventId)
     {
         if (FormModel == null)
         {
@@ -47,7 +47,6 @@ public class EventParticipantsModel : PageModel
 
         var configuredParticipationMarks = FormModel.ParticipationMarks ?? new List<string>();
         var savedParticipationMarks = await _databaseContext.ParticipationMarks
-            .Where(item => item.ContestId == contestId)
             .Where(item => item.EventId == eventId)
             .ToListAsync();
 
@@ -57,7 +56,6 @@ public class EventParticipantsModel : PageModel
             .Select(participantId => new ParticipationMark
             {
                 ParticipantId = participantId,
-                ContestId = contestId,
                 EventId = eventId
             })
             .ToList());
@@ -69,7 +67,6 @@ public class EventParticipantsModel : PageModel
 
         var configuredSpecialMarks = FormModel.SpecialMarks ?? new List<string>();
         var savedSpecialMarks = await _databaseContext.SpecialMarks
-            .Where(item => item.ContestId == contestId)
             .Where(item => item.EventId == eventId)
             .ToListAsync();
 
@@ -79,7 +76,6 @@ public class EventParticipantsModel : PageModel
             .Select(participantId => new SpecialMark
             {
                 ParticipantId = participantId,
-                ContestId = contestId,
                 EventId = eventId
             })
             .ToList());
@@ -90,35 +86,33 @@ public class EventParticipantsModel : PageModel
             .ToList());
 
         await _databaseContext.SaveChangesAsync();
-        await InitializeModel(contestId, eventId);
+        await InitializeModel(eventId);
     }
 
-    private async Task InitializeModel(string contestId, string eventId)
+    private async Task InitializeModel(string eventId)
     {
-        var contest = _configuration.Contests.FirstOrDefault(item => item.Identifier == contestId);
-        if (contest == null)
-        {
-            return;
-        }
+        var contestEvent = _configuration.Contests
+            .SelectMany(item => item.Events)
+            .FirstOrDefault(item => item.Identifier == eventId);
 
-        ViewModel = ViewModel with { ContestName = contest.Name };
-
-        var contestEvent = contest.Events.FirstOrDefault(item => item.Identifier == eventId);
         if (contestEvent == null)
         {
             return;
         }
 
-        ViewModel = ViewModel with { EventName = contestEvent.Name };
+        var contest = _configuration.Contests.First(item => item.Events.Contains(contestEvent));
+        ViewModel = ViewModel with
+        {
+            ContestName = contest.Name,
+            EventName = contestEvent.Name
+        };
 
         var participationMarks = await _databaseContext.ParticipationMarks
-            .Where(item => item.ContestId == contestId)
             .Where(item => item.EventId == eventId)
             .Select(item => item.ParticipantId)
             .ToListAsync();
 
         var specialMarks = await _databaseContext.SpecialMarks
-            .Where(item => item.ContestId == contestId)
             .Where(item => item.EventId == eventId)
             .Select(item => item.ParticipantId)
             .ToListAsync();

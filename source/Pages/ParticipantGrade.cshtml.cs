@@ -33,17 +33,22 @@ public class ParticipantGradeModel : PageModel
     [BindProperty]
     public FormModel? FormModel { get; set; }
 
-    public void OnGet(string contestId, string eventId)
+    public void OnGet(string eventId)
     {
-        var contest = _configuration.Contests.FirstOrDefault(item => item.Identifier == contestId);
-        if (contest == null)
+        var contestEvent = _configuration.Contests
+            .SelectMany(item => item.Events)
+            .FirstOrDefault(item => item.Identifier == eventId);
+
+        if (contestEvent == null)
         {
             return;
         }
 
+        var contest = _configuration.Contests.First(item => item.Events.Contains(contestEvent));
         ViewModel = ViewModel with
         {
             ContestName = contest.Name,
+            EventName = contestEvent.Name,
             Criterions = contest.ParticipantCriterions
                 .OrderBy(item => item.Identifier)
                 .Select(item => new GradeCriterion(
@@ -55,21 +60,20 @@ public class ParticipantGradeModel : PageModel
                 .ToList()
         };
 
-        var contestEvent = contest.Events.FirstOrDefault(item => item.Identifier == eventId);
-        if (contestEvent == null)
-        {
-            return;
-        }
-
-        ViewModel = ViewModel with { EventName = contestEvent.Name };
-        FormState = Request.Cookies.Any(item => item.Key == GetCookieName(contestId))
+        FormState = Request.Cookies.Any(item => item.Key == GetCookieName(contest.Identifier))
             ? FormState.PreviouslyGraded
             : FormState.NotGraded;
     }
 
-    public async Task OnPostAsync(string contestId, string eventId)
+    public async Task OnPostAsync(string eventId)
     {
-        FormState = Request.Cookies.Any(item => item.Key == GetCookieName(contestId))
+        var contest = _configuration.Contests.FirstOrDefault(item => item.Events.Any(item => item.Identifier == eventId));
+        if (contest == null)
+        {
+            return;
+        }
+
+        FormState = Request.Cookies.Any(item => item.Key == GetCookieName(contest.Identifier))
             ? FormState.PreviouslyGraded
             : FormState.JustGraded;
 
@@ -86,7 +90,6 @@ public class ParticipantGradeModel : PageModel
         {
             _databaseContext.ParticipantGrades.Add(new ParticipantGrade
             {
-                ContestId = contestId,
                 EventId = eventId,
                 CriterionId = item.CriterionId,
                 GradeValue = item.GradeValue
@@ -97,7 +100,6 @@ public class ParticipantGradeModel : PageModel
         {
             _databaseContext.ParticipantNotes.Add(new ParticipantNote
             {
-                ContestId = contestId,
                 EventId = eventId,
                 Note = FormModel.Note
             });
@@ -106,7 +108,7 @@ public class ParticipantGradeModel : PageModel
         await _databaseContext.SaveChangesAsync();
 
         Response.Cookies.Append(
-            key: GetCookieName(contestId),
+            key: GetCookieName(contest.Identifier),
             value: "Конкурс мероприятий оценён",
             options: new CookieOptions
             {

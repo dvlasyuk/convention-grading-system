@@ -90,17 +90,17 @@
             <td>
 				@if (Model.ViewModel.Events[number].WithParticipants)
                 {
-					<a class="table" href="/EventParticipants/@Model.ViewModel.ContestId/@Model.ViewModel.Events[number].Identifier">Форма проводящего</a>
+					<a class="table" href="/EventParticipants/@Model.ViewModel.Events[number].Identifier">Форма проводящего</a>
                 }
                 @if (Model.ViewModel.ExpertCriterions.Count > 0)
                 {
-					<a class="table" href="/ExpertGrade/@Model.ViewModel.ContestId/@Model.ViewModel.Events[number].Identifier">Форма эксперта</a>
-					<a class="table" href="/ExpertNotes/@Model.ViewModel.ContestId/@Model.ViewModel.Events[number].Identifier">Комментарии экспертов</a>
+					<a class="table" href="/ExpertGrade/@Model.ViewModel.Events[number].Identifier">Форма эксперта</a>
+					<a class="table" href="/ExpertNotes/@Model.ViewModel.Events[number].Identifier">Комментарии экспертов</a>
                 }
                 @if (Model.ViewModel.ParticipantCriterions.Count > 0)
                 {
-					<a class="table" href="/ParticipantGrade/@Model.ViewModel.ContestId/@Model.ViewModel.Events[number].Identifier">Форма участника</a>
-					<a class="table" href="/ParticipantNotes/@Model.ViewModel.ContestId/@Model.ViewModel.Events[number].Identifier">Комментарии участников</a>
+					<a class="table" href="/ParticipantGrade/@Model.ViewModel.Events[number].Identifier">Форма участника</a>
+					<a class="table" href="/ParticipantNotes/@Model.ViewModel.Events[number].Identifier">Комментарии участников</a>
                 }
             </td>
 

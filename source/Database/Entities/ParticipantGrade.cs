@@ -6,7 +6,6 @@ namespace ConventionGradingSystem.Database.Entities;
 public class ParticipantGrade
 {
     public int Identifier { get; set; }
-    public required string ContestId { get; set; }
     public required string EventId { get; set; }
     public required string CriterionId { get; set; }
     public required int GradeValue { get; set; }

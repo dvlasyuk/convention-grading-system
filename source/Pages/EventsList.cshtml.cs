@@ -27,7 +27,6 @@ public class EventsListModel : PageModel
     }
 
     public ViewModel ViewModel { get; private set; } = new ViewModel(
-        ContestId: string.Empty,
         ContestName: "Неизвестный конкурс",
         ExpertCriterions: new List<GradeCriterion>(),
         ParticipantCriterions: new List<GradeCriterion>(),
@@ -43,7 +42,6 @@ public class EventsListModel : PageModel
 
         ViewModel = ViewModel with
         {
-            ContestId = contest.Identifier,
             ContestName = contest.Name,
             ExpertCriterions = contest.ExpertCriterions
                 .OrderBy(item => item.Identifier)
@@ -64,8 +62,12 @@ public class EventsListModel : PageModel
             return;
         }
 
+        var eventIds = contest.Events
+            .Select(item => item.Identifier)
+            .ToList();
+
         var expertGrades = await _databaseContext.ExpertGrades
-            .Where(item => item.ContestId == contestId)
+            .Where(item => eventIds.Contains(item.EventId))
             .ToListAsync();
 
         var expertGradeQuantities = expertGrades
@@ -79,7 +81,7 @@ public class EventsListModel : PageModel
             .ToDictionary(
                 groupByEvent => groupByEvent.Key,
                 groupByEvent => groupByEvent
-                    .GroupBy(item => item.ContestId)
+                    .GroupBy(item => item.CriterionId)
                     .ToDictionary(
                         groupByGrade => groupByGrade.Key,
                         groupByGrade => groupByGrade.Any()
@@ -91,7 +93,7 @@ public class EventsListModel : PageModel
                 .Sum(item => item.Value));
 
         var participantGrades = await _databaseContext.ParticipantGrades
-            .Where(item => item.ContestId == contestId)
+            .Where(item => eventIds.Contains(item.EventId))
             .ToListAsync();
 
         var participantGradeQuantities = participantGrades
@@ -105,7 +107,7 @@ public class EventsListModel : PageModel
             .ToDictionary(
                 groupByEvent => groupByEvent.Key,
                 groupByEvent => groupByEvent
-                    .GroupBy(item => item.ContestId)
+                    .GroupBy(item => item.CriterionId)
                     .ToDictionary(
                         groupByGrade => groupByGrade.Key,
                         groupByGrade => groupByGrade.Any()

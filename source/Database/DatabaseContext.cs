@@ -55,7 +55,7 @@ public class DatabaseContext : DbContext
 
         modelBuilder
             .Entity<ParticipationMark>()
-            .HasKey(entity => new { entity.ParticipantId, entity.ContestId, entity.EventId });
+            .HasKey(entity => new { entity.ParticipantId, entity.EventId });
 
         modelBuilder
             .Entity<ParticipationMark>()
@@ -65,7 +65,7 @@ public class DatabaseContext : DbContext
 
         modelBuilder
             .Entity<SpecialMark>()
-            .HasKey(entity => new { entity.ParticipantId, entity.ContestId, entity.EventId });
+            .HasKey(entity => new { entity.ParticipantId, entity.EventId });
 
         modelBuilder
             .Entity<SpecialMark>()

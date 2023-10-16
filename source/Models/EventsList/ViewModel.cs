@@ -1,7 +1,6 @@
 namespace ConventionGradingSystem.Models.EventsList;
 
 public record ViewModel(
-    string ContestId,
     string ContestName,
     IReadOnlyList<GradeCriterion> ExpertCriterions,
     IReadOnlyList<GradeCriterion> ParticipantCriterions,

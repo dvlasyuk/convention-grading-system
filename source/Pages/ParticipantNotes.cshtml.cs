@@ -30,26 +30,25 @@ public class ParticipantNotesModel : PageModel
         EventName: "Неизвестное мероприятие",
         Notes: new List<Note>());
 
-    public async Task OnGetAsync(string contestId, string eventId)
+    public async Task OnGetAsync(string eventId)
     {
-        var contest = _configuration.Contests.FirstOrDefault(item => item.Identifier == contestId);
-        if (contest == null)
-        {
-            return;
-        }
+        var contestEvent = _configuration.Contests
+            .SelectMany(item => item.Events)
+            .FirstOrDefault(item => item.Identifier == eventId);
 
-        ViewModel = ViewModel with { ContestName = contest.Name };
-
-        var contestEvent = contest.Events.FirstOrDefault(item => item.Identifier == eventId);
         if (contestEvent == null)
         {
             return;
         }
 
-        ViewModel = ViewModel with { EventName = contestEvent.Name };
+        var contest = _configuration.Contests.First(item => item.Events.Contains(contestEvent));
+        ViewModel = ViewModel with
+        {
+            ContestName = contest.Name,
+            EventName = contestEvent.Name
+        };
 
         var notes = await _databaseContext.ParticipantNotes
-            .Where(item => item.ContestId == contestId)
             .Where(item => item.EventId == eventId)
             .ToListAsync();
 

@@ -31,26 +31,25 @@ public class ExpertNotesModel : PageModel
         EventName: "Неизвестное мероприятие",
         Notes: new List<Note>());
 
-    public async Task OnGetAsync(string contestId, string eventId)
+    public async Task OnGetAsync(string eventId)
     {
-        var eventType = _configuration.Contests.FirstOrDefault(item => item.Identifier == contestId);
-        if (eventType == null)
-        {
-            return;
-        }
+        var contestEvent = _configuration.Contests
+            .SelectMany(item => item.Events)
+            .FirstOrDefault(item => item.Identifier == eventId);
 
-        ViewModel = ViewModel with { ContestName = eventType.Name };
-
-        var contestEvent = eventType.Events.FirstOrDefault(item => item.Identifier == eventId);
         if (contestEvent == null)
         {
             return;
         }
 
-        ViewModel = ViewModel with { EventName = contestEvent.Name };
+        var contest = _configuration.Contests.First(item => item.Events.Contains(contestEvent));
+        ViewModel = ViewModel with
+        {
+            ContestName = contest.Name,
+            EventName = contestEvent.Name
+        };
 
         var notes = await _databaseContext.ExpertNotes
-            .Where(item => item.ContestId == contestId)
             .Where(item => item.EventId == eventId)
             .ToListAsync();
 
