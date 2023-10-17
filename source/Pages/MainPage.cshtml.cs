@@ -14,7 +14,7 @@ namespace ConventionGradingSystem.Pages;
 /// <summary>
 /// Модель главной страницы приложения.
 /// </summary>
-[Authorize(Roles = "Adminstrator")]
+[Authorize(Roles = "Administrator")]
 public class MainPageModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;

@@ -142,5 +142,5 @@ public class ParticipantFeedbackFormModel : PageModel
     }
 
     private static string GetCookieName(string contestId) =>
-        $"ParticipantGrade-{contestId}";
+        $"ParticipantFeedback-{contestId}";
 }

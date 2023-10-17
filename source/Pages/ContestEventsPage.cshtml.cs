@@ -15,7 +15,7 @@ namespace ConventionGradingSystem.Pages;
 /// <summary>
 /// Модель страницы приложения со списком мероприятий в рамках конкурса мероприятий.
 /// </summary>
-[Authorize(Roles = "Adminstrator")]
+[Authorize(Roles = "Administrator")]
 public class ContestEventsPageModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;

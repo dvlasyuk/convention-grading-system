@@ -1,5 +1,5 @@
-@page "/audience-votings/{votingId}"
-@model ConventionGradingSystem.Pages.AudienceVotingsPageModel
+@page "/voting-participants/{votingId}"
+@model ConventionGradingSystem.Pages.VotingParticipantsPageModel
 
 @{
     ViewData["Title"] = "Список участников голосования";
@@ -15,7 +15,7 @@
         <th>Название/имя участника</th>
         <th>Связанные отряды</th>
         <th>Количество голосов</th>
-        <th>Ссылки</th>
+        <th>Ссылка</th>
     </tr>
 
     @for (var number = 0; number < Model.ViewModel.Participants.Count; number++)

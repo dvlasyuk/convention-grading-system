@@ -1,4 +1,4 @@
-namespace ConventionGradingSystem.Models.AudienceVotingsPage;
+namespace ConventionGradingSystem.Models.VotingParticipantsPage;
 
 /// <summary>
 /// Модель представления страницы приложения со списком участников зрительского голосования.

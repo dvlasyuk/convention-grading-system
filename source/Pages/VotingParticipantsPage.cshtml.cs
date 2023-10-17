@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ConventionGradingSystem.Configuration;
 using ConventionGradingSystem.Database;
-using ConventionGradingSystem.Models.AudienceVotingsPage;
+using ConventionGradingSystem.Models.VotingParticipantsPage;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -14,18 +14,18 @@ namespace ConventionGradingSystem.Pages;
 /// <summary>
 /// Модель страницы приложения со списком участников зрительского голосования.
 /// </summary>
-[Authorize(Roles = "Adminstrator")]
-public class AudienceVotingsPageModel : PageModel
+[Authorize(Roles = "Administrator")]
+public class VotingParticipantsPageModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;
     private readonly DatabaseContext _databaseContext;
 
     /// <summary>
-    /// Создаёт новый экземпляр <see cref="AudienceVotingsPageModel"/>.
+    /// Создаёт новый экземпляр <see cref="VotingParticipantsPageModel"/>.
     /// </summary>
     /// <param name="configuration">Конфигурационные данные приложения.</param>
     /// <param name="databaseContext">Контекст для доступа к базе данных.</param>
-    public AudienceVotingsPageModel(
+    public VotingParticipantsPageModel(
         [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
     {

@@ -15,7 +15,7 @@ namespace ConventionGradingSystem.Pages;
 /// <summary>
 /// Модель формы приложения для сбора отзывов экспертов о мероприятии в рамках конкурса мероприятий.
 /// </summary>
-[Authorize(Roles = "Adminstrator,Expert")]
+[Authorize(Roles = "Administrator,Expert")]
 public class ExpertFeedbackFormModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;
@@ -147,5 +147,5 @@ public class ExpertFeedbackFormModel : PageModel
     }
 
     private static string GetCookieName(string eventId) =>
-        $"ExpertGrade-{eventId}";
+        $"ExpertFeedback-{eventId}";
 }

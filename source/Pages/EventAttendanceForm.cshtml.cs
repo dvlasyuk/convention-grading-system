@@ -16,7 +16,7 @@ namespace ConventionGradingSystem.Pages;
 /// <summary>
 /// Модель формы приложения для сбора отметок о посещении мероприятия в рамках конкурса мероприятий.
 /// </summary>
-[Authorize(Roles = "Adminstrator,Organizer")]
+[Authorize(Roles = "Administrator,Organizer")]
 public class EventAttendanceFormModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;

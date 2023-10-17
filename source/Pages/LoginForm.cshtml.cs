@@ -56,7 +56,7 @@ public class LoginFormModel : PageModel
         string user;
         if (string.Equals(hashedSecret, _configuration.AdministratorSecretHash, StringComparison.Ordinal))
         {
-            user = "Adminstrator";
+            user = "Administrator";
         }
         else if (string.Equals(hashedSecret, _configuration.OrganizerSecretHash, StringComparison.Ordinal))
         {

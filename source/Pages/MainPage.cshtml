@@ -39,7 +39,7 @@
         <th>#</th>
         <th>Название голосования</th>
         <th>Количество участников</th>
-        <th>Ссылка на страницу голосования</th>
+        <th>Ссылки</th>
     </tr>
 
     @for (var number = 0; number < Model.ViewModel.Votings.Count; number++)
@@ -49,7 +49,8 @@
             <td>@Model.ViewModel.Votings[number].Name</td>
             <td>@Model.ViewModel.Votings[number].ParticipantsQuantity</td>
             <td>
-                <a class="table" href="/audience-votings/@Model.ViewModel.Votings[number].Identifier">Ссылка</a>
+                <a class="table" href="/voting-participants/@Model.ViewModel.Votings[number].Identifier">Ссылка на страницу голосования</a>
+                <a class="table" href="/participant-vote/@Model.ViewModel.Votings[number].Identifier">Форма голосования</a>
             </td>
         </tr>
     }

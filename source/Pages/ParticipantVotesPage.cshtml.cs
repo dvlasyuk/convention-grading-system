@@ -14,7 +14,7 @@ namespace ConventionGradingSystem.Pages;
 /// <summary>
 /// Модель страницы приложения со списком голосов участников за участника зрительского голосования.
 /// </summary>
-[Authorize(Roles = "Adminstrator")]
+[Authorize(Roles = "Administrator")]
 public class ParticipantVotesPageModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;
