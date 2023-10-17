@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using ConventionGradingSystem.Configuration;
 using ConventionGradingSystem.Database;
 using ConventionGradingSystem.Database.Entities;
-using ConventionGradingSystem.Models.EventParticipants;
+using ConventionGradingSystem.Models.EventAttendanceForm;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,12 +14,12 @@ using Microsoft.Extensions.Options;
 namespace ConventionGradingSystem.Pages;
 
 [Authorize(Roles = "Adminstrator,Organizer")]
-public class EventParticipantsModel : PageModel
+public class EventAttendanceFormModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;
     private readonly DatabaseContext _databaseContext;
 
-    public EventParticipantsModel(
+    public EventAttendanceFormModel(
         [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
     {
@@ -45,43 +45,27 @@ public class EventParticipantsModel : PageModel
             throw new InvalidOperationException("Модель формы должна быть заполнена при выполнении POST-запроса");
         }
 
-        var configuredParticipationMarks = FormModel.ParticipationMarks ?? new List<string>();
-        var savedParticipationMarks = await _databaseContext.ParticipationMarks
-            .Where(item => item.EventId == eventId)
-            .ToListAsync();
-
-        _databaseContext.ParticipationMarks.AddRange(configuredParticipationMarks
-            .Where(participantId => !savedParticipationMarks
-                .Any(mark => mark.ParticipantId == participantId))
-            .Select(participantId => new ParticipationMark
-            {
-                ParticipantId = participantId,
-                EventId = eventId
-            })
-            .ToList());
-
-        _databaseContext.ParticipationMarks.RemoveRange(savedParticipationMarks
-            .Where(mark => !configuredParticipationMarks
-                .Any(participantId => participantId == mark.ParticipantId))
-            .ToList());
-
+        var configuredAttendanceMarks = FormModel.AttendanceMarks ?? new List<string>();
         var configuredSpecialMarks = FormModel.SpecialMarks ?? new List<string>();
-        var savedSpecialMarks = await _databaseContext.SpecialMarks
+
+        var savedMarks = await _databaseContext.AttendanceMarks
             .Where(item => item.EventId == eventId)
             .ToListAsync();
 
-        _databaseContext.SpecialMarks.AddRange(configuredSpecialMarks
-            .Where(participantId => !savedSpecialMarks
+        _databaseContext.AttendanceMarks.AddRange(configuredAttendanceMarks
+            .Where(participantId => !savedMarks
                 .Any(mark => mark.ParticipantId == participantId))
-            .Select(participantId => new SpecialMark
+            .Select(participantId => new AttendanceMark
             {
                 ParticipantId = participantId,
-                EventId = eventId
+                EventId = eventId,
+                SpecialMark = configuredSpecialMarks
+                    .Any(mark => mark == participantId)
             })
             .ToList());
 
-        _databaseContext.SpecialMarks.RemoveRange(savedSpecialMarks
-            .Where(mark => !configuredSpecialMarks
+        _databaseContext.AttendanceMarks.RemoveRange(savedMarks
+            .Where(mark => !configuredAttendanceMarks
                 .Any(participantId => participantId == mark.ParticipantId))
             .ToList());
 
@@ -107,15 +91,18 @@ public class EventParticipantsModel : PageModel
             EventName = contestEvent.Name
         };
 
-        var participationMarks = await _databaseContext.ParticipationMarks
+        var savedAttendanceMarks = await _databaseContext.AttendanceMarks
             .Where(item => item.EventId == eventId)
-            .Select(item => item.ParticipantId)
             .ToListAsync();
 
-        var specialMarks = await _databaseContext.SpecialMarks
-            .Where(item => item.EventId == eventId)
+        var attendanceMarks = savedAttendanceMarks
             .Select(item => item.ParticipantId)
-            .ToListAsync();
+            .ToList();
+
+        var specialMarks = savedAttendanceMarks
+            .Where(item => item.SpecialMark)
+            .Select(item => item.ParticipantId)
+            .ToList();
 
         ViewModel = ViewModel with
         {
@@ -127,7 +114,7 @@ public class EventParticipantsModel : PageModel
                     Identifier: participant.Identifier,
                     Name: participant.Name,
                     Brigade: participant.Brigade,
-                    ParticipitionMark: participationMarks.Contains(participant.Identifier),
+                    AttendanceMark: attendanceMarks.Contains(participant.Identifier),
                     SpecialMark: specialMarks.Contains(participant.Identifier)))
                 .ToList()
         };

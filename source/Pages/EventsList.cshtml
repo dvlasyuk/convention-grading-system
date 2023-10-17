@@ -90,7 +90,7 @@
             <td>
                 @if (Model.ViewModel.Events[number].WithParticipants)
                 {
-                    <a class="table" href="/EventParticipants/@Model.ViewModel.Events[number].Identifier">Форма проводящего</a>
+					<a class="table" href="/EventAttendanceForm/@Model.ViewModel.Events[number].Identifier">Форма проводящего</a>
                 }
                 @if (Model.ViewModel.ExpertCriterions.Count > 0)
                 {

@@ -1,4 +1,4 @@
-namespace ConventionGradingSystem.Models.EventParticipants;
+namespace ConventionGradingSystem.Models.EventAttendanceForm;
 
 public record ViewModel(
     string ContestName,
@@ -9,5 +9,5 @@ public record Participant(
     string Identifier,
     string Name,
     string Brigade,
-    bool ParticipitionMark,
+    bool AttendanceMark,
     bool SpecialMark);

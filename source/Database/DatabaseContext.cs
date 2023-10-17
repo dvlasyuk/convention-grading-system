@@ -1,5 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
+using ConventionGradingSystem.Database.Configurators;
 using ConventionGradingSystem.Database.Entities;
 
 using Microsoft.EntityFrameworkCore;
@@ -18,69 +19,18 @@ public class DatabaseContext : DbContext
     public DbSet<ParticipantFeedback> ParticipantFeedbacks => Set<ParticipantFeedback>();
     public DbSet<ParticipantGrade> ParticipantGrades => Set<ParticipantGrade>();
 
-    public DbSet<ParticipationMark> ParticipationMarks => Set<ParticipationMark>();
-    public DbSet<SpecialMark> SpecialMarks => Set<SpecialMark>();
+    public DbSet<AttendanceMark> AttendanceMarks => Set<AttendanceMark>();
 
     protected override void OnModelCreating([NotNull] ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        modelBuilder
-            .Entity<ExpertFeedback>()
-            .HasKey(entity => entity.Identifier);
+        modelBuilder.ApplyConfiguration(new ExpertFeedbackConfigurator());
+        modelBuilder.ApplyConfiguration(new ExpertGradeConfigurator());
 
-        modelBuilder
-            .Entity<ExpertFeedback>()
-            .HasMany(entity => entity.Grades)
-            .WithOne(entity => entity.Feedback)
-            .HasForeignKey(entity => entity.FeedbackId);
+        modelBuilder.ApplyConfiguration(new ParticipantFeedbackConfigurator());
+        modelBuilder.ApplyConfiguration(new ParticipantGradeConfigurator());
 
-        modelBuilder
-            .Entity<ExpertFeedback>()
-            .Property(entity => entity.Note)
-            .HasMaxLength(1000);
-
-        modelBuilder
-            .Entity<ExpertGrade>()
-            .HasKey(entity => entity.Identifier);
-
-        modelBuilder
-            .Entity<ParticipantFeedback>()
-            .HasKey(entity => entity.Identifier);
-
-        modelBuilder
-            .Entity<ParticipantFeedback>()
-            .HasMany(entity => entity.Grades)
-            .WithOne(entity => entity.Feedback)
-            .HasForeignKey(entity => entity.FeedbackId);
-
-        modelBuilder
-            .Entity<ParticipantFeedback>()
-            .Property(entity => entity.Note)
-            .HasMaxLength(1000);
-
-        modelBuilder
-           .Entity<ParticipantGrade>()
-           .HasKey(entity => entity.Identifier);
-
-        modelBuilder
-            .Entity<ParticipationMark>()
-            .HasKey(entity => new { entity.ParticipantId, entity.EventId });
-
-        modelBuilder
-            .Entity<ParticipationMark>()
-            .Property(entity => entity.ParticipantId)
-            .HasMaxLength(100)
-            .IsRequired();
-
-        modelBuilder
-            .Entity<SpecialMark>()
-            .HasKey(entity => new { entity.ParticipantId, entity.EventId });
-
-        modelBuilder
-            .Entity<SpecialMark>()
-            .Property(entity => entity.ParticipantId)
-            .HasMaxLength(100)
-            .IsRequired();
+        modelBuilder.ApplyConfiguration(new AttendanceMarkConfigurator());
     }
 }

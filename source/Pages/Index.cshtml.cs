@@ -47,8 +47,7 @@ public class IndexModel : PageModel
             .SelectMany(item => item.Participants)
             .ToList();
 
-        var participationMarks = await _databaseContext.ParticipationMarks.ToListAsync();
-        var specialMarks = await _databaseContext.SpecialMarks.ToListAsync();
+        var attendanceMarks = await _databaseContext.AttendanceMarks.ToListAsync();
 
         ViewModel = ViewModel with
         {
@@ -61,12 +60,13 @@ public class IndexModel : PageModel
                             .Where(identifier => identifier == member.Identifier))
                         .Count(),
                     MembersMarksQuantity: team.Members
-                        .SelectMany(member => participationMarks
+                        .SelectMany(member => attendanceMarks
                             .Where(mark => mark.ParticipantId == member.Identifier))
                         .Count(),
                     SpecialMarksQuantity: team.Members
-                        .SelectMany(member => specialMarks
+                        .SelectMany(member => attendanceMarks
                             .Where(mark => mark.ParticipantId == member.Identifier))
+                        .Where(mark => mark.SpecialMark)
                         .Count()))
                 .OrderBy(team => team.Name.Length)
                 .ThenBy(team => team.Name)

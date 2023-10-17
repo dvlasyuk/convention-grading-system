@@ -1,5 +1,5 @@
 @page "{eventId}"
-@model ConventionGradingSystem.Pages.EventParticipantsModel
+@model ConventionGradingSystem.Pages.EventAttendanceFormModel
 
 @{
     ViewData["Title"] = "Список участников мероприятия";
@@ -27,19 +27,19 @@
                 <td>@item.Name</td>
                 <td>@item.Brigade</td>
                 <td>
-                    @if (item.ParticipitionMark)
+					@if (item.AttendanceMark)
                     {
                         <input type="checkbox"
-                               id="FormModel.ParticipationMarks"
-                               name="FormModel.ParticipationMarks"
+							   id="FormModel.AttendanceMarks"
+							   name="FormModel.AttendanceMarks"
                                value="@item.Identifier"
                                checked />
                     }
                     else
                     {
                         <input type="checkbox"
-                               id="FormModel.ParticipationMarks"
-                               name="FormModel.ParticipationMarks"
+							   id="FormModel.AttendanceMarks"
+							   name="FormModel.AttendanceMarks"
                                value="@item.Identifier" />
                     }
                 </td>
