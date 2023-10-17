@@ -21,8 +21,14 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
     {
         var failureMessages = new List<string>();
 
+        var participantIds = options.Teams
+            .SelectMany(team => team.Members)
+            .Select(participant => participant.Identifier)
+            .ToList();
+
         failureMessages.AddRange(ValidateIdentifiersUniqueness(options));
-        failureMessages.AddRange(options.Contests.SelectMany(ValidateContest));
+        failureMessages.AddRange(options.Contests.SelectMany(item => ValidateContest(item, participantIds)));
+        failureMessages.AddRange(options.Votings.SelectMany(ValidateAudienceVoting));
         failureMessages.AddRange(options.Teams.SelectMany(ValidateTeam));
 
         return failureMessages.Any()
@@ -34,42 +40,60 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
     {
         var failureMessages = new List<string>();
 
-        failureMessages.AddRange(ValidateIdentifiersUniqueness(
+        failureMessages.AddRange(ValidateUniqueness(
             name: "Идентификатор конкурса",
-            identifiers: options.Contests.Select(item => item.Identifier)));
+            values: options.Contests.Select(item => item.Identifier),
+            validator: IsValidIdentifier));
 
-        failureMessages.AddRange(ValidateIdentifiersUniqueness(
+        failureMessages.AddRange(ValidateUniqueness(
             name: "Идентификатор мероприятия",
-            identifiers: options.Contests
+            values: options.Contests
                 .SelectMany(item => item.Events)
-                .Select(item => item.Identifier)));
+                .Select(item => item.Identifier),
+            validator: IsValidIdentifier));
 
-        failureMessages.AddRange(ValidateIdentifiersUniqueness(
+        failureMessages.AddRange(ValidateUniqueness(
             name: "Идентификатор критерия оценивания экспертами",
-            identifiers: options.Contests
+            values: options.Contests
                 .SelectMany(item => item.ExpertCriterions)
-                .Select(item => item.Identifier)));
+                .Select(item => item.Identifier),
+            validator: IsValidIdentifier));
 
-        failureMessages.AddRange(ValidateIdentifiersUniqueness(
+        failureMessages.AddRange(ValidateUniqueness(
             name: "Идентификатор критерия оценивания участниками",
-            identifiers: options.Contests
+            values: options.Contests
                 .SelectMany(item => item.ParticipantCriterions)
-                .Select(item => item.Identifier)));
+                .Select(item => item.Identifier),
+            validator: IsValidIdentifier));
 
-        failureMessages.AddRange(ValidateIdentifiersUniqueness(
+        failureMessages.AddRange(ValidateUniqueness(
+            name: "Идентификатор зрительского голосования",
+            values: options.Votings.Select(item => item.Identifier),
+            validator: IsValidIdentifier));
+
+        failureMessages.AddRange(ValidateUniqueness(
+            name: "Идентификатор участника зрительского голосования",
+            values: options.Votings
+                .SelectMany(item => item.Participants)
+                .Select(item => item.Identifier),
+            validator: IsValidIdentifier));
+
+        failureMessages.AddRange(ValidateUniqueness(
             name: "Идентификатор команды",
-            identifiers: options.Teams.Select(team => team.Identifier)));
+            values: options.Teams.Select(team => team.Identifier),
+            validator: IsValidIdentifier));
 
-        failureMessages.AddRange(ValidateIdentifiersUniqueness(
+        failureMessages.AddRange(ValidateUniqueness(
             name: "Идентификатор участника",
-            identifiers: options.Teams
+            values: options.Teams
                 .SelectMany(team => team.Members)
-                .Select(participant => participant.Identifier)));
+                .Select(participant => participant.Identifier),
+            validator: IsValidIdentifier));
 
         return failureMessages;
     }
 
-    private static IEnumerable<string> ValidateContest(Contest contest)
+    private static IEnumerable<string> ValidateContest(Contest contest, ICollection<string> participantIds)
     {
         var failureMessages = new List<string>();
 
@@ -113,7 +137,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для конкурса {contest.Identifier} задано более 100 мероприятий");
         }
 
-        failureMessages.AddRange(contest.Events.SelectMany(ValidateContestEvent));
+        failureMessages.AddRange(contest.Events.SelectMany(item => ValidateContestEvent(item, participantIds)));
 
         return failureMessages;
     }
@@ -162,7 +186,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static IEnumerable<string> ValidateContestEvent(ContestEvent contestEvent)
+    private static IEnumerable<string> ValidateContestEvent(ContestEvent contestEvent, ICollection<string> participantIds)
     {
         var failureMessages = new List<string>();
 
@@ -190,9 +214,113 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано более 100 участников");
         }
 
-        failureMessages.AddRange(ValidateIdentifiersUniqueness(
+        foreach (var participant in contestEvent.Participants)
+        {
+            if (!IsValidIdentifier(participant))
+            {
+                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан пустой или слишком длинный идентификатор участника");
+                continue;
+            }
+            if (!participantIds.Contains(participant))
+            {
+                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан несуществующий идентификатор участника");
+            }
+        }
+
+        failureMessages.AddRange(ValidateUniqueness(
             name: $"Идентификатор участника для мероприятия {contestEvent.Identifier}",
-            identifiers: contestEvent.Participants));
+            values: contestEvent.Participants,
+            validator: IsValidIdentifier));
+
+        return failureMessages;
+    }
+
+    private static IEnumerable<string> ValidateAudienceVoting(AudienceVoting voting)
+    {
+        var failureMessages = new List<string>();
+
+        if (!IsValidIdentifier(voting.Identifier))
+        {
+            failureMessages.Add("Для одного из зрительских голосований задан пустой или слишком длинный идентификатор");
+            return failureMessages;
+        }
+
+        if (string.IsNullOrWhiteSpace(voting.Name))
+        {
+            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано пустое название");
+        }
+        else if (voting.Name.Length > 100)
+        {
+            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано название, превышающее 100 символов");
+        }
+
+        if (voting.VotesQuantity < 0)
+        {
+            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано отрицательное количество голосов");
+        }
+        if (voting.VotesQuantity >= voting.Participants.Count)
+        {
+            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано количество голосов, большее или равное количеству участников");
+        }
+
+        if (voting.Participants.Count == 0)
+        {
+            failureMessages.Add($"Для зрительского голосования {voting.Identifier} не задано ни одного участника");
+        }
+        if (voting.Participants.Count > 100)
+        {
+            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано более 100 участников");
+        }
+
+        failureMessages.AddRange(voting.Participants.SelectMany(ValidateVotingParticipant));
+
+        return failureMessages;
+    }
+
+    private static IEnumerable<string> ValidateVotingParticipant(VotingParticipant participant)
+    {
+        var failureMessages = new List<string>();
+
+        if (!IsValidIdentifier(participant.Identifier))
+        {
+            failureMessages.Add("Для одного из участников голосований задан пустой или слишком длинный идентификатор");
+            return failureMessages;
+        }
+
+        if (string.IsNullOrWhiteSpace(participant.Name))
+        {
+            failureMessages.Add($"Для участника голосования {participant.Identifier} задано пустое название/имя");
+        }
+        else if (participant.Name.Length > 100)
+        {
+            failureMessages.Add($"Для участника голосования {participant.Identifier} задано название/имя, превышающее 100 символов");
+        }
+
+        if (participant.Brigades.Count == 0)
+        {
+            failureMessages.Add($"Для участника голосования {participant.Identifier} не задано ни одного связанного отряда");
+        }
+        if (participant.Brigades.Count > 10)
+        {
+            failureMessages.Add($"Для участника голосования {participant.Identifier} задано более 10 связанных отрядов");
+        }
+
+        foreach (var brigade in participant.Brigades)
+        {
+            if (string.IsNullOrWhiteSpace(brigade))
+            {
+                failureMessages.Add($"Для участника голосования {participant.Identifier} задано пустое название связанного отряда");
+            }
+            else if (brigade.Length > 100)
+            {
+                failureMessages.Add($"Для участника голосования {participant.Identifier} задано название связанного отряда, превышающее 100 символов");
+            }
+        }
+
+        failureMessages.AddRange(ValidateUniqueness(
+            name: $"Название связанного отряда для участника голосования {participant.Identifier}",
+            values: participant.Brigades,
+            validator: value => !string.IsNullOrWhiteSpace(value) && value.Length <= 100));
 
         return failureMessages;
     }
@@ -249,11 +377,11 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для участника {participant.Identifier} задано имя, превышающее 100 символов");
         }
 
-        if (string.IsNullOrWhiteSpace(participant.Name))
+        if (string.IsNullOrWhiteSpace(participant.Brigade))
         {
             failureMessages.Add($"Для участника {participant.Identifier} задано пустое название отряда");
         }
-        else if (participant.Name.Length > 100)
+        else if (participant.Brigade.Length > 100)
         {
             failureMessages.Add($"Для участника {participant.Identifier} задано название отряда, превышающее 100 символов");
         }
@@ -262,12 +390,12 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
     }
 
     private static bool IsValidIdentifier(string identifier) =>
-        !string.IsNullOrWhiteSpace(identifier) || identifier.Length > 50;
+        !string.IsNullOrWhiteSpace(identifier) && identifier.Length <= 50;
 
-    private static IEnumerable<string> ValidateIdentifiersUniqueness(string name, IEnumerable<string> identifiers)
+    private static IEnumerable<string> ValidateUniqueness(string name, IEnumerable<string> values, Func<string, bool> validator)
     {
-        return identifiers
-            .Where(IsValidIdentifier)
+        return values
+            .Where(validator)
             .GroupBy(identifier => identifier)
             .Where(group => group.Count() > 1)
             .Select(group => $"{name} {group.Key} повторяется {group.Count()} раз")
