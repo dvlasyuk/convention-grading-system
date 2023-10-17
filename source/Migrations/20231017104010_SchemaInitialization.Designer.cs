@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConventionGradingSystem.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20231017103236_AttendanceMarksCreation")]
-    partial class AttendanceMarksCreation
+    [Migration("20231017104010_SchemaInitialization")]
+    partial class SchemaInitialization
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
