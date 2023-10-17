@@ -1,0 +1,38 @@
+@page "/audience-votings/{votingId}"
+@model ConventionGradingSystem.Pages.AudienceVotingsPageModel
+
+@{
+    ViewData["Title"] = "Список участников голосования";
+    ViewData["AllowNavigation"] = true;
+}
+
+<table>
+
+    <caption>Участники голосования "@Model.ViewModel.VotingName"</caption>
+
+    <tr>
+        <th>#</th>
+        <th>Название/имя участника</th>
+        <th>Связанные отряды</th>
+        <th>Ссылки</th>
+    </tr>
+
+    @for (var number = 0; number < Model.ViewModel.Participants.Count; number++)
+    {
+        <tr>
+            <td>@(number + 1)</td>
+            <td>@Model.ViewModel.Participants[number].Name</td>
+
+            <td>
+                @foreach (var item in Model.ViewModel.Participants[number].Brigades)
+                {
+                    @item<br/>
+                }
+            </td>
+
+            <td></td>
+
+        </tr>
+    }
+
+</table>

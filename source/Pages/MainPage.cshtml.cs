@@ -38,6 +38,7 @@ public class MainPageModel : PageModel
     /// </summary>
     public ViewModel ViewModel { get; private set; } = new ViewModel(
         Contests: new List<Contest>(),
+        Votings: new List<Voting>(),
         Teams: new List<Team>());
 
     /// <summary>
@@ -53,6 +54,13 @@ public class MainPageModel : PageModel
                     Identifier: item.Identifier,
                     Name: item.Name,
                     EventsQuantity: item.Events.Count))
+                .ToList(),
+            Votings = _configuration.Votings
+                .OrderBy(item => item.Identifier)
+                .Select(item => new Voting(
+                    Identifier: item.Identifier,
+                    Name: item.Name,
+                    ParticipantsQuantity: item.Participants.Count))
                 .ToList()
         };
 

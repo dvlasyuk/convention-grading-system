@@ -33,6 +33,31 @@
 
 <table>
 
+    <caption>Зрительские голосования</caption>
+
+    <tr>
+        <th>#</th>
+        <th>Название голосования</th>
+        <th>Количество участников</th>
+        <th>Ссылка на страницу голосования</th>
+    </tr>
+
+    @for (var number = 0; number < Model.ViewModel.Votings.Count; number++)
+    {
+        <tr>
+            <td>@(number + 1)</td>
+            <td>@Model.ViewModel.Votings[number].Name</td>
+            <td>@Model.ViewModel.Votings[number].ParticipantsQuantity</td>
+            <td>
+                <a class="table" href="/audience-votings/@Model.ViewModel.Votings[number].Identifier">Ссылка</a>
+            </td>
+        </tr>
+    }
+
+</table>
+
+<table>
+
     <caption>Список команд</caption>
 
     <tr>
