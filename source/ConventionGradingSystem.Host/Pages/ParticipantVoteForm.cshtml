@@ -1,0 +1,34 @@
+@page "/participant-vote/{votingId}"
+@model ConventionGradingSystem.Host.Pages.ParticipantVoteFormModel
+@using ConventionGradingSystem.Host.Models.ParticipantVoteForm
+
+@{
+    ViewData["Title"] = "Голосование участника в рамках зрительского голосования";
+    ViewData["AllowNavigation"] = false;
+}
+
+@switch (Model.FormState)
+{
+    case FormState.NotExisted:
+        <label class="name">Приветствуем тебя! Извини, но такого голосования не существует</label>
+        break;
+
+    case FormState.NotVoted:
+
+        <label class="name">Приветствуем тебя! Выбери, пожалуйста, участника голосования, который понравился тебе больше остальных</label>
+        <label class="description">Название голосования: @Model.ViewModel.VotingName</label>
+
+        <form method="post">
+            <input type="submit" value="Проголосовать" />
+        </form>
+
+        break;
+
+    case FormState.JustVoted:
+        <label class="name">Твой голос принят! Большое спасибо за выбор</label>
+        break;
+
+    case FormState.PreviouslyVoted:
+        <label class="name">Приветствуем тебя! Ты уже участвовал в этом голосовании. Большое спасибо за выбор</label>
+        break;
+}

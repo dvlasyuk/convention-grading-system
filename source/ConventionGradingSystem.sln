@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33530.505
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConventionGradingSystem", "ConventionGradingSystem.csproj", "{733211A3-23E2-497B-9EAD-10F0DD8DFABF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConventionGradingSystem.Host", "ConventionGradingSystem.Host\ConventionGradingSystem.Host.csproj", "{733211A3-23E2-497B-9EAD-10F0DD8DFABF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConventionGradingSystem.DataAccess", "ConventionGradingSystem.DataAccess\ConventionGradingSystem.DataAccess.csproj", "{D73F9191-B78D-47CF-8836-4CD449E06AFF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{733211A3-23E2-497B-9EAD-10F0DD8DFABF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{733211A3-23E2-497B-9EAD-10F0DD8DFABF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{733211A3-23E2-497B-9EAD-10F0DD8DFABF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D73F9191-B78D-47CF-8836-4CD449E06AFF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D73F9191-B78D-47CF-8836-4CD449E06AFF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D73F9191-B78D-47CF-8836-4CD449E06AFF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D73F9191-B78D-47CF-8836-4CD449E06AFF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
