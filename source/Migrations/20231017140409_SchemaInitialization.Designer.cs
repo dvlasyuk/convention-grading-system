@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConventionGradingSystem.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20231017104010_SchemaInitialization")]
+    [Migration("20231017140409_SchemaInitialization")]
     partial class SchemaInitialization
     {
         /// <inheritdoc />
@@ -60,24 +60,17 @@ namespace ConventionGradingSystem.Migrations
 
             modelBuilder.Entity("ConventionGradingSystem.Database.Entities.ExpertGrade", b =>
                 {
-                    b.Property<Guid>("Identifier")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("FeedbackId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("CriterionId")
-                        .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("FeedbackId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("GradeValue")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("Identifier");
-
-                    b.HasIndex("FeedbackId");
+                    b.HasKey("FeedbackId", "CriterionId");
 
                     b.ToTable("ExpertGrades");
                 });
@@ -104,24 +97,17 @@ namespace ConventionGradingSystem.Migrations
 
             modelBuilder.Entity("ConventionGradingSystem.Database.Entities.ParticipantGrade", b =>
                 {
-                    b.Property<Guid>("Identifier")
-                        .ValueGeneratedOnAdd()
+                    b.Property<Guid>("FeedbackId")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("CriterionId")
-                        .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("TEXT");
-
-                    b.Property<Guid>("FeedbackId")
                         .HasColumnType("TEXT");
 
                     b.Property<int>("GradeValue")
                         .HasColumnType("INTEGER");
 
-                    b.HasKey("Identifier");
-
-                    b.HasIndex("FeedbackId");
+                    b.HasKey("FeedbackId", "CriterionId");
 
                     b.ToTable("ParticipantGrades");
                 });

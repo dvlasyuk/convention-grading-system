@@ -58,14 +58,13 @@ public partial class SchemaInitialization : Migration
             name: "ExpertGrades",
             columns: table => new
             {
-                Identifier = table.Column<Guid>(type: "TEXT", nullable: false),
                 FeedbackId = table.Column<Guid>(type: "TEXT", nullable: false),
                 CriterionId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                 GradeValue = table.Column<int>(type: "INTEGER", nullable: false)
             },
             constraints: table =>
             {
-                table.PrimaryKey("PK_ExpertGrades", x => x.Identifier);
+                table.PrimaryKey("PK_ExpertGrades", x => new { x.FeedbackId, x.CriterionId });
                 table.ForeignKey(
                     name: "FK_ExpertGrades_ExpertFeedbacks_FeedbackId",
                     column: x => x.FeedbackId,
@@ -78,14 +77,13 @@ public partial class SchemaInitialization : Migration
             name: "ParticipantGrades",
             columns: table => new
             {
-                Identifier = table.Column<Guid>(type: "TEXT", nullable: false),
                 FeedbackId = table.Column<Guid>(type: "TEXT", nullable: false),
                 CriterionId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                 GradeValue = table.Column<int>(type: "INTEGER", nullable: false)
             },
             constraints: table =>
             {
-                table.PrimaryKey("PK_ParticipantGrades", x => x.Identifier);
+                table.PrimaryKey("PK_ParticipantGrades", x => new { x.FeedbackId, x.CriterionId });
                 table.ForeignKey(
                     name: "FK_ParticipantGrades_ParticipantFeedbacks_FeedbackId",
                     column: x => x.FeedbackId,
@@ -93,16 +91,6 @@ public partial class SchemaInitialization : Migration
                     principalColumn: "Identifier",
                     onDelete: ReferentialAction.Cascade);
             });
-
-        migrationBuilder.CreateIndex(
-            name: "IX_ExpertGrades_FeedbackId",
-            table: "ExpertGrades",
-            column: "FeedbackId");
-
-        migrationBuilder.CreateIndex(
-            name: "IX_ParticipantGrades_FeedbackId",
-            table: "ParticipantGrades",
-            column: "FeedbackId");
     }
 
     /// <summary>

@@ -18,7 +18,7 @@ public class ExpertGradeConfigurator : IEntityTypeConfiguration<ExpertGrade>
     /// <param name="builder">Конструктор для конфигурирования модели.</param>
     public void Configure([NotNull] EntityTypeBuilder<ExpertGrade> builder)
     {
-        builder.HasKey(entity => entity.Identifier);
+        builder.HasKey(entity => new { entity.FeedbackId, entity.CriterionId });
         builder.Property(entity => entity.CriterionId).HasMaxLength(50);
     }
 }

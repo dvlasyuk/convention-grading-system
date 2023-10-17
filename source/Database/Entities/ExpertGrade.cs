@@ -6,11 +6,6 @@ namespace ConventionGradingSystem.Database.Entities;
 public class ExpertGrade
 {
     /// <summary>
-    /// Идентификатор оценки.
-    /// </summary>
-    public Guid Identifier { get; set; }
-
-    /// <summary>
     /// Идентификатор отзыва, в рамках которого выставлена оценка.
     /// </summary>
     public Guid FeedbackId { get; set; }
