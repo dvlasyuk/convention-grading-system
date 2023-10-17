@@ -72,11 +72,6 @@ public class ContestEventsPageModel : PageModel
                 .ToList()
         };
 
-        if (contest.Events.Count == 0)
-        {
-            return;
-        }
-
         var eventIds = contest.Events
             .Select(item => item.Identifier)
             .ToList();

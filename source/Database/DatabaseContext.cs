@@ -46,6 +46,11 @@ public class DatabaseContext : DbContext
     public DbSet<AttendanceMark> AttendanceMarks => Set<AttendanceMark>();
 
     /// <summary>
+    /// Голоса участников в рамках зрительских голосований.
+    /// </summary>
+    public DbSet<ParticipantVote> ParticipantVotes => Set<ParticipantVote>();
+
+    /// <summary>
     /// Конфигурирует модель базы данных.
     /// </summary>
     /// <param name="modelBuilder">Конструктор для конфигурирования модели.</param>
@@ -60,5 +65,7 @@ public class DatabaseContext : DbContext
         modelBuilder.ApplyConfiguration(new ParticipantGradeConfigurator());
 
         modelBuilder.ApplyConfiguration(new AttendanceMarkConfigurator());
+
+        modelBuilder.ApplyConfiguration(new ParticipantVoteConfigurator());
     }
 }
