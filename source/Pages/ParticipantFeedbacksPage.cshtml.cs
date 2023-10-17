@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ConventionGradingSystem.Configuration;
 using ConventionGradingSystem.Database;
-using ConventionGradingSystem.Models.ParticipantFeedbacks;
+using ConventionGradingSystem.Models.ParticipantFeedbacksPage;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,12 +12,12 @@ using Microsoft.Extensions.Options;
 namespace ConventionGradingSystem.Pages;
 
 [Authorize(Roles = "Adminstrator")]
-public class ParticipantFeedbacksModel : PageModel
+public class ParticipantFeedbacksPageModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;
     private readonly DatabaseContext _databaseContext;
 
-    public ParticipantFeedbacksModel(
+    public ParticipantFeedbacksPageModel(
         [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
     {

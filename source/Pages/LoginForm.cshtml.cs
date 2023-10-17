@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 using ConventionGradingSystem.Configuration;
-using ConventionGradingSystem.Models.Login;
+using ConventionGradingSystem.Models.LoginForm;
 
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -14,11 +14,11 @@ using Microsoft.Extensions.Options;
 
 namespace ConventionGradingSystem.Pages;
 
-public class LoginModel : PageModel
+public class LoginFormModel : PageModel
 {
     private readonly SecurityConfiguration _configuration;
 
-    public LoginModel([NotNull] IOptionsSnapshot<SecurityConfiguration> configuration) =>
+    public LoginFormModel([NotNull] IOptionsSnapshot<SecurityConfiguration> configuration) =>
         _configuration = configuration.Value;
 
     [BindProperty]

@@ -1,9 +1,9 @@
-@page "{eventId}"
+@page "/event-attendance/{eventId}"
 @model ConventionGradingSystem.Pages.EventAttendanceFormModel
 
 @{
     ViewData["Title"] = "Список участников мероприятия";
-    ViewData["AllowNavigation"] = true;
+    ViewData["AllowNavigation"] = false;
 }
 
 <label class="name">Приветствуем тебя, проводящий! Оцени, пожалуйста, участников мероприятия, которое провёл</label>

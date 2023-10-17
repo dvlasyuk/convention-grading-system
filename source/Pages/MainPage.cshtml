@@ -1,5 +1,5 @@
-@page
-@model ConventionGradingSystem.Pages.IndexModel
+@page "/"
+@model ConventionGradingSystem.Pages.MainPageModel
 
 @{
     ViewData["Title"] = "Главная страница";
@@ -24,7 +24,7 @@
             <td>@Model.ViewModel.Contests[number].Name</td>
             <td>@Model.ViewModel.Contests[number].EventsQuantity</td>
             <td>
-                <a class="table" href="/EventsList/@Model.ViewModel.Contests[number].Identifier">Ссылка</a>
+                <a class="table" href="/contest-events/@Model.ViewModel.Contests[number].Identifier">Ссылка</a>
             </td>
         </tr>
     }

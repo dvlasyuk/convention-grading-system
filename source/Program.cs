@@ -19,8 +19,8 @@ public static class Program
             .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
             .AddCookie(cookieOptions =>
             {
-                cookieOptions.LoginPath = "/Login";
-                cookieOptions.AccessDeniedPath = "/AccessDenied";
+                cookieOptions.LoginPath = "/login";
+                cookieOptions.AccessDeniedPath = "/denied";
             });
 
         applicationBuilder.Services.AddAuthorization();

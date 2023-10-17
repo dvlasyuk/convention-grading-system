@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ConventionGradingSystem.Configuration;
 using ConventionGradingSystem.Database;
-using ConventionGradingSystem.Models.EventsList;
+using ConventionGradingSystem.Models.ContestEventsPage;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,12 +13,12 @@ using Microsoft.Extensions.Options;
 namespace ConventionGradingSystem.Pages;
 
 [Authorize(Roles = "Adminstrator")]
-public class EventsListModel : PageModel
+public class ContestEventsPageModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;
     private readonly DatabaseContext _databaseContext;
 
-    public EventsListModel(
+    public ContestEventsPageModel(
         [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
     {

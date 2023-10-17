@@ -2,7 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ConventionGradingSystem.Configuration;
 using ConventionGradingSystem.Database;
-using ConventionGradingSystem.Models.Index;
+using ConventionGradingSystem.Models.MainPage;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -12,12 +12,12 @@ using Microsoft.Extensions.Options;
 namespace ConventionGradingSystem.Pages;
 
 [Authorize(Roles = "Adminstrator")]
-public class IndexModel : PageModel
+public class MainPageModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;
     private readonly DatabaseContext _databaseContext;
 
-    public IndexModel(
+    public MainPageModel(
         [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
     {

@@ -1,5 +1,5 @@
-@page "{contestId}"
-@model ConventionGradingSystem.Pages.EventsListModel
+@page "/contest-events/{contestId}"
+@model ConventionGradingSystem.Pages.ContestEventsPageModel
 
 @{
     ViewData["Title"] = "Список мероприятий";
@@ -90,17 +90,17 @@
             <td>
                 @if (Model.ViewModel.Events[number].WithParticipants)
                 {
-					<a class="table" href="/EventAttendanceForm/@Model.ViewModel.Events[number].Identifier">Форма проводящего</a>
+					<a class="table" href="/event-attendance/@Model.ViewModel.Events[number].Identifier">Форма проводящего</a>
                 }
                 @if (Model.ViewModel.ExpertCriterions.Count > 0)
                 {
-                    <a class="table" href="/ExpertFeedbackForm/@Model.ViewModel.Events[number].Identifier">Форма эксперта</a>
-                    <a class="table" href="/ExpertFeedbacks/@Model.ViewModel.Events[number].Identifier">Оценки экспертов</a>
+                    <a class="table" href="/expert-feedback/@Model.ViewModel.Events[number].Identifier">Форма эксперта</a>
+                    <a class="table" href="/expert-feedbacks/@Model.ViewModel.Events[number].Identifier">Оценки экспертов</a>
                 }
                 @if (Model.ViewModel.ParticipantCriterions.Count > 0)
                 {
-                    <a class="table" href="/ParticipantFeedbackForm/@Model.ViewModel.Events[number].Identifier">Форма участника</a>
-                    <a class="table" href="/ParticipantFeedbacks/@Model.ViewModel.Events[number].Identifier">Оценки участников</a>
+					<a class="table" href="/participant-feedback/@Model.ViewModel.Events[number].Identifier">Форма участника</a>
+					<a class="table" href="/participant-feedbacks/@Model.ViewModel.Events[number].Identifier">Оценки участников</a>
                 }
             </td>
 
