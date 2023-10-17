@@ -10,7 +10,7 @@
     <WarningLevel>5</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <WarningsNotAsErrors></WarningsNotAsErrors>
-    <NoWarn>CS1573,CS1591,CS1712,CA2007</NoWarn>
+    <NoWarn>CA2007</NoWarn>
     <AnalysisLevel>latest</AnalysisLevel>
     <AnalysisMode>All</AnalysisMode>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>

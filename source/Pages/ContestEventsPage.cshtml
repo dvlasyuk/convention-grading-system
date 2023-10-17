@@ -88,10 +88,7 @@
             <td>@Model.ViewModel.Events[number].TotalGrade.ToString("0.00")</td>
 
             <td>
-                @if (Model.ViewModel.Events[number].WithParticipants)
-                {
-					<a class="table" href="/event-attendance/@Model.ViewModel.Events[number].Identifier">Форма проводящего</a>
-                }
+                <a class="table" href="/event-attendance/@Model.ViewModel.Events[number].Identifier">Форма проводящего</a>
                 @if (Model.ViewModel.ExpertCriterions.Count > 0)
                 {
                     <a class="table" href="/expert-feedback/@Model.ViewModel.Events[number].Identifier">Форма эксперта</a>
@@ -99,8 +96,8 @@
                 }
                 @if (Model.ViewModel.ParticipantCriterions.Count > 0)
                 {
-					<a class="table" href="/participant-feedback/@Model.ViewModel.Events[number].Identifier">Форма участника</a>
-					<a class="table" href="/participant-feedbacks/@Model.ViewModel.Events[number].Identifier">Оценки участников</a>
+                    <a class="table" href="/participant-feedback/@Model.ViewModel.Events[number].Identifier">Форма участника</a>
+                    <a class="table" href="/participant-feedbacks/@Model.ViewModel.Events[number].Identifier">Оценки участников</a>
                 }
             </td>
 

@@ -4,8 +4,15 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ConventionGradingSystem.Migrations;
 
+/// <summary>
+/// Миграция базы данных, инициализирующая схему.
+/// </summary>
 public partial class SchemaInitialization : Migration
 {
+    /// <summary>
+    /// Применяет миграцию к базе данных.
+    /// </summary>
+    /// <param name="migrationBuilder">Конструктор для конфигурирования миграции.</param>
     protected override void Up([NotNull] MigrationBuilder migrationBuilder)
     {
         migrationBuilder.CreateTable(
@@ -98,6 +105,10 @@ public partial class SchemaInitialization : Migration
             column: "FeedbackId");
     }
 
+    /// <summary>
+    /// Откатывает ранее применённую к базе данных миграцию.
+    /// </summary>
+    /// <param name="migrationBuilder">Конструктор для конфигурирования миграции.</param>
     protected override void Down([NotNull] MigrationBuilder migrationBuilder)
     {
         migrationBuilder.DropTable(

@@ -14,16 +14,30 @@ using Microsoft.Extensions.Options;
 
 namespace ConventionGradingSystem.Pages;
 
+/// <summary>
+/// Модель формы приложения для входа пользователя.
+/// </summary>
 public class LoginFormModel : PageModel
 {
     private readonly SecurityConfiguration _configuration;
 
+    /// <summary>
+    /// Создаёт новый экземпляр <see cref="LoginFormModel"/>.
+    /// </summary>
+    /// <param name="configuration">Конфигурационные данные для обеспечения безопасности приложения.</param>
     public LoginFormModel([NotNull] IOptionsSnapshot<SecurityConfiguration> configuration) =>
         _configuration = configuration.Value;
 
+    /// <summary>
+    /// Модель представления страницы.
+    /// </summary>
     [BindProperty]
     public FormModel? FormModel { get; set; }
 
+    /// <summary>
+    /// Обрабатывает POST-запрос к странице.
+    /// </summary>
+    /// <param name="returnUrl">URI для автоматического перехода при успешном входе пользователя.</param>
     public async Task<IActionResult> OnPost(Uri returnUrl)
     {
         if (FormModel == null)

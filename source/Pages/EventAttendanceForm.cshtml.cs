@@ -13,12 +13,20 @@ using Microsoft.Extensions.Options;
 
 namespace ConventionGradingSystem.Pages;
 
+/// <summary>
+/// Модель формы приложения для сбора отметок о посещении мероприятия в рамках конкурса мероприятий.
+/// </summary>
 [Authorize(Roles = "Adminstrator,Organizer")]
 public class EventAttendanceFormModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;
     private readonly DatabaseContext _databaseContext;
 
+    /// <summary>
+    /// Создаёт новый экземпляр <see cref="EventAttendanceFormModel"/>.
+    /// </summary>
+    /// <param name="configuration">Конфигурационные данные приложения.</param>
+    /// <param name="databaseContext">Контекст для доступа к базе данных.</param>
     public EventAttendanceFormModel(
         [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
@@ -27,17 +35,31 @@ public class EventAttendanceFormModel : PageModel
         _databaseContext = databaseContext;
     }
 
+    /// <summary>
+    /// Модель представления страницы.
+    /// </summary>
     public ViewModel ViewModel { get; private set; } = new ViewModel(
         ContestName: "Неизвестный конкурс",
         EventName: "Неизвестное мероприятие",
         Participants: new List<Participant>());
 
+    /// <summary>
+    /// Модель данных формы.
+    /// </summary>
     [BindProperty]
     public FormModel? FormModel { get; set; }
 
+    /// <summary>
+    /// Обрабатывает GET-запрос к странице.
+    /// </summary>
+    /// <param name="eventId">Идентификатор мероприятия.</param>
     public async Task OnGetAsync(string eventId) =>
         await InitializeModel(eventId);
 
+    /// <summary>
+    /// Обрабатывает POST-запрос к странице.
+    /// </summary>
+    /// <param name="eventId">Идентификатор мероприятия.</param>
     public async Task OnPostAsync(string eventId)
     {
         if (FormModel == null)

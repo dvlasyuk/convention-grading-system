@@ -12,12 +12,20 @@ using Microsoft.Extensions.Options;
 
 namespace ConventionGradingSystem.Pages;
 
+/// <summary>
+/// Модель страницы приложения со списком мероприятий в рамках конкурса мероприятий.
+/// </summary>
 [Authorize(Roles = "Adminstrator")]
 public class ContestEventsPageModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;
     private readonly DatabaseContext _databaseContext;
 
+    /// <summary>
+    /// Создаёт новый экземпляр <see cref="ContestEventsPageModel"/>.
+    /// </summary>
+    /// <param name="configuration">Конфигурационные данные приложения.</param>
+    /// <param name="databaseContext">Контекст для доступа к базе данных.</param>
     public ContestEventsPageModel(
         [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
@@ -26,12 +34,19 @@ public class ContestEventsPageModel : PageModel
         _databaseContext = databaseContext;
     }
 
+    /// <summary>
+    /// Модель представления страницы.
+    /// </summary>
     public ViewModel ViewModel { get; private set; } = new ViewModel(
         ContestName: "Неизвестный конкурс",
         ExpertCriterions: new List<GradeCriterion>(),
         ParticipantCriterions: new List<GradeCriterion>(),
         Events: new List<ContestEvent>());
 
+    /// <summary>
+    /// Обрабатывает GET-запрос к странице.
+    /// </summary>
+    /// <param name="contestId">Идентификатор конкурса мероприятий.</param>
     public async Task OnGetAsync(string contestId)
     {
         var contest = _configuration.Contests.FirstOrDefault(item => item.Identifier == contestId);
@@ -172,8 +187,7 @@ public class ContestEventsPageModel : PageModel
                         : 0f,
                     TotalGrade: totalGradeValues.TryGetValue(eventItem.Identifier, out var totalGrade)
                         ? totalGrade
-                        : 0f,
-                    WithParticipants: eventItem.Participants.Count > 0))
+                        : 0f))
                 .ToList()
         };
     }

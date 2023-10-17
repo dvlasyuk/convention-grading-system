@@ -6,8 +6,17 @@ using Microsoft.Extensions.Options;
 
 namespace ConventionGradingSystem.Configuration.Validators;
 
+/// <summary>
+/// Валидатор конфигурационных данных приложения.
+/// </summary>
 public class ApplicationConfigurationValidator : IValidateOptions<ApplicationConfiguration>
 {
+    /// <summary>
+    /// Валидирует заданный экземпляр конфигурационных данных.
+    /// </summary>
+    /// <param name="name">Название экземпляра данных для валидации.</param>
+    /// <param name="options">Экземпляр данных для валидации.</param>
+    /// <returns>Результат валидации.</returns>
     public ValidateOptionsResult Validate(string? name, [NotNull] ApplicationConfiguration options)
     {
         var failureMessages = new List<string>();

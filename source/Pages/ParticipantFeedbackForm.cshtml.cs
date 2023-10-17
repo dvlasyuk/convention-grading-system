@@ -11,11 +11,19 @@ using Microsoft.Extensions.Options;
 
 namespace ConventionGradingSystem.Pages;
 
+/// <summary>
+/// Модель формы приложения для сбора отзывов участников о мероприятии в рамках конкурса мероприятий.
+/// </summary>
 public class ParticipantFeedbackFormModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;
     private readonly DatabaseContext _databaseContext;
 
+    /// <summary>
+    /// Создаёт новый экземпляр <see cref="ParticipantFeedbackFormModel"/>.
+    /// </summary>
+    /// <param name="configuration">Конфигурационные данные приложения.</param>
+    /// <param name="databaseContext">Контекст для доступа к базе данных.</param>
     public ParticipantFeedbackFormModel(
         [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
@@ -24,15 +32,29 @@ public class ParticipantFeedbackFormModel : PageModel
         _databaseContext = databaseContext;
     }
 
+    /// <summary>
+    /// Состояние формы.
+    /// </summary>
     public FormState FormState { get; private set; } = FormState.NotExisted;
+
+    /// <summary>
+    /// Модель представления страницы.
+    /// </summary>
     public ViewModel ViewModel { get; private set; } = new ViewModel(
         ContestName: "Неизвестный конкурс",
         EventName: "Неизвестное мероприятие",
         Criterions: new List<GradeCriterion>());
 
+    /// <summary>
+    /// Модель данных формы.
+    /// </summary>
     [BindProperty]
     public FormModel? FormModel { get; set; }
 
+    /// <summary>
+    /// Обрабатывает GET-запрос к странице.
+    /// </summary>
+    /// <param name="eventId">Идентификатор мероприятия.</param>
     public void OnGet(string eventId)
     {
         var contestEvent = _configuration.Contests
@@ -65,6 +87,10 @@ public class ParticipantFeedbackFormModel : PageModel
             : FormState.NotGraded;
     }
 
+    /// <summary>
+    /// Обрабатывает POST-запрос к странице.
+    /// </summary>
+    /// <param name="eventId">Идентификатор мероприятия.</param>
     public async Task OnPostAsync(string eventId)
     {
         var contest = _configuration.Contests.FirstOrDefault(item => item.Events.Any(item => item.Identifier == eventId));
@@ -115,8 +141,6 @@ public class ParticipantFeedbackFormModel : PageModel
             });
     }
 
-    private static string GetCookieName(string contestId)
-    {
-        return $"ParticipantGrade-{contestId}";
-    }
+    private static string GetCookieName(string contestId) =>
+        $"ParticipantGrade-{contestId}";
 }

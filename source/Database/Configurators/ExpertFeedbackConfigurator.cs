@@ -7,8 +7,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ConventionGradingSystem.Database.Configurators;
 
+/// <summary>
+/// Конфигуратор отзыва эксперта на мероприятие в рамках конкурса мероприятий.
+/// </summary>
 public class ExpertFeedbackConfigurator : IEntityTypeConfiguration<ExpertFeedback>
 {
+    /// <summary>
+    /// Конфигурирует модель сущности базы данных.
+    /// </summary>
+    /// <param name="builder">Конструктор для конфигурирования модели.</param>
     public void Configure([NotNull] EntityTypeBuilder<ExpertFeedback> builder)
     {
         builder.HasKey(entity => entity.Identifier);

@@ -12,12 +12,20 @@ using Microsoft.Extensions.Options;
 
 namespace ConventionGradingSystem.Pages;
 
+/// <summary>
+/// Модель страницы приложения со списком отзывов экспертов о мероприятии в рамках конкурса мероприятий.
+/// </summary>
 [Authorize(Roles = "Adminstrator")]
 public class ExpertFeedbacksPageModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;
     private readonly DatabaseContext _databaseContext;
 
+    /// <summary>
+    /// Создаёт новый экземпляр <see cref="ExpertFeedbacksPageModel"/>.
+    /// </summary>
+    /// <param name="configuration">Конфигурационные данные приложения.</param>
+    /// <param name="databaseContext">Контекст для доступа к базе данных.</param>
     public ExpertFeedbacksPageModel(
         [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
@@ -26,12 +34,19 @@ public class ExpertFeedbacksPageModel : PageModel
         _databaseContext = databaseContext;
     }
 
+    /// <summary>
+    /// Модель представления страницы.
+    /// </summary>
     public ViewModel ViewModel { get; set; } = new ViewModel(
         ContestName: "Неизвестный конкурс",
         EventName: "Неизвестное мероприятие",
         Criterions: new List<GradeCriterion>(),
         Feedbacks: new List<Feedback>());
 
+    /// <summary>
+    /// Обрабатывает GET-запрос к странице.
+    /// </summary>
+    /// <param name="eventId">Идентификатор мероприятия.</param>
     public async Task OnGetAsync(string eventId)
     {
         var contestEvent = _configuration.Contests

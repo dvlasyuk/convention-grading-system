@@ -7,8 +7,15 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ConventionGradingSystem.Database.Configurators;
 
+/// <summary>
+/// Конфигуратор отметки о посещении участником мероприятия в рамках конкурса мероприятий.
+/// </summary>
 public class AttendanceMarkConfigurator : IEntityTypeConfiguration<AttendanceMark>
 {
+    /// <summary>
+    /// Конфигурирует модель сущности базы данных.
+    /// </summary>
+    /// <param name="builder">Конструктор для конфигурирования модели.</param>
     public void Configure([NotNull] EntityTypeBuilder<AttendanceMark> builder)
     {
         builder.HasKey(entity => new { entity.ParticipantId, entity.EventId });

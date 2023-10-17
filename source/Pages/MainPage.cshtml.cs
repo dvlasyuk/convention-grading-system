@@ -11,12 +11,20 @@ using Microsoft.Extensions.Options;
 
 namespace ConventionGradingSystem.Pages;
 
+/// <summary>
+/// Модель главной страницы приложения.
+/// </summary>
 [Authorize(Roles = "Adminstrator")]
 public class MainPageModel : PageModel
 {
     private readonly ApplicationConfiguration _configuration;
     private readonly DatabaseContext _databaseContext;
 
+    /// <summary>
+    /// Создаёт новый экземпляр <see cref="MainPageModel"/>.
+    /// </summary>
+    /// <param name="configuration">Конфигурационные данные приложения.</param>
+    /// <param name="databaseContext">Контекст для доступа к базе данных.</param>
     public MainPageModel(
         [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
@@ -25,10 +33,16 @@ public class MainPageModel : PageModel
         _databaseContext = databaseContext;
     }
 
+    /// <summary>
+    /// Модель представления страницы.
+    /// </summary>
     public ViewModel ViewModel { get; private set; } = new ViewModel(
         Contests: new List<Contest>(),
         Teams: new List<Team>());
 
+    /// <summary>
+    /// Обрабатывает GET-запрос к странице.
+    /// </summary>
     public async Task OnGetAsync()
     {
         ViewModel = ViewModel with
@@ -55,11 +69,11 @@ public class MainPageModel : PageModel
                 .Select(team => new Team(
                     Name: team.Name,
                     MembersQuantity: team.Members.Count,
-                    MembersRegistrationsQuantity: team.Members
+                    RegistrationsQuantity: team.Members
                         .SelectMany(member => eventParticipants
                             .Where(identifier => identifier == member.Identifier))
                         .Count(),
-                    MembersMarksQuantity: team.Members
+                    AttendanceMarksQuantity: team.Members
                         .SelectMany(member => attendanceMarks
                             .Where(mark => mark.ParticipantId == member.Identifier))
                         .Count(),
