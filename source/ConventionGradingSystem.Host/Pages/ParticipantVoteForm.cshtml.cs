@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ConventionGradingSystem.Host.Configuration;
+using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.Host.Models.ParticipantVoteForm;
 
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -19,7 +19,7 @@ public class ParticipantVoteFormModel : PageModel
     /// Создаёт новый экземпляр <see cref="ParticipantVoteFormModel"/>.
     /// </summary>
     /// <param name="configuration">Конфигурационные данные приложения.</param>
-    public ParticipantVoteFormModel([NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration) =>
+    public ParticipantVoteFormModel([NotNull] IOptions<ApplicationConfiguration> configuration) =>
         _configuration = configuration.Value;
 
     /// <summary>

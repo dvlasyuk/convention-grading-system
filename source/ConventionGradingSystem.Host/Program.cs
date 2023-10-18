@@ -1,6 +1,6 @@
+using ConventionGradingSystem.DataAccess;
+using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Configuration;
-using ConventionGradingSystem.Host.Configuration.Validators;
-using ConventionGradingSystem.Host.Database;
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -35,15 +35,12 @@ public static class Program
         applicationBuilder.Services.AddRazorPages(options => options.Conventions
             .ConfigureFilter(new IgnoreAntiforgeryTokenAttribute()));
 
-        applicationBuilder.Services.AddDbContextPool<DatabaseContext>(builder => builder
-            .UseSqlite(applicationBuilder.Configuration.GetConnectionString("Database"))
-            .EnableSensitiveDataLogging());
-
-        applicationBuilder.Services.AddSingleton<IValidateOptions<ApplicationConfiguration>, ApplicationConfigurationValidator>();
+        applicationBuilder.Services.AddOptions<SecurityConfiguration>().BindConfiguration("SecurityConfiguration");
         applicationBuilder.Services.AddSingleton<IValidateOptions<SecurityConfiguration>, SecurityConfigurationValidator>();
 
-        applicationBuilder.Services.Configure<ApplicationConfiguration>(applicationBuilder.Configuration.GetSection("ApplicationConfiguration"));
-        applicationBuilder.Services.Configure<SecurityConfiguration>(applicationBuilder.Configuration.GetSection("SecurityConfiguration"));
+        applicationBuilder.Services.AddDataAccess(
+            configurationSection: "ApplicationConfiguration",
+            connectionString: "ApplicationDatabase");
 
         var application = applicationBuilder.Build();
 

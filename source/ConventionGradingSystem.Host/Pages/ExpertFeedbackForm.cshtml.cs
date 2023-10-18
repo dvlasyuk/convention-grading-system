@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ConventionGradingSystem.Host.Configuration;
-using ConventionGradingSystem.Host.Database;
-using ConventionGradingSystem.Host.Database.Entities;
+using ConventionGradingSystem.DataAccess.Configuration;
+using ConventionGradingSystem.DataAccess.Database;
+using ConventionGradingSystem.DataAccess.Database.Entities;
 using ConventionGradingSystem.Host.Models.ExpertFeedbackForm;
 
 using Microsoft.AspNetCore.Authorization;
@@ -27,7 +27,7 @@ public class ExpertFeedbackFormModel : PageModel
     /// <param name="configuration">Конфигурационные данные приложения.</param>
     /// <param name="databaseContext">Контекст для доступа к базе данных.</param>
     public ExpertFeedbackFormModel(
-        [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
+        [NotNull] IOptions<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
     {
         _configuration = configuration.Value;

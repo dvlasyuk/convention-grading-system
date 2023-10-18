@@ -25,7 +25,7 @@ public class LoginFormModel : PageModel
     /// Создаёт новый экземпляр <see cref="LoginFormModel"/>.
     /// </summary>
     /// <param name="configuration">Конфигурационные данные для обеспечения безопасности приложения.</param>
-    public LoginFormModel([NotNull] IOptionsSnapshot<SecurityConfiguration> configuration) =>
+    public LoginFormModel([NotNull] IOptions<SecurityConfiguration> configuration) =>
         _configuration = configuration.Value;
 
     /// <summary>

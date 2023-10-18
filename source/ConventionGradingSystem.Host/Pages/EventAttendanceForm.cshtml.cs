@@ -1,8 +1,8 @@
 using System.Diagnostics.CodeAnalysis;
 
-using ConventionGradingSystem.Host.Database.Entities;
-using ConventionGradingSystem.Host.Configuration;
-using ConventionGradingSystem.Host.Database;
+using ConventionGradingSystem.DataAccess.Configuration;
+using ConventionGradingSystem.DataAccess.Database;
+using ConventionGradingSystem.DataAccess.Database.Entities;
 using ConventionGradingSystem.Host.Models.EventAttendanceForm;
 
 using Microsoft.AspNetCore.Authorization;
@@ -28,7 +28,7 @@ public class EventAttendanceFormModel : PageModel
     /// <param name="configuration">Конфигурационные данные приложения.</param>
     /// <param name="databaseContext">Контекст для доступа к базе данных.</param>
     public EventAttendanceFormModel(
-        [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
+        [NotNull] IOptions<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
     {
         _configuration = configuration.Value;

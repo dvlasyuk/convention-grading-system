@@ -1,8 +1,8 @@
 using System.Data;
 using System.Diagnostics.CodeAnalysis;
 
-using ConventionGradingSystem.Host.Configuration;
-using ConventionGradingSystem.Host.Database;
+using ConventionGradingSystem.DataAccess.Configuration;
+using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Models.ContestEventsPage;
 
 using Microsoft.AspNetCore.Authorization;
@@ -27,7 +27,7 @@ public class ContestEventsPageModel : PageModel
     /// <param name="configuration">Конфигурационные данные приложения.</param>
     /// <param name="databaseContext">Контекст для доступа к базе данных.</param>
     public ContestEventsPageModel(
-        [NotNull] IOptionsSnapshot<ApplicationConfiguration> configuration,
+        [NotNull] IOptions<ApplicationConfiguration> configuration,
         [NotNull] DatabaseContext databaseContext)
     {
         _configuration = configuration.Value;
