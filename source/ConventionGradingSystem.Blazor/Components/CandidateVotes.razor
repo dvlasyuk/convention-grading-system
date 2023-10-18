@@ -1,0 +1,14 @@
+@page "/candidates/{candidateId}/votes"
+@using Microsoft.AspNetCore.Components.Web
+
+<PageTitle>Голоса за кандидата зрительского голосования @CandidateId</PageTitle>
+<h1>Голоса за кандидата зрительского голосования @CandidateId</h1>
+
+@code {
+
+    /// <summary>
+    /// Идентификатор кандидата зрительского голосования.
+    /// </summary>
+    [Parameter]
+    public string? CandidateId { get; set; }
+}

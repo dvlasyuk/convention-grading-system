@@ -17,8 +17,12 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 max_line_length = 120
 
-# C# files
+# C# Files
 [*.{cs,csx,cake}]
+indent_size = 4
+
+# Razor Views and Components
+[*.{cshtml,razor}]
 indent_size = 4
 
 # Markdown Files

@@ -1,0 +1,15 @@
+@page "/events/{eventId}/participants"
+@using Microsoft.AspNetCore.Components.Web
+
+<PageTitle>Участники мероприятия @EventId</PageTitle>
+<h1>Участники мероприятия @EventId</h1>
+
+
+@code {
+
+    /// <summary>
+    /// Идентификатор мероприятия в рамках конкурса.
+    /// </summary>
+    [Parameter]
+    public string? EventId { get; set; }
+}

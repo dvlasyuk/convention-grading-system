@@ -1,0 +1,14 @@
+@page "/events/{eventId}/expert-feedbacks"
+@using Microsoft.AspNetCore.Components.Web
+
+<PageTitle>Отзывы экспертов о мероприятии @EventId</PageTitle>
+<h1>Отзывы экспертов о мероприятии @EventId</h1>
+
+@code {
+
+    /// <summary>
+    /// Идентификатор мероприятия в рамках конкурса.
+    /// </summary>
+    [Parameter]
+    public string? EventId { get; set; }
+}

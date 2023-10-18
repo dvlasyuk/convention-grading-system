@@ -1,0 +1,14 @@
+@page "/contests/{contestId}"
+@using Microsoft.AspNetCore.Components.Web
+
+<PageTitle>Конкурс мероприятий @ContestId</PageTitle>
+<h1>Конкурс мероприятий @ContestId</h1>
+
+@code {
+
+    /// <summary>
+    /// Идентификатор конкурса мероприятий.
+    /// </summary>
+    [Parameter]
+    public string? ContestId { get; set; }
+}

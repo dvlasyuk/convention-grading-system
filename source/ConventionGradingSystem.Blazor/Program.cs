@@ -20,6 +20,9 @@ public static class Program
     {
         var applicationBuilder = WebApplication.CreateBuilder(arguments);
 
+        applicationBuilder.Services.AddRazorPages();
+        applicationBuilder.Services.AddServerSideBlazor();
+
         applicationBuilder.Services.AddOptions<SecurityConfiguration>().BindConfiguration("SecurityConfiguration");
         applicationBuilder.Services.AddSingleton<IValidateOptions<SecurityConfiguration>, SecurityConfigurationValidator>();
 
@@ -33,7 +36,11 @@ public static class Program
         var databaseContext = migrationScope.ServiceProvider.GetRequiredService<DatabaseContext>();
         databaseContext.Database.Migrate();
 
-        application.MapGet("/", () => "Hello World!");
+        application.UseStaticFiles();
+        application.UseRouting();
+        application.MapBlazorHub();
+        application.MapFallbackToPage("/Application");
+
         application.Run();
     }
 }

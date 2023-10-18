@@ -1,0 +1,15 @@
+@using ConventionGradingSystem.Blazor.Components.Shared
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+
+<Router AppAssembly="@typeof(Program).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="@typeof(Layout)" />
+    </Found>
+    <NotFound>
+        <PageTitle>Страница не найдена</PageTitle>
+        <LayoutView Layout="@typeof(Layout)">
+            Страница не найдена
+        </LayoutView>
+    </NotFound>
+</Router>

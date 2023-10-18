@@ -1,0 +1,14 @@
+@page "/votings/{votingId}"
+@using Microsoft.AspNetCore.Components.Web
+
+<PageTitle>Зрительское голосование @VotingId</PageTitle>
+<h1>Зрительское голосование @VotingId</h1>
+
+@code {
+
+    /// <summary>
+    /// Идентификатор зрительского голосования.
+    /// </summary>
+    [Parameter]
+    public string? VotingId { get; set; }
+}

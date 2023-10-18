@@ -1,0 +1,14 @@
+@page "/teams/{teamId}"
+@using Microsoft.AspNetCore.Components.Web
+
+<PageTitle>Команда участников @TeamId</PageTitle>
+<h1>Команда участников @TeamId</h1>
+
+@code {
+
+    /// <summary>
+    /// Идентификатор команды участников.
+    /// </summary>
+    [Parameter]
+    public string? TeamId { get; set; }
+}

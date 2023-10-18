@@ -1,0 +1,14 @@
+@page "/forms/event-attendance/{eventId}"
+@using Microsoft.AspNetCore.Components.Web;
+
+<PageTitle>Форма посещаемости мероприятия @EventId</PageTitle>
+<h1>Форма посещаемости мероприятия @EventId</h1>
+
+@code {
+
+    /// <summary>
+    /// Идентификатор мероприятия в рамках конкурса.
+    /// </summary>
+    [Parameter]
+    public string? EventId { get; set; }
+}

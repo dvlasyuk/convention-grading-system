@@ -1,0 +1,14 @@
+@page "/forms/participant-feedback/{eventId}"
+@using Microsoft.AspNetCore.Components.Web;
+
+<PageTitle>Форма отзыва участника о мероприятии @EventId</PageTitle>
+<h1>Форма отзыва участника о мероприятии @EventId</h1>
+
+@code {
+
+    /// <summary>
+    /// Идентификатор мероприятия в рамках конкурса.
+    /// </summary>
+    [Parameter]
+    public string? EventId { get; set; }
+}
