@@ -1,8 +1,12 @@
 @page "/forms/participant-feedback/{eventId}"
-@using Microsoft.AspNetCore.Components.Web;
+@layout BaseLayout
+
+@using ConventionGradingSystem.Blazor.Components.Shared
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
 
 <PageTitle>Форма отзыва участника о мероприятии @EventId</PageTitle>
-<h1>Форма отзыва участника о мероприятии @EventId</h1>
+<MudText Typo="Typo.h6">Форма отзыва участника о мероприятии @EventId</MudText>
 
 @code {
 

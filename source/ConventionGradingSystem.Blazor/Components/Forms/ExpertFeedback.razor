@@ -1,8 +1,12 @@
 @page "/forms/expert-feedback/{eventId}"
-@using Microsoft.AspNetCore.Components.Web;
+@layout BaseLayout
+
+@using ConventionGradingSystem.Blazor.Components.Shared
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
 
 <PageTitle>Форма отзыва эксперта о мероприятии @EventId</PageTitle>
-<h1>Форма отзыва эксперта о мероприятии @EventId</h1>
+<MudText Typo="Typo.h6">Форма отзыва эксперта о мероприятии @EventId</MudText>
 
 @code {
 

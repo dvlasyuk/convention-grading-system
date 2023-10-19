@@ -1,0 +1,45 @@
+@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Routing
+@using MudBlazor
+
+<MudThemeProvider IsDarkMode="true" />
+
+<MudLayout>
+
+    <MudAppBar>
+        <MudIconButton
+            Title="Главное меню"
+            Icon="@Icons.Material.Filled.Menu"
+            Variant="Variant.Outlined"
+            Edge="Edge.Start"
+            OnClick="OnMenuButtonClick" />
+
+        <MudImage Src="favicon-32.png" Class="ml-5" />
+        <MudText Typo="Typo.h6" Class="ml-2">Система оценивания Слёта СПбСО</MudText>
+    </MudAppBar>
+
+    <MudDrawer ClipMode="DrawerClipMode.Docked" Width="300px" @bind-Open="@_isDrawerOpen">
+        <MudDrawerHeader>
+            <MudText Typo="Typo.subtitle1">Главное меню</MudText>
+        </MudDrawerHeader>
+        <MudNavMenu Bordered="true" Color="Color.Info">
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Главная страница</MudNavLink>
+            <MudNavLink Href="/contests" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Star">Конкурсы мероприятий</MudNavLink>
+            <MudNavLink Href="/votings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToVote">Зрительские голосования</MudNavLink>
+            <MudNavLink Href="/teams" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Groups">Команды участников</MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+
+    <MudMainContent>
+        <MudContainer Fixed="true" Class="pt-3">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+
+</MudLayout>
+
+@code {
+
+    bool _isDrawerOpen = false;
+    void OnMenuButtonClick() => _isDrawerOpen = !_isDrawerOpen;
+}

@@ -7,4 +7,7 @@
     <None Remove="*.db-shm" />
     <None Remove="*.db-wal" />
   </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MudBlazor" Version="6.11.0" />
+  </ItemGroup>
 </Project>

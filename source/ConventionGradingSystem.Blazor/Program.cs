@@ -5,6 +5,8 @@ using ConventionGradingSystem.DataAccess.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
+using MudBlazor.Services;
+
 namespace ConventionGradingSystem.Blazor;
 
 /// <summary>
@@ -22,6 +24,7 @@ public static class Program
 
         applicationBuilder.Services.AddRazorPages();
         applicationBuilder.Services.AddServerSideBlazor();
+        applicationBuilder.Services.AddMudServices();
 
         applicationBuilder.Services.AddOptions<SecurityConfiguration>().BindConfiguration("SecurityConfiguration");
         applicationBuilder.Services.AddSingleton<IValidateOptions<SecurityConfiguration>, SecurityConfigurationValidator>();

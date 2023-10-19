@@ -1,8 +1,12 @@
 @page "/forms/audience-voting/{votingId}"
-@using Microsoft.AspNetCore.Components.Web;
+@layout BaseLayout
+
+@using ConventionGradingSystem.Blazor.Components.Shared
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
 
 <PageTitle>Форма зрительского голосования @VotingId</PageTitle>
-<h1>Форма зрительского голосования @VotingId</h1>
+<MudText Typo="Typo.h6">Форма зрительского голосования @VotingId</MudText>
 
 @code {
 

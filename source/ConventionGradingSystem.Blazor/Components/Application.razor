@@ -1,15 +1,22 @@
 @using ConventionGradingSystem.Blazor.Components.Shared
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
 
 <Router AppAssembly="@typeof(Program).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="routeData" DefaultLayout="@typeof(Layout)" />
+        <RouteView RouteData="routeData" DefaultLayout="@typeof(MainLayout)" />
     </Found>
     <NotFound>
         <PageTitle>Страница не найдена</PageTitle>
-        <LayoutView Layout="@typeof(Layout)">
-            Страница не найдена
+        <LayoutView Layout="@typeof(BaseLayout)">
+            <MudAlert Severity="Severity.Warning">
+                Запрошенная тобой страница не найдена. Если ты вводил её адрес в адресную строку браузера вручную
+                или вставлял скопированную ссылку, то проверь не ошибся ли ты при вводе или копировании. Если ты
+                переходил по прямой ссылке, то проверь корректность этой ссылки или попроси сделать это того, кто
+                её тебе предоставил. Если ты попал сюда с другой страницы системы, то это ошибка - обратись,
+                пожалуйста, к её разработчикам
+            </MudAlert>
         </LayoutView>
     </NotFound>
 </Router>

@@ -1,0 +1,19 @@
+@inherits LayoutComponentBase
+@using MudBlazor
+
+<MudThemeProvider IsDarkMode="true" />
+
+<MudLayout>
+
+    <MudAppBar>
+        <MudImage Src="favicon-32.png" />
+        <MudText Typo="Typo.h6" Class="ml-2">Система оценивания Слёта СПбСО</MudText>
+    </MudAppBar>
+
+    <MudMainContent>
+        <MudContainer Fixed="true" Class="pt-3">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+
+</MudLayout>
