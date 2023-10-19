@@ -3,7 +3,7 @@ namespace ConventionGradingSystem.DataAccess.Configuration.Models;
 /// <summary>
 /// Конфигурация зрительского голосования.
 /// </summary>
-public class AudienceVoting
+public class Voting
 {
     /// <summary>
     /// Идентификатор голосования.
@@ -32,9 +32,9 @@ public class AudienceVoting
     public int VotesQuantity { get; set; } = int.MinValue;
 
     /// <summary>
-    /// Участники зрительского голосования.
+    /// Кандидаты зрительского голосования.
     /// </summary>
     /// <remarks>Количество сконфигурированных участников не может быть нулевым и не должно превышать
     /// 100 участников.</remarks>
-    public ICollection<VotingParticipant> Participants { get; } = new List<VotingParticipant>();
+    public ICollection<Candidate> Candidates { get; } = new List<Candidate>();
 }

@@ -116,22 +116,22 @@
             return;
         }
 
-        var candidateIds = voting.Participants
+        var candidateIds = voting.Candidates
             .Select(item => item.Identifier)
             .ToList();
 
         var savedVotes = await DatabaseContext.ParticipantVotes
-            .Where(item => candidateIds.Contains(item.VoitingParticipantId))
+            .Where(item => candidateIds.Contains(item.CandidateId))
             .ToListAsync();
 
         _audienceVoting = new AudienceVoting(
             Name: voting.Name,
             FriendlyVoting: voting.FriendlyVoting,
             VotesQuantity: voting.VotesQuantity,
-            CandidatesQuantity: voting.Participants.Count,
+            CandidatesQuantity: voting.Candidates.Count,
             TotalVotesQuantity: savedVotes.Count);
 
-        _votingCandidates = voting.Participants
+        _votingCandidates = voting.Candidates
             .OrderBy(candidate => candidate.Identifier)
             .Select((candidate, index) => new VotingCandidate(
                 Number: index + 1,
@@ -139,7 +139,7 @@
                 Name: candidate.Name,
                 Brigades: candidate.Brigades.ToList(),
                 VotesQuantity: savedVotes
-                    .Count(vote => vote.VoitingParticipantId == candidate.Identifier),
+                    .Count(vote => vote.CandidateId == candidate.Identifier),
                 VotesLink: $"/candidates/{candidate.Identifier}/votes"))
             .ToList();
     }

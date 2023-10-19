@@ -53,7 +53,7 @@ public class ParticipantVoteFormModel : PageModel
             VotingName = voting.Name,
             FriendlyVoting = voting.FriendlyVoting,
             VotesQuantity = voting.VotesQuantity,
-            Participants = voting.Participants
+            Participants = voting.Candidates
                 .OrderBy(item => item.Identifier)
                 .Select(item => new VotingParticipant(
                     Identifier: item.Identifier,

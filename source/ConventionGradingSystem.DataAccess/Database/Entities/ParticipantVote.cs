@@ -16,9 +16,9 @@ public class ParticipantVote
     public required string ParticipantId { get; set; }
 
     /// <summary>
-    /// Идентификатор участника голосования, за которого оставлен голос.
+    /// Идентификатор кандидата, за которого оставлен голос.
     /// </summary>
-    public required string VoitingParticipantId { get; set; }
+    public required string CandidateId { get; set; }
 
     /// <summary>
     /// Дополнительный комментарий, оставленный участником.

@@ -28,7 +28,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
 
         failureMessages.AddRange(ValidateIdentifiersUniqueness(options));
         failureMessages.AddRange(options.Contests.SelectMany(item => ValidateContest(item, participantIds)));
-        failureMessages.AddRange(options.Votings.SelectMany(ValidateAudienceVoting));
+        failureMessages.AddRange(options.Votings.SelectMany(ValidateVoting));
         failureMessages.AddRange(options.Teams.SelectMany(ValidateTeam));
 
         return failureMessages.Any()
@@ -72,9 +72,9 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             validator: IsValidIdentifier));
 
         failureMessages.AddRange(ValidateUniqueness(
-            name: "Идентификатор участника зрительского голосования",
+            name: "Идентификатор кандидата зрительского голосования",
             values: options.Votings
-                .SelectMany(item => item.Participants)
+                .SelectMany(item => item.Candidates)
                 .Select(item => item.Identifier),
             validator: IsValidIdentifier));
 
@@ -235,7 +235,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static IEnumerable<string> ValidateAudienceVoting(AudienceVoting voting)
+    private static IEnumerable<string> ValidateVoting(Voting voting)
     {
         var failureMessages = new List<string>();
 
@@ -258,68 +258,68 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         {
             failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано отрицательное количество голосов");
         }
-        if (voting.VotesQuantity >= voting.Participants.Count)
+        if (voting.VotesQuantity >= voting.Candidates.Count)
         {
-            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано количество голосов, большее или равное количеству участников");
+            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано количество голосов, большее или равное количеству кандидатов");
         }
 
-        if (voting.Participants.Count == 0)
+        if (voting.Candidates.Count == 0)
         {
-            failureMessages.Add($"Для зрительского голосования {voting.Identifier} не задано ни одного участника");
+            failureMessages.Add($"Для зрительского голосования {voting.Identifier} не задано ни одного кандидата");
         }
-        if (voting.Participants.Count > 100)
+        if (voting.Candidates.Count > 100)
         {
-            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано более 100 участников");
+            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано более 100 кандидатов");
         }
 
-        failureMessages.AddRange(voting.Participants.SelectMany(ValidateVotingParticipant));
+        failureMessages.AddRange(voting.Candidates.SelectMany(ValidateCandidate));
 
         return failureMessages;
     }
 
-    private static IEnumerable<string> ValidateVotingParticipant(VotingParticipant participant)
+    private static IEnumerable<string> ValidateCandidate(Candidate candidate)
     {
         var failureMessages = new List<string>();
 
-        if (!IsValidIdentifier(participant.Identifier))
+        if (!IsValidIdentifier(candidate.Identifier))
         {
-            failureMessages.Add("Для одного из участников голосований задан пустой или слишком длинный идентификатор");
+            failureMessages.Add("Для одного из кандидатов голосований задан пустой или слишком длинный идентификатор");
             return failureMessages;
         }
 
-        if (string.IsNullOrWhiteSpace(participant.Name))
+        if (string.IsNullOrWhiteSpace(candidate.Name))
         {
-            failureMessages.Add($"Для участника голосования {participant.Identifier} задано пустое название/имя");
+            failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано пустое название/имя");
         }
-        else if (participant.Name.Length > 100)
+        else if (candidate.Name.Length > 100)
         {
-            failureMessages.Add($"Для участника голосования {participant.Identifier} задано название/имя, превышающее 100 символов");
-        }
-
-        if (participant.Brigades.Count == 0)
-        {
-            failureMessages.Add($"Для участника голосования {participant.Identifier} не задано ни одного связанного отряда");
-        }
-        if (participant.Brigades.Count > 10)
-        {
-            failureMessages.Add($"Для участника голосования {participant.Identifier} задано более 10 связанных отрядов");
+            failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано название/имя, превышающее 100 символов");
         }
 
-        foreach (var brigade in participant.Brigades)
+        if (candidate.Brigades.Count == 0)
+        {
+            failureMessages.Add($"Для кандидата голосования {candidate.Identifier} не задано ни одного связанного отряда");
+        }
+        if (candidate.Brigades.Count > 10)
+        {
+            failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано более 10 связанных отрядов");
+        }
+
+        foreach (var brigade in candidate.Brigades)
         {
             if (string.IsNullOrWhiteSpace(brigade))
             {
-                failureMessages.Add($"Для участника голосования {participant.Identifier} задано пустое название связанного отряда");
+                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано пустое название связанного отряда");
             }
             else if (brigade.Length > 100)
             {
-                failureMessages.Add($"Для участника голосования {participant.Identifier} задано название связанного отряда, превышающее 100 символов");
+                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано название связанного отряда, превышающее 100 символов");
             }
         }
 
         failureMessages.AddRange(ValidateUniqueness(
-            name: $"Название связанного отряда для участника голосования {participant.Identifier}",
-            values: participant.Brigades,
+            name: $"Название связанного отряда для кандидата голосования {candidate.Identifier}",
+            values: candidate.Brigades,
             validator: value => !string.IsNullOrWhiteSpace(value) && value.Length <= 100));
 
         return failureMessages;

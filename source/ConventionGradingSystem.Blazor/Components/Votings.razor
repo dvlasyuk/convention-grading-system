@@ -71,10 +71,10 @@
                 Number: index + 1,
                 Identifier: voting.Identifier,
                 Name: voting.Name,
-                CandidatesQuantity: voting.Participants.Count,
-                TotalVotesQuantity: voting.Participants
+                CandidatesQuantity: voting.Candidates.Count,
+                TotalVotesQuantity: voting.Candidates
                     .Select(candidate => savedVotes
-                        .Where(vote => vote.VoitingParticipantId == candidate.Identifier)
+                        .Where(vote => vote.CandidateId == candidate.Identifier)
                         .Count())
                     .Sum(),
                 DetailsLink: $"/votings/{voting.Identifier}",

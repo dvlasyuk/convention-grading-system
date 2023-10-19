@@ -20,7 +20,7 @@ public class ParticipantVoteConfigurator : IEntityTypeConfiguration<ParticipantV
     {
         builder.HasKey(entity => entity.Identifier);
         builder.Property(entity => entity.ParticipantId).HasMaxLength(50);
-        builder.Property(entity => entity.VoitingParticipantId).HasMaxLength(50);
+        builder.Property(entity => entity.CandidateId).HasMaxLength(50);
         builder.Property(entity => entity.Note).HasMaxLength(1000);
     }
 }

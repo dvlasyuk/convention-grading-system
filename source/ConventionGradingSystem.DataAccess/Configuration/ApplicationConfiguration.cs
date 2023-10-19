@@ -15,7 +15,7 @@ public class ApplicationConfiguration
     /// <summary>
     /// Конфигурация зрительских голосований.
     /// </summary>
-    public ICollection<AudienceVoting> Votings { get; } = new List<AudienceVoting>();
+    public ICollection<Voting> Votings { get; } = new List<Voting>();
 
     /// <summary>
     /// Конфигурация команд участников.

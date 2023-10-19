@@ -93,7 +93,7 @@
     protected override async Task OnInitializedAsync()
     {
         var candidate = Configuration.Value.Votings
-            .SelectMany(item => item.Participants)
+            .SelectMany(item => item.Candidates)
             .FirstOrDefault(item => item.Identifier == CandidateId);
 
         if (candidate == null)
@@ -102,10 +102,10 @@
         }
 
         var savedVotes = await DatabaseContext.ParticipantVotes
-            .Where(item => item.VoitingParticipantId == CandidateId)
+            .Where(item => item.CandidateId == CandidateId)
             .ToListAsync();
 
-        var voting = Configuration.Value.Votings.First(item => item.Participants.Contains(candidate));
+        var voting = Configuration.Value.Votings.First(item => item.Candidates.Contains(candidate));
         _votingCandidate = new VotingCandidate(
             CandidateName: candidate.Name,
             VotingName: voting.Name,

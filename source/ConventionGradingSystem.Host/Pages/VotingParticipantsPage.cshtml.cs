@@ -52,16 +52,16 @@ public class VotingParticipantsPageModel : PageModel
             return;
         }
 
-        var participantIds = voting.Participants
+        var participantIds = voting.Candidates
             .Select(item => item.Identifier)
             .ToList();
 
         var participantVotes = await _databaseContext.ParticipantVotes
-            .Where(item => participantIds.Contains(item.VoitingParticipantId))
+            .Where(item => participantIds.Contains(item.CandidateId))
             .ToListAsync();
 
         var votesQuantities = participantVotes
-            .GroupBy(item => item.VoitingParticipantId)
+            .GroupBy(item => item.CandidateId)
             .ToDictionary(
                 groupByEvent => groupByEvent.Key,
                 groupByEvent => groupByEvent.Count());
@@ -69,7 +69,7 @@ public class VotingParticipantsPageModel : PageModel
         ViewModel = ViewModel with
         {
             VotingName = voting.Name,
-            Participants = voting.Participants
+            Participants = voting.Candidates
                 .OrderBy(item => item.Identifier)
                 .Select(item => new VotingParticipant(
                     Identifier: item.Identifier,

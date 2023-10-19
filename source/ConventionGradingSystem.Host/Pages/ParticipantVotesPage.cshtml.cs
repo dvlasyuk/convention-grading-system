@@ -48,7 +48,7 @@ public class ParticipantVotesPageModel : PageModel
     public async Task OnGetAsync(string participantId)
     {
         var votingParticipant = _configuration.Votings
-            .SelectMany(item => item.Participants)
+            .SelectMany(item => item.Candidates)
             .FirstOrDefault(item => item.Identifier == participantId);
 
         if (votingParticipant == null)
@@ -56,7 +56,7 @@ public class ParticipantVotesPageModel : PageModel
             return;
         }
 
-        var voting = _configuration.Votings.First(item => item.Participants.Contains(votingParticipant));
+        var voting = _configuration.Votings.First(item => item.Candidates.Contains(votingParticipant));
         ViewModel = ViewModel with
         {
             VotingName = voting.Name,
@@ -64,7 +64,7 @@ public class ParticipantVotesPageModel : PageModel
         };
 
         var votes = await _databaseContext.ParticipantVotes
-            .Where(item => item.VoitingParticipantId == participantId)
+            .Where(item => item.CandidateId == participantId)
             .ToListAsync();
 
         var participants = _configuration.Teams

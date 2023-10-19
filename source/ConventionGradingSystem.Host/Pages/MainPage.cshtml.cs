@@ -60,7 +60,7 @@ public class MainPageModel : PageModel
                 .Select(item => new Voting(
                     Identifier: item.Identifier,
                     Name: item.Name,
-                    ParticipantsQuantity: item.Participants.Count))
+                    ParticipantsQuantity: item.Candidates.Count))
                 .ToList()
         };
 
