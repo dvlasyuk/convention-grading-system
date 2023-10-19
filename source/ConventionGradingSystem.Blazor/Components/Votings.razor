@@ -1,6 +1,104 @@
 @page "/votings"
+
+@using ConventionGradingSystem.DataAccess.Configuration
+@using ConventionGradingSystem.DataAccess.Database
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Options
 @using MudBlazor
 
+@inject IOptions<ApplicationConfiguration> Configuration
+@inject DatabaseContext DatabaseContext
+
 <PageTitle>Зрительские голосования</PageTitle>
-<MudText Typo="Typo.h6">Зрительские голосования</MudText>
+
+<MudTable Items="@_audienceVotings"
+          Filter="FilterRecords"
+          Breakpoint="Breakpoint.None"
+          Hover="true">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Зрительские голосования</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchFilter"
+                      MaxLength="50"
+                      Clearable="true"
+                      Placeholder="Поиск"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" />
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh><MudTableSortLabel T="AudienceVoting" SortBy="SelectNameField">Название голосования</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="AudienceVoting" SortBy="SelectCandidatesField">Количество кандидатов</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="AudienceVoting" SortBy="SelectVotesField">Общее количество голосов</MudTableSortLabel></MudTh>
+        <MudTh>Действия</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd>@context.Number</MudTd>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>@context.CandidatesQuantity</MudTd>
+        <MudTd>@context.TotalVotesQuantity</MudTd>
+        <MudTd>
+            <MudButton Href="@context.DetailsLink"
+                       Variant="Variant.Outlined"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Info">
+                Детали
+            </MudButton>
+            <MudButton Href="@context.FormLink"
+                       Variant="Variant.Outlined"
+                       Color="Color.Secondary"
+                       StartIcon="@Icons.Material.Filled.QrCode">
+                Форма голосования
+            </MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private IEnumerable<AudienceVoting> _audienceVotings = new List<AudienceVoting>();
+    private string? _searchFilter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var savedVotes = await DatabaseContext.ParticipantVotes.ToListAsync();
+        _audienceVotings = Configuration.Value.Votings
+            .OrderBy(voting => voting.Identifier)
+            .Select((voting, index) => new AudienceVoting(
+                Number: index + 1,
+                Identifier: voting.Identifier,
+                Name: voting.Name,
+                CandidatesQuantity: voting.Participants.Count,
+                TotalVotesQuantity: voting.Participants
+                    .Select(candidate => savedVotes
+                        .Where(vote => vote.VoitingParticipantId == candidate.Identifier)
+                        .Count())
+                    .Sum(),
+                DetailsLink: $"/votings/{voting.Identifier}",
+                FormLink: $"/forms/audience-voting/{voting.Identifier}"))
+            .ToList();
+    }
+
+    private bool FilterRecords(AudienceVoting voting)
+    {
+        return string.IsNullOrWhiteSpace(_searchFilter) ||
+            voting.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            voting.Identifier.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private object SelectNameField(AudienceVoting voting) => voting.Name;
+    private object SelectCandidatesField(AudienceVoting voting) => voting.CandidatesQuantity;
+    private object SelectVotesField(AudienceVoting voting) => voting.TotalVotesQuantity;
+
+    private record AudienceVoting(
+        int Number,
+        string Identifier,
+        string Name,
+        int CandidatesQuantity,
+        int TotalVotesQuantity,
+        string DetailsLink,
+        string FormLink);
+}

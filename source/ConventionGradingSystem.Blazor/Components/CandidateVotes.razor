@@ -1,15 +1,151 @@
 @page "/candidates/{candidateId}/votes"
+
+@using ConventionGradingSystem.DataAccess.Configuration;
+@using ConventionGradingSystem.DataAccess.Database;
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.EntityFrameworkCore;
+@using Microsoft.Extensions.Options;
 @using MudBlazor
 
-<PageTitle>Голоса за кандидата зрительского голосования @CandidateId</PageTitle>
-<MudText Typo="Typo.h6">Голоса за кандидата зрительского голосования @CandidateId</MudText>
+@inject IOptions<ApplicationConfiguration> Configuration
+@inject DatabaseContext DatabaseContext
+
+@if (_votingCandidate == null)
+{
+    <PageTitle>Голоса за неизвестного кандидата</PageTitle>
+    <MudAlert Severity="Severity.Warning">
+        Кандидат зрительского голосования с идентификатором <em>@CandidateId</em> <strong>не найден</strong>.
+        Если ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
+        проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
+        корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
+        с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
+    </MudAlert>
+    return;
+}
+
+<PageTitle>Голоса за кандидата @_votingCandidate.CandidateName</PageTitle>
+
+<MudExpansionPanels Class="mb-3">
+    <MudExpansionPanel>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Color="Color.Primary" Icon="@Icons.Material.Filled.Info" />
+                <MudText Color="Color.Primary" Class="ml-3">Кандидат голосования <strong>@_votingCandidate.CandidateName</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <MudText>Название зрительского голосования: <strong>@_votingCandidate.VotingName</strong></MudText>
+            <MudText>Связанные с кандидатом отряды: <strong>@(string.Join(", ", _votingCandidate.Brigades))</strong></MudText>
+            <MudText>Число голосов, отданных зрителями: <strong>@_votingCandidate.VotesQuantity</strong></MudText>
+        </ChildContent>
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+<MudTable Items="@_participantVotes"
+          Filter="FilterRecords"
+          Breakpoint="Breakpoint.None"
+          Hover="true">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Голоса за кандидата</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchFilter"
+                      MaxLength="50"
+                      Clearable="true"
+                      Placeholder="Поиск"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" />
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectNameField">Имя участника</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectNameField">Отряд участника</MudTableSortLabel></MudTh>
+        <MudTh>Дополнительный комментарий</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd>@context.Number</MudTd>
+        <MudTd>@context.ParticipantName</MudTd>
+        <MudTd>@context.ParticipantBrigade</MudTd>
+        <MudTd>@context.Note</MudTd>
+    </RowTemplate>
+
+    <NoRecordsContent>
+        <MudAlert Severity="Severity.Info">
+            За кандидата голосования <strong>@_votingCandidate.CandidateName</strong> не было отдано ни одного голоса
+        </MudAlert>
+    </NoRecordsContent>
+</MudTable>
 
 @code {
+
+    private VotingCandidate? _votingCandidate = null;
+    private IEnumerable<ParticipantVote> _participantVotes = new List<ParticipantVote>();
+    private string? _searchFilter;
 
     /// <summary>
     /// Идентификатор кандидата зрительского голосования.
     /// </summary>
     [Parameter]
     public string? CandidateId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var candidate = Configuration.Value.Votings
+            .SelectMany(item => item.Participants)
+            .FirstOrDefault(item => item.Identifier == CandidateId);
+
+        if (candidate == null)
+        {
+            return;
+        }
+
+        var savedVotes = await DatabaseContext.ParticipantVotes
+            .Where(item => item.VoitingParticipantId == CandidateId)
+            .ToListAsync();
+
+        var voting = Configuration.Value.Votings.First(item => item.Participants.Contains(candidate));
+        _votingCandidate = new VotingCandidate(
+            CandidateName: candidate.Name,
+            VotingName: voting.Name,
+            Brigades: candidate.Brigades.ToList(),
+            VotesQuantity: savedVotes.Count());
+
+        var participants = Configuration.Value.Teams
+            .SelectMany(item => item.Members)
+            .ToDictionary(item => item.Identifier);
+
+        _participantVotes = savedVotes
+            .OrderBy(vote => vote.Identifier)
+            .Select((vote, index) => new ParticipantVote(
+                Number: index + 1,
+                ParticipantName: participants[vote.ParticipantId].Name,
+                ParticipantBrigade: participants[vote.ParticipantId].Brigade,
+                Note: vote.Note))
+            .ToList();
+    }
+
+    private bool FilterRecords(ParticipantVote vote)
+    {
+        return string.IsNullOrWhiteSpace(_searchFilter) ||
+            vote.ParticipantName.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            vote.ParticipantBrigade.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            (vote.Note?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
+    }
+
+    private object SelectNameField(ParticipantVote vote) => vote.ParticipantName;
+    private object SelectBrigaseField(ParticipantVote vote) => vote.ParticipantBrigade;
+
+    private record VotingCandidate(
+        string CandidateName,
+        string VotingName,
+        IReadOnlyCollection<string> Brigades,
+        int VotesQuantity);
+
+    private record ParticipantVote(
+        int Number,
+        string ParticipantName,
+        string ParticipantBrigade,
+        string? Note);
 }

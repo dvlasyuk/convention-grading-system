@@ -1,15 +1,172 @@
 @page "/votings/{votingId}"
+
+@using ConventionGradingSystem.DataAccess.Configuration
+@using ConventionGradingSystem.DataAccess.Database
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Options
 @using MudBlazor
 
-<PageTitle>Зрительское голосование @VotingId</PageTitle>
-<MudText Typo="Typo.h6">Зрительское голосование @VotingId</MudText>
+@inject IOptions<ApplicationConfiguration> Configuration
+@inject DatabaseContext DatabaseContext
+
+@if (_audienceVoting == null)
+{
+    <PageTitle>Неизвестное зрительское голосование</PageTitle>
+    <MudAlert Severity="Severity.Warning">
+        Зрительское голосование с идентификатором <em>@VotingId</em> <strong>не найдено</strong>. Если ты
+        вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
+        проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
+        корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
+        с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
+    </MudAlert>
+    return;
+}
+
+<PageTitle>Зрительское голосование @_audienceVoting.Name</PageTitle>
+
+<MudExpansionPanels Class="mb-3">
+    <MudExpansionPanel>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Color="Color.Primary" Icon="@Icons.Material.Filled.Info" />
+                <MudText Color="Color.Primary" Class="ml-3">Зрительское голосование <strong>@_audienceVoting.Name</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+            <MudText>Допустимо ли голосование за свой отряд: <strong>@(_audienceVoting.FriendlyVoting ? "Да" : "Нет")</strong></MudText>
+            <MudText>Количество голосов от одного зрителя: <strong>@_audienceVoting.VotesQuantity</strong></MudText>
+            <MudText>Общее число кандидатов в голосовании <strong>@_audienceVoting.CandidatesQuantity</strong></MudText>
+            <MudText>Общее число голосов, отданных зрителями: <strong>@_audienceVoting.TotalVotesQuantity</strong></MudText>
+            <MudDivider Class="mt-3" />
+            <MudButton Href="@($"/forms/audience-voting/{VotingId}")"
+                        Variant="Variant.Outlined"
+                        Color="Color.Secondary"
+                        StartIcon="@Icons.Material.Filled.QrCode"
+                        Class="mt-3">
+                Форма голосования
+            </MudButton>
+        </ChildContent>
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+<MudTable Items="@_votingCandidates"
+          Filter="FilterRecords"
+          Breakpoint="Breakpoint.None"
+          Hover="true">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Кандидаты голосования</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchFilter"
+                      MaxLength="50"
+                      Clearable="true"
+                      Placeholder="Поиск"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" />
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh><MudTableSortLabel T="VotingCandidate" SortBy="SelectNameField">Название/имя участника</MudTableSortLabel></MudTh>
+        <MudTh>Связанные отряды</MudTh>
+        <MudTh><MudTableSortLabel T="VotingCandidate" SortBy="SelectQuantityField">Количество голосов</MudTableSortLabel></MudTh>
+        <MudTh>Действия</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd>@context.Number</MudTd>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>
+            @foreach (var item in @context.Brigades)
+            {
+                @item
+                <br />
+            }
+        </MudTd>
+        <MudTd>@context.VotesQuantity</MudTd>
+        <MudTd>
+            <MudButton Href="@context.VotesLink"
+                       Variant="Variant.Outlined"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Info">
+                Список голосов
+            </MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
 
 @code {
+
+    private AudienceVoting? _audienceVoting = null;
+    private IEnumerable<VotingCandidate> _votingCandidates = new List<VotingCandidate>();
+    private string? _searchFilter;
 
     /// <summary>
     /// Идентификатор зрительского голосования.
     /// </summary>
     [Parameter]
     public string? VotingId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var voting = Configuration.Value.Votings.FirstOrDefault(item => item.Identifier == VotingId);
+        if (voting == null)
+        {
+            return;
+        }
+
+        var candidateIds = voting.Participants
+            .Select(item => item.Identifier)
+            .ToList();
+
+        var savedVotes = await DatabaseContext.ParticipantVotes
+            .Where(item => candidateIds.Contains(item.VoitingParticipantId))
+            .ToListAsync();
+
+        _audienceVoting = new AudienceVoting(
+            Name: voting.Name,
+            FriendlyVoting: voting.FriendlyVoting,
+            VotesQuantity: voting.VotesQuantity,
+            CandidatesQuantity: voting.Participants.Count,
+            TotalVotesQuantity: savedVotes.Count);
+
+        _votingCandidates = voting.Participants
+            .OrderBy(candidate => candidate.Identifier)
+            .Select((candidate, index) => new VotingCandidate(
+                Number: index + 1,
+                Identifier: candidate.Identifier,
+                Name: candidate.Name,
+                Brigades: candidate.Brigades.ToList(),
+                VotesQuantity: savedVotes
+                    .Count(vote => vote.VoitingParticipantId == candidate.Identifier),
+                VotesLink: $"/candidates/{candidate.Identifier}/votes"))
+            .ToList();
+    }
+
+    private bool FilterRecords(VotingCandidate voting)
+    {
+        return string.IsNullOrWhiteSpace(_searchFilter) ||
+            voting.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            voting.Brigades.Any(brigade => brigade.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase)) ||
+            voting.Identifier.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private object SelectNameField(VotingCandidate voting) => voting.Name;
+    private object SelectQuantityField(VotingCandidate voting) => voting.VotesQuantity;
+
+    private record AudienceVoting(
+        string Name,
+        bool FriendlyVoting,
+        int VotesQuantity,
+        int CandidatesQuantity,
+        int TotalVotesQuantity);
+
+    private record VotingCandidate(
+        int Number,
+        string Identifier,
+        string Name,
+        IReadOnlyCollection<string> Brigades,
+        int VotesQuantity,
+        string VotesLink);
 }
