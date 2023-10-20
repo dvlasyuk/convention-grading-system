@@ -85,10 +85,10 @@
             contest.Identifier.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase);
     }
 
-    private object SelectNameField(Contest voting) => voting.Name;
-    private object SelectEventsField(Contest voting) => voting.EventsQuantity;
-    private object SelectExpertField(Contest voting) => voting.ExpertFeedbaksQuantity;
-    private object SelectParticipantField(Contest voting) => voting.ParticiapntFeedbaksQuantity;
+    private object SelectNameField(Contest contest) => contest.Name;
+    private object SelectEventsField(Contest contest) => contest.EventsQuantity;
+    private object SelectExpertField(Contest contest) => contest.ExpertFeedbaksQuantity;
+    private object SelectParticipantField(Contest contest) => contest.ParticiapntFeedbaksQuantity;
 
     private record Contest(
         int Number,

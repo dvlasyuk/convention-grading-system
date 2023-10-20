@@ -1,6 +1,117 @@
 @page "/teams"
+
+@using ConventionGradingSystem.DataAccess.Configuration
+@using ConventionGradingSystem.DataAccess.Database
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Options
 @using MudBlazor
 
+@inject IOptions<ApplicationConfiguration> Configuration
+@inject DatabaseContext DatabaseContext
+
 <PageTitle>Команды участников</PageTitle>
-<MudText Typo="Typo.h6">Команды участников</MudText>
+
+<MudTable Items="@_teams"
+          Filter="FilterRecords"
+          Breakpoint="Breakpoint.None"
+          Hover="true">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Команды участников</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchFilter"
+                      MaxLength="50"
+                      Clearable="true"
+                      Placeholder="Поиск"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" />
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectNameField">Название команды</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectMembersField">Количество участников</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectRegistrationsField">Количество регистраций</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectAttendancesField">Количество посещений</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectAbsencesField">Количество пропусков</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectSpecialMarksField">Особые отметки</MudTableSortLabel></MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd>@context.Number</MudTd>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>@context.MembersQuantity</MudTd>
+        <MudTd>@context.RegistrationsQuantity</MudTd>
+        <MudTd>@context.AttendancesQuantity</MudTd>
+        <MudTd>@context.AbsencesQuantity</MudTd>
+        <MudTd>@context.SpecialMarksQuantity</MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private IEnumerable<ParticipantsTeam> _teams = new List<ParticipantsTeam>();
+    private string? _searchFilter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var attendanceMarks = await DatabaseContext.AttendanceMarks.ToListAsync();
+        _teams = Configuration.Value.Teams
+            .OrderBy(team => team.Identifier)
+            .Select((team, index) => new ParticipantsTeam(
+                Number: index + 1,
+                Identifier: team.Identifier,
+                Name: team.Name,
+                MembersQuantity: team.Members.Count,
+                RegistrationsQuantity: team.Members
+                    .SelectMany(member => Configuration.Value.Contests
+                        .SelectMany(item => item.Events)
+                        .SelectMany(item => item.Participants)
+                        .Where(identifier => identifier == member.Identifier))
+                    .Count(),
+                AttendancesQuantity: team.Members
+                    .SelectMany(member => attendanceMarks
+                        .Where(mark => mark.ParticipantId == member.Identifier))
+                    .Count(),
+                AbsencesQuantity:
+                    team.Members
+                        .SelectMany(member => Configuration.Value.Contests
+                            .SelectMany(item => item.Events)
+                            .SelectMany(item => item.Participants)
+                            .Where(identifier => identifier == member.Identifier))
+                        .Count() -
+                    team.Members.SelectMany(member => attendanceMarks
+                        .Where(mark => mark.ParticipantId == member.Identifier))
+                        .Count(),
+                SpecialMarksQuantity: team.Members
+                    .SelectMany(member => attendanceMarks
+                        .Where(mark => mark.ParticipantId == member.Identifier))
+                    .Where(mark => mark.SpecialMark)
+                    .Count()))
+            .ToList();
+    }
+
+    private bool FilterRecords(ParticipantsTeam team)
+    {
+        return string.IsNullOrWhiteSpace(_searchFilter) ||
+            team.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            team.Identifier.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private object SelectNameField(ParticipantsTeam team) => team.Name;
+    private object SelectMembersField(ParticipantsTeam team) => team.MembersQuantity;
+    private object SelectRegistrationsField(ParticipantsTeam team) => team.RegistrationsQuantity;
+    private object SelectAttendancesField(ParticipantsTeam team) => team.AttendancesQuantity;
+    private object SelectAbsencesField(ParticipantsTeam team) => team.AbsencesQuantity;
+    private object SelectSpecialMarksField(ParticipantsTeam team) => team.SpecialMarksQuantity;
+
+    private record ParticipantsTeam(
+        int Number,
+        string Identifier,
+        string Name,
+        int MembersQuantity,
+        int RegistrationsQuantity,
+        int AttendancesQuantity,
+        int AbsencesQuantity,
+        int SpecialMarksQuantity);
+}

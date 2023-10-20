@@ -162,6 +162,16 @@
                 </MudButton>
             }
 
+            <br />
+
+            <MudButton Href="@context.AttendanceFormLink"
+                       Variant="Variant.Outlined"
+                       Color="Color.Tertiary"
+                       StartIcon="@Icons.Material.Filled.QrCode"
+                       Class="mr-3 mb-3">
+                Форма посещаемости
+            </MudButton>
+
         </MudTd>
 
     </RowTemplate>
@@ -237,7 +247,8 @@
                 ExpertFormLink: $"/forms/expert-feedback/{@event.Identifier}",
                 ExpertFeedbacksLink: $"/events/{@event.Identifier}/expert-feedbacks",
                 ParticipantFormLink: $"/forms/participant-feedback/{@event.Identifier}",
-                ParticipantFeedbacksLink: $"/events/{@event.Identifier}/participant-feedbacks"))
+                ParticipantFeedbacksLink: $"/events/{@event.Identifier}/participant-feedbacks",
+                AttendanceFormLink: $"/forms/event-attendance/{@event.Identifier}"))
             .ToList();
     }
 
@@ -281,5 +292,6 @@
         string ExpertFormLink,
         string ExpertFeedbacksLink,
         string ParticipantFormLink,
-        string ParticipantFeedbacksLink);
+        string ParticipantFeedbacksLink,
+        string AttendanceFormLink);
 }

@@ -2,17 +2,201 @@
 @layout BaseLayout
 
 @using ConventionGradingSystem.Blazor.Components.Shared
+@using ConventionGradingSystem.DataAccess.Configuration
+@using ConventionGradingSystem.DataAccess.Database
+@using ConventionGradingSystem.DataAccess.Database.Entities
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Options
 @using MudBlazor
 
-<PageTitle>Форма посещаемости мероприятия @EventId</PageTitle>
-<MudText Typo="Typo.h6">Форма посещаемости мероприятия @EventId</MudText>
+@inject IOptions<ApplicationConfiguration> Configuration
+@inject DatabaseContext DatabaseContext
+@inject NavigationManager NavigationManager
+
+@if (_eventDetails == null)
+{
+    <PageTitle>Форма посещаемости неизвестного мероприятия</PageTitle>
+    <MudAlert Severity="Severity.Warning">
+        Мероприятие с идентификатором <em>@EventId</em> <strong>не найдено</strong>. Если ты вводил адрес
+        страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то проверь не ошибся
+        ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь корректность этой
+        ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы
+        системы, то это ошибка - обратись, пожалуйста, к разработчикам
+    </MudAlert>
+    return;
+}
+
+<PageTitle>Форма посещаемости мероприятия @_eventDetails.EventName</PageTitle>
+<MudAlert Severity="Severity.Info">
+    Приветствуем тебя, проводящий! Ты можешь отметить участников своего мероприятия <strong>@_eventDetails.EventName</strong>
+    в рамка конкурса мероприятий <strong>@_eventDetails.ContestName</strong>. Отметь участников, которые
+    посетили мероприятие, отметь особо хорошо себя показавших участников, если хочешь, и нажми кнопку
+    <em>Обновить данные</em>
+</MudAlert>
+
+<MudTable Items="@_eventDetails.Participants"
+          Filter="FilterRecords"
+          Breakpoint="Breakpoint.None"
+          Hover="true"
+          Class="mt-3">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Участники мероприятия</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchFilter"
+                      MaxLength="50"
+                      Clearable="true"
+                      Placeholder="Поиск"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" />
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTh><MudTableSortLabel T="Participant" SortBy="SelectNameField">Имя участника</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="Participant" SortBy="SelectBrigadeField">Отряд</MudTableSortLabel></MudTh>
+        <MudTh>Отметка о посещении</MudTh>
+        <MudTh>Особая отметка</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>@context.Brigade</MudTd>
+        <MudTd>
+            <MudCheckBox @bind-Checked="@_attendanceMarks[context.Identifier]"
+                         Label="Посещение"
+                         Color="Color.Success"
+                         UnCheckedColor="Color.Error" />
+        </MudTd>
+        <MudTd>
+            <MudCheckBox @bind-Checked="@_specialMarks[context.Identifier]"
+                         Label="Отличие"
+                         Color="Color.Primary"
+                         UnCheckedColor="Color.Default" />
+        </MudTd>
+    </RowTemplate>
+
+</MudTable>
+
+<MudPaper Class="mt-3 pa-3">
+    <MudForm>
+        <MudButton OnClick="ProcessForm"
+                   Variant="Variant.Outlined"
+                   Size="Size.Large"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Send">
+            Обновить данные
+        </MudButton>
+    </MudForm>
+</MudPaper>
 
 @code {
+
+    private EventDetails? _eventDetails = null;
+    private string? _searchFilter;
+
+    private Dictionary<string, bool> _attendanceMarks = new Dictionary<string, bool>();
+    private Dictionary<string, bool> _specialMarks = new Dictionary<string, bool>();
 
     /// <summary>
     /// Идентификатор мероприятия в рамках конкурса.
     /// </summary>
     [Parameter]
     public string? EventId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var contestEvent = Configuration.Value.Contests
+            .SelectMany(@event => @event.Events)
+            .FirstOrDefault(@event => @event.Identifier == EventId);
+
+        if (contestEvent == null)
+        {
+            return;
+        }
+
+        var contest = Configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
+        _eventDetails = new EventDetails(
+            EventName: contestEvent.Name,
+            ContestName: contest.Name,
+            Participants: contestEvent.Participants
+                .Select(identifier => Configuration.Value.Teams
+                    .SelectMany(team => team.Members)
+                    .First(member => member.Identifier == identifier))
+                .Select(participant => new Participant(
+                    Identifier: participant.Identifier,
+                    Name: participant.Name,
+                    Brigade: participant.Brigade))
+                .ToList());
+
+        var savedAttendanceMarks = await DatabaseContext.AttendanceMarks
+            .Where(item => item.EventId == EventId)
+            .ToListAsync();
+
+        foreach (var participant in _eventDetails.Participants)
+        {
+            _attendanceMarks.Add(participant.Identifier, savedAttendanceMarks.Any(mark => mark.ParticipantId == participant.Identifier));
+            _specialMarks.Add(participant.Identifier, savedAttendanceMarks.Any(mark =>
+                mark.ParticipantId == participant.Identifier &&
+                mark.SpecialMark));
+        }
+    }
+
+    private async Task ProcessForm()
+    {
+        var savedAttendanceMarks = await DatabaseContext.AttendanceMarks
+            .Where(item => item.EventId == EventId)
+            .ToListAsync();
+
+        foreach (var particiapntId in _attendanceMarks.Keys)
+        {
+            var savedMark = savedAttendanceMarks.FirstOrDefault(mark => mark.ParticipantId == particiapntId);
+            if (savedMark == null)
+            {
+                if (_attendanceMarks[particiapntId])
+                {
+                    DatabaseContext.AttendanceMarks.Add(new AttendanceMark
+                    {
+                        ParticipantId = particiapntId,
+                        EventId = EventId!,
+                        SpecialMark = _specialMarks[particiapntId]
+                    });
+                }
+
+                continue;
+            }
+
+            if (!_attendanceMarks[particiapntId])
+            {
+                DatabaseContext.AttendanceMarks.Remove(savedMark);
+            }
+
+            savedMark.SpecialMark = _specialMarks[particiapntId];
+            DatabaseContext.AttendanceMarks.Update(savedMark);
+        }
+
+        await DatabaseContext.SaveChangesAsync();
+        NavigationManager.NavigateTo($"/forms/event-attendance/{EventId}", true);
+    }
+
+    private bool FilterRecords(Participant participant)
+    {
+        return string.IsNullOrWhiteSpace(_searchFilter) ||
+            participant.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            participant.Brigade.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            participant.Identifier.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private object SelectNameField(Participant participant) => participant.Name;
+    private object SelectBrigadeField(Participant participant) => participant.Brigade;
+
+    private record EventDetails(
+        string EventName,
+        string ContestName,
+        IReadOnlyCollection<Participant> Participants);
+
+    private record Participant(
+        string Identifier,
+        string Name,
+        string Brigade);
 }
