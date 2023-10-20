@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ConventionGradingSystem.DataAccess.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20231019182112_CandidateRenaming")]
-    partial class CandidateRenaming
+    [Migration("20231020191841_SchemaInitialization")]
+    partial class SchemaInitialization
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,6 +45,11 @@ namespace ConventionGradingSystem.DataAccess.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("EventId")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ExpertId")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
@@ -88,6 +93,11 @@ namespace ConventionGradingSystem.DataAccess.Migrations
 
                     b.Property<string>("Note")
                         .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ParticipantId")
+                        .IsRequired()
+                        .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
                     b.HasKey("Identifier");

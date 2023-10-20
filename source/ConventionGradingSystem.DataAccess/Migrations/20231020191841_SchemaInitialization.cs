@@ -34,6 +34,7 @@ public partial class SchemaInitialization : Migration
             {
                 Identifier = table.Column<Guid>(type: "TEXT", nullable: false),
                 EventId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                ExpertId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                 Note = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true)
             },
             constraints: table =>
@@ -47,11 +48,26 @@ public partial class SchemaInitialization : Migration
             {
                 Identifier = table.Column<Guid>(type: "TEXT", nullable: false),
                 EventId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                ParticipantId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                 Note = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true)
             },
             constraints: table =>
             {
                 table.PrimaryKey("PK_ParticipantFeedbacks", x => x.Identifier);
+            });
+
+        migrationBuilder.CreateTable(
+            name: "ParticipantVotes",
+            columns: table => new
+            {
+                Identifier = table.Column<Guid>(type: "TEXT", nullable: false),
+                ParticipantId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                CandidateId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
+                Note = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true)
+            },
+            constraints: table =>
+            {
+                table.PrimaryKey("PK_ParticipantVotes", x => x.Identifier);
             });
 
         migrationBuilder.CreateTable(
@@ -107,6 +123,9 @@ public partial class SchemaInitialization : Migration
 
         migrationBuilder.DropTable(
             name: "ParticipantGrades");
+
+        migrationBuilder.DropTable(
+            name: "ParticipantVotes");
 
         migrationBuilder.DropTable(
             name: "ExpertFeedbacks");
