@@ -85,7 +85,7 @@
     <HeaderContent>
         <MudTh>#</MudTh>
         <MudTh><MudTableSortLabel T="Feedback" SortBy="SelectNameField">Имя участника</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel T="Feedback" SortBy="SelectNameField">Отряд участника</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="Feedback" SortBy="SelectBrigadeField">Отряд участника</MudTableSortLabel></MudTh>
 
         @for (var number = 0; number < _contestEvent.GradeCriterions.Count; number++)
         {
@@ -198,7 +198,7 @@
     }
 
     private object SelectNameField(Feedback feedback) => feedback.ParticipantName;
-    private object SelectBrigaseField(Feedback feedback) => feedback.ParticipantBrigade;
+    private object SelectBrigadeField(Feedback feedback) => feedback.ParticipantBrigade;
 
     private object SelectGradeField(Feedback feedback, string gradeId) => feedback.Grades[gradeId];
 

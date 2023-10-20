@@ -30,6 +30,16 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         failureMessages.AddRange(options.Contests.SelectMany(item => ValidateContest(item, participantIds)));
         failureMessages.AddRange(options.Votings.SelectMany(ValidateVoting));
         failureMessages.AddRange(options.Teams.SelectMany(ValidateTeam));
+        failureMessages.AddRange(options.Experts.SelectMany(ValidateExpert));
+
+        if (options.Experts.Count == 0)
+        {
+            failureMessages.Add($"Не задано ни одного эксперта");
+        }
+        if (options.Experts.Count > 100)
+        {
+            failureMessages.Add($"Задано более 100 экспертов");
+        }
 
         return failureMessages.Any()
             ? ValidateOptionsResult.Fail(failureMessages)
@@ -88,6 +98,11 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             values: options.Teams
                 .SelectMany(team => team.Members)
                 .Select(participant => participant.Identifier),
+            validator: IsValidIdentifier));
+
+        failureMessages.AddRange(ValidateUniqueness(
+            name: "Идентификатор эксперта",
+            values: options.Experts.Select(team => team.Identifier),
             validator: IsValidIdentifier));
 
         return failureMessages;
@@ -384,6 +399,28 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         else if (participant.Brigade.Length > 100)
         {
             failureMessages.Add($"Для участника {participant.Identifier} задано название отряда, превышающее 100 символов");
+        }
+
+        return failureMessages;
+    }
+
+    private static IEnumerable<string> ValidateExpert(Expert expert)
+    {
+        var failureMessages = new List<string>();
+
+        if (!IsValidIdentifier(expert.Identifier))
+        {
+            failureMessages.Add("Для одного из экспертов задан пустой или слишком длинный идентификатор");
+            return failureMessages;
+        }
+
+        if (string.IsNullOrWhiteSpace(expert.Name))
+        {
+            failureMessages.Add($"Для эксперта {expert.Identifier} задано пустое имя");
+        }
+        else if (expert.Name.Length > 100)
+        {
+            failureMessages.Add($"Для эксперта {expert.Identifier} задано имя, превышающее 100 символов");
         }
 
         return failureMessages;

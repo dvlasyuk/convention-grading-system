@@ -59,6 +59,18 @@
 <MudPaper Class="mt-3 pa-3">
     <MudForm @ref="_formSelector" @bind-IsValid="@_isFormValid">
 
+        <MudAutocomplete T="Expert"
+                         @bind-Value="_selectedExpert"
+                         SearchFunc="@SearchExpert"
+                         Required="true"
+                         ResetValueOnEmptyText="true"
+                         Label="Выбери себя"
+                         RequiredError="Выбор эксперта обязателен"
+                         Variant="Variant.Outlined"
+                         Adornment="Adornment.End"
+                         AdornmentIcon="@Icons.Material.Filled.Search"
+                         Class="my-3" />
+
         @foreach (var criterion in _eventDetails.Criterions)
         {
             <MudPaper Outlined="true" Class="mt-3 pa-3">
@@ -101,6 +113,7 @@
     private bool _isFormDisabled = false;
     private bool _isFormValid = false;
 
+    private Expert? _selectedExpert = null;
     private Dictionary<string, int> _selectedGrades = new Dictionary<string, int>();
     private string? _enteredNote = null;
 
@@ -157,6 +170,7 @@
         var feedback = new DataAccess.Database.Entities.ExpertFeedback
         {
             EventId = EventId!,
+            ExpertId = _selectedExpert!.Identifier,
             Note = _enteredNote
         };
 
@@ -177,6 +191,21 @@
         NavigationManager.NavigateTo($"/forms/expert-feedback/{EventId}", true);
     }
 
+    private Task<IEnumerable<Expert>> SearchExpert(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return Task.FromResult(Enumerable.Empty<Expert>());
+        }
+
+        return Task.FromResult<IEnumerable<Expert>>(Configuration.Value.Experts
+            .Where(expert => expert.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
+            .Select(expert => new Expert(
+                Identifier: expert.Identifier,
+                Name: expert.Name))
+            .ToList());
+    }
+
     private string[] GetSliderLabels(GradeCriterion criterion) => Enumerable
         .Range(criterion.MinimalGrade, criterion.MaximalGrade)
         .Select(label => label.ToString())
@@ -189,6 +218,11 @@
         string ContestName,
         bool IsGraded,
         IReadOnlyList<GradeCriterion> Criterions);
+
+    private record Expert(string Identifier, string Name)
+    {
+        public override string ToString() => Name;
+    }
 
     private record GradeCriterion(
         string Identifier,

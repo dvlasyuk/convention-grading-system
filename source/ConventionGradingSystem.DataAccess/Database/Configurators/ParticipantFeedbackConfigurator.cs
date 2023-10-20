@@ -25,6 +25,7 @@ public class ParticipantFeedbackConfigurator : IEntityTypeConfiguration<Particip
             .HasForeignKey(entity => entity.FeedbackId);
 
         builder.Property(entity => entity.EventId).HasMaxLength(50);
+        builder.Property(entity => entity.ParticipantId).HasMaxLength(50);
         builder.Property(entity => entity.Note).HasMaxLength(1000);
     }
 }

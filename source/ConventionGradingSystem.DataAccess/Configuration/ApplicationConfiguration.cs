@@ -21,4 +21,9 @@ public class ApplicationConfiguration
     /// Конфигурация команд участников.
     /// </summary>
     public ICollection<Team> Teams { get; } = new List<Team>();
+
+    /// <summary>
+    /// Конфигурация экспертов.
+    /// </summary>
+    public ICollection<Expert> Experts { get; } = new List<Expert>();
 }

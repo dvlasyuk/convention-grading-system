@@ -84,6 +84,7 @@
 
     <HeaderContent>
         <MudTh>#</MudTh>
+        <MudTh><MudTableSortLabel T="Feedback" SortBy="SelectNameField">Имя эксперта</MudTableSortLabel></MudTh>
 
         @for (var number = 0; number < _contestEvent.GradeCriterions.Count; number++)
         {
@@ -105,6 +106,7 @@
 
     <RowTemplate>
         <MudTd>@context.Number</MudTd>
+        <MudTd>@context.ExpertName</MudTd>
 
         @for (var number = 0; number < _contestEvent.GradeCriterions.Count; number++)
         {
@@ -168,10 +170,12 @@
                         (float)feedbacks.Count))
                 .ToList());
 
+        var experts = Configuration.Value.Experts.ToDictionary(item => item.Identifier);
         _feedbacks = feedbacks
             .OrderBy(feedback => feedback.Identifier)
             .Select((feedback, index) => new Feedback(
                 Number: index + 1,
+                ExpertName: experts[feedback.ExpertId].Name,
                 Grades: feedback.Grades.ToDictionary(
                     grade => grade.CriterionId,
                     grade => grade.GradeValue),
@@ -182,9 +186,11 @@
     private bool FilterRecords(Feedback feedback)
     {
         return string.IsNullOrWhiteSpace(_searchFilter) ||
+            feedback.ExpertName.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
             (feedback.Note?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 
+    private object SelectNameField(Feedback feedback) => feedback.ExpertName;
     private object SelectGradeField(Feedback feedback, string gradeId) => feedback.Grades[gradeId];
 
     private record ContestEvent(
@@ -201,6 +207,7 @@
 
     private record Feedback(
         int Number,
+        string ExpertName,
         IReadOnlyDictionary<string, int> Grades,
         string? Note);
 }

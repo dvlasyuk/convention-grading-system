@@ -120,6 +120,7 @@ public class ExpertFeedbackFormModel : PageModel
         var feedback = new ExpertFeedback
         {
             EventId = eventId,
+            ExpertId = null!,
             Note = !string.IsNullOrWhiteSpace(FormModel.Note)
                 ? FormModel.Note.Trim()
                 : null

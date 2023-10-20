@@ -25,6 +25,7 @@ public class ExpertFeedbackConfigurator : IEntityTypeConfiguration<ExpertFeedbac
             .HasForeignKey(entity => entity.FeedbackId);
 
         builder.Property(entity => entity.EventId).HasMaxLength(50);
+        builder.Property(entity => entity.ExpertId).HasMaxLength(50);
         builder.Property(entity => entity.Note).HasMaxLength(1000);
     }
 }
