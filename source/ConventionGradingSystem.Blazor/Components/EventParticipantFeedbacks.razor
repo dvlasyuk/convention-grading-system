@@ -84,6 +84,8 @@
 
     <HeaderContent>
         <MudTh>#</MudTh>
+        <MudTh><MudTableSortLabel T="Feedback" SortBy="SelectNameField">Имя участника</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="Feedback" SortBy="SelectNameField">Отряд участника</MudTableSortLabel></MudTh>
 
         @for (var number = 0; number < _contestEvent.GradeCriterions.Count; number++)
         {
@@ -105,6 +107,8 @@
 
     <RowTemplate>
         <MudTd>@context.Number</MudTd>
+        <MudTd>@context.ParticipantName</MudTd>
+        <MudTd>@context.ParticipantBrigade</MudTd>
 
         @for (var number = 0; number < _contestEvent.GradeCriterions.Count; number++)
         {
@@ -168,10 +172,16 @@
                         (float)feedbacks.Count))
                 .ToList());
 
+        var participants = Configuration.Value.Teams
+            .SelectMany(item => item.Members)
+            .ToDictionary(item => item.Identifier);
+
         _feedbacks = feedbacks
             .OrderBy(feedback => feedback.Identifier)
             .Select((feedback, index) => new Feedback(
                 Number: index + 1,
+                ParticipantName: participants[feedback.ParticipantId].Name,
+                ParticipantBrigade: participants[feedback.ParticipantId].Brigade,
                 Grades: feedback.Grades.ToDictionary(
                     grade => grade.CriterionId,
                     grade => grade.GradeValue),
@@ -182,8 +192,13 @@
     private bool FilterRecords(Feedback feedback)
     {
         return string.IsNullOrWhiteSpace(_searchFilter) ||
+            feedback.ParticipantName.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            feedback.ParticipantBrigade.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
             (feedback.Note?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
     }
+
+    private object SelectNameField(Feedback feedback) => feedback.ParticipantName;
+    private object SelectBrigaseField(Feedback feedback) => feedback.ParticipantBrigade;
 
     private object SelectGradeField(Feedback feedback, string gradeId) => feedback.Grades[gradeId];
 
@@ -201,6 +216,8 @@
 
     private record Feedback(
         int Number,
+        string ParticipantName,
+        string ParticipantBrigade,
         IReadOnlyDictionary<string, int> Grades,
         string? Note);
 }

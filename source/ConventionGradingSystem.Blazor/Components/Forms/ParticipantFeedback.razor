@@ -60,6 +60,33 @@
 <MudPaper Class="mt-3 pa-3">
     <MudForm @ref="_formSelector" @bind-IsValid="@_isFormValid">
 
+        <MudAutocomplete T="Team"
+                         @bind-Value="_selectedTeam"
+                         @bind-Value:after="OnSelectedTeamChange"
+                         SearchFunc="@SearchTeam"
+                         Required="true"
+                         ResetValueOnEmptyText="true"
+                         Label="Выбери свою команду"
+                         RequiredError="Выбор команды обязателен"
+                         Variant="Variant.Outlined"
+                         Adornment="Adornment.End"
+                         AdornmentIcon="@Icons.Material.Filled.Search"
+                         Class="my-3" />
+
+        <MudAutocomplete T="Participant"
+                         @ref="_participantSelector"
+                         @bind-Value="_selectedParticipant"
+                         Disabled="@(_selectedTeam == null)"
+                         SearchFunc="@SearchParticipant"
+                         Required="true"
+                         ResetValueOnEmptyText="true"
+                         Label="Выбери себя"
+                         RequiredError="Выбор участника обязателен"
+                         Variant="Variant.Outlined"
+                         Adornment="Adornment.End"
+                         AdornmentIcon="@Icons.Material.Filled.Search"
+                         Class="my-3" />
+
         @foreach (var criterion in _eventDetails.Criterions)
         {
             <MudPaper Outlined="true" Class="mt-3 pa-3">
@@ -102,10 +129,13 @@
     private bool _isFormDisabled = false;
     private bool _isFormValid = false;
 
+    private Team? _selectedTeam = null;
+    private Participant? _selectedParticipant = null;
     private Dictionary<string, int> _selectedGrades = new Dictionary<string, int>();
     private string? _enteredNote = null;
 
     private MudForm? _formSelector;
+    private MudAutocomplete<Participant>? _participantSelector;
 
     /// <summary>
     /// Идентификатор мероприятия в рамках конкурса.
@@ -132,6 +162,7 @@
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             IsGraded: contest.ParticipantCriterions.Count > 0,
+            Participants: contestEvent.Participants.ToList(),
             Criterions: contest.ParticipantCriterions
                 .Select(criterion => new GradeCriterion(
                     Identifier: criterion.Identifier,
@@ -156,10 +187,11 @@
         }
 
         var feedback = new DataAccess.Database.Entities.ParticipantFeedback
-            {
-                EventId = EventId!,
-                Note = _enteredNote
-            };
+        {
+            EventId = EventId!,
+            ParticipantId = _selectedParticipant!.Identifier,
+            Note = _enteredNote
+        };
 
         foreach (var criterionId in _selectedGrades.Keys)
         {
@@ -178,6 +210,51 @@
         NavigationManager.NavigateTo($"/forms/participant-feedback/{EventId}", true);
     }
 
+    private Task<IEnumerable<Team>> SearchTeam(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return Task.FromResult(Enumerable.Empty<Team>());
+        }
+
+        return Task.FromResult<IEnumerable<Team>>(Configuration.Value.Teams
+            .Where(team => team.Members
+                .Any(member => _eventDetails!.Participants.Contains(member.Identifier)))
+            .Where(team => team.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
+            .Select(team => new Team(
+                Identifier: team.Identifier,
+                Name: team.Name))
+            .ToList());
+    }
+
+    private Task<IEnumerable<Participant>> SearchParticipant(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return Task.FromResult(Enumerable.Empty<Participant>());
+        }
+        if (_selectedTeam == null)
+        {
+            return Task.FromResult(Enumerable.Empty<Participant>());
+        }
+
+        return Task.FromResult<IEnumerable<Participant>>(Configuration.Value.Teams
+            .Where(team => team.Identifier == _selectedTeam.Identifier)
+            .SelectMany(team => team.Members)
+            .Where(member => _eventDetails!.Participants.Contains(member.Identifier))
+            .Where(member => member.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
+            .Select(member => new Participant(
+                Identifier: member.Identifier,
+                Name: member.Name))
+            .ToList());
+    }
+
+    private void OnSelectedTeamChange()
+    {
+        _participantSelector?.Clear();
+        _participantSelector?.ResetValidation();
+    }
+
     private string[] GetSliderLabels(GradeCriterion criterion) => Enumerable
         .Range(criterion.MinimalGrade, criterion.MaximalGrade)
         .Select(label => label.ToString())
@@ -189,7 +266,18 @@
         string EventName,
         string ContestName,
         bool IsGraded,
+        IReadOnlyCollection<string> Participants,
         IReadOnlyList<GradeCriterion> Criterions);
+
+    private record Team(string Identifier, string Name)
+    {
+        public override string ToString() => Name;
+    }
+
+    private record Participant(string Identifier, string Name)
+    {
+        public override string ToString() => Name;
+    }
 
     private record GradeCriterion(
         string Identifier,

@@ -16,6 +16,11 @@ public class ParticipantFeedback
     public required string EventId { get; set; }
 
     /// <summary>
+    /// Идентификатор пользователя, который оставил отзыв.
+    /// </summary>
+    public required string ParticipantId { get; set; }
+
+    /// <summary>
     /// Дополнительный комментарий, оставленный участником.
     /// </summary>
     public required string? Note { get; set; }

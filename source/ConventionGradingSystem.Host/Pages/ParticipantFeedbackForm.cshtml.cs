@@ -115,6 +115,7 @@ public class ParticipantFeedbackFormModel : PageModel
         var feedback = new ParticipantFeedback
         {
             EventId = eventId,
+            ParticipantId = null!,
             Note = !string.IsNullOrWhiteSpace(FormModel.Note)
                 ? FormModel.Note.Trim()
                 : null
