@@ -1,46 +1,78 @@
 @inherits LayoutComponentBase
+
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
-<MudThemeProvider IsDarkMode="true" />
+@inject AuthenticationProvider AuthenticationProvider
+@inject NavigationManager NavigationManager
 
-<MudLayout>
+<AuthorizeView Roles="Administrator">
+    <Authorized>
 
-    <MudAppBar>
-        <MudIconButton
-            Title="Главное меню"
-            Icon="@Icons.Material.Filled.Menu"
-            Variant="Variant.Outlined"
-            Color="Color.Primary"
-            Edge="Edge.Start"
-            OnClick="OnMenuButtonClick" />
+        <MudThemeProvider IsDarkMode="true" />
 
-        <MudImage Src="favicon-32.png" Class="ml-5" />
-        <MudText Typo="Typo.h6" Class="ml-2">Система оценивания Слёта СПбСО</MudText>
-    </MudAppBar>
+        <MudLayout>
 
-    <MudDrawer ClipMode="DrawerClipMode.Docked" Width="300px" @bind-Open="@_isDrawerOpen">
-        <MudDrawerHeader>
-            <MudText Typo="Typo.subtitle1">Главное меню</MudText>
-        </MudDrawerHeader>
-        <MudNavMenu Bordered="true">
-            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Главная страница</MudNavLink>
-            <MudNavLink Href="/contests" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Star">Конкурсы мероприятий</MudNavLink>
-            <MudNavLink Href="/votings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToVote">Зрительские голосования</MudNavLink>
-            <MudNavLink Href="/teams" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Groups">Команды участников</MudNavLink>
-        </MudNavMenu>
-    </MudDrawer>
+            <MudAppBar>
+                <MudIconButton
+                    Title="Главное меню"
+                    Icon="@Icons.Material.Filled.Menu"
+                    Variant="Variant.Outlined"
+                    Color="Color.Primary"
+                    Edge="Edge.Start"
+                    OnClick="ToogleDrawer" />
 
-    <MudMainContent>
-        <MudContainer Fixed="true" Class="pt-3">
-            @Body
-        </MudContainer>
-    </MudMainContent>
+                <MudImage Src="favicon-32.png" Class="ml-5" />
+                <MudText Typo="Typo.h6" Class="ml-2">Система оценивания Слёта СПбСО</MudText>
 
-</MudLayout>
+                <MudSpacer />
+                <MudIconButton
+                    Title="Выйти из системы"
+                    Icon="@Icons.Material.Filled.Logout"
+                    Variant="Variant.Outlined"
+                    OnClick="OnSignOutFromSystem" />
+            </MudAppBar>
+
+            <MudDrawer ClipMode="DrawerClipMode.Docked" Width="300px" @bind-Open="@_isDrawerOpen">
+                <MudDrawerHeader>
+                    <MudText Typo="Typo.subtitle1">Главное меню</MudText>
+                </MudDrawerHeader>
+                <MudNavMenu Bordered="true">
+                    <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Главная страница</MudNavLink>
+                    <MudNavLink Href="/contests" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Star">Конкурсы мероприятий</MudNavLink>
+                    <MudNavLink Href="/votings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToVote">Зрительские голосования</MudNavLink>
+                    <MudNavLink Href="/teams" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Groups">Команды участников</MudNavLink>
+                </MudNavMenu>
+            </MudDrawer>
+
+            <MudMainContent>
+                <MudContainer Fixed="true" Class="pt-3">
+                    @Body
+                </MudContainer>
+            </MudMainContent>
+
+        </MudLayout>
+    </Authorized>
+
+    <NotAuthorized>
+        <PageTitle>Вход в систему</PageTitle>
+        <LayoutView Layout="@typeof(BaseLayout)">
+            <SignInForm />
+        </LayoutView>
+    </NotAuthorized>
+
+</AuthorizeView>
 
 @code {
 
     bool _isDrawerOpen = false;
-    void OnMenuButtonClick() => _isDrawerOpen = !_isDrawerOpen;
+
+    private void ToogleDrawer() => _isDrawerOpen = !_isDrawerOpen;
+    private async Task OnSignOutFromSystem()
+    {
+        await AuthenticationProvider.SignOut();
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+    }
 }

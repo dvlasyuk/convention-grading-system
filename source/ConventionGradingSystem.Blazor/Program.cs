@@ -2,6 +2,7 @@ using ConventionGradingSystem.Blazor.Configuration;
 using ConventionGradingSystem.DataAccess;
 using ConventionGradingSystem.DataAccess.Database;
 
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -28,6 +29,9 @@ public static class Program
 
         applicationBuilder.Services.AddOptions<SecurityConfiguration>().BindConfiguration("SecurityConfiguration");
         applicationBuilder.Services.AddSingleton<IValidateOptions<SecurityConfiguration>, SecurityConfigurationValidator>();
+
+        applicationBuilder.Services.AddScoped<AuthenticationProvider>();
+        applicationBuilder.Services.AddScoped<AuthenticationStateProvider, AuthenticationProvider>();
 
         applicationBuilder.Services.AddDataAccess(
             configurationSection: "ApplicationConfiguration",

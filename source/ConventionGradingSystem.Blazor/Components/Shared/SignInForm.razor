@@ -1,0 +1,86 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+
+@inject AuthenticationProvider AuthenticationProvider
+@inject NavigationManager NavigationManager
+
+<AuthorizeView>
+    <Authorized>
+        <MudAlert Severity="Severity.Warning">
+            Приветствуем тебя! Чтобы получить доступ к этой странице, нужно быть важным пирожочком. А ты, похоже,
+            недостаточно важный. Пожалуйста, введи секретную фразу более важного пирожочка, если знаешь её
+        </MudAlert>
+    </Authorized>
+    <NotAuthorized>
+        <MudAlert Severity="Severity.Info">
+            Приветствуем тебя! Чтобы получить доступ к этой странице, нужно быть важным пирожочком. Пожалуйста,
+            подтверди это, введя секретную фразу в поле ниже
+        </MudAlert>
+    </NotAuthorized>
+</AuthorizeView>
+
+<MudPaper Class="mt-3 pa-3">
+    <MudForm @ref="_formSelector" @bind-IsValid="@_isFormValid">
+        <MudTextField T="string"
+                      @bind-Value="_enteredSecret"
+                      OnAdornmentClick="ShowPassword"
+                      Required="true"
+                      Label="Введи секретную фразу"
+                      RequiredError="Секретная фраза обязательна"
+                      InputType="@_passwordInputType"
+                      Variant="Variant.Outlined"
+                      Adornment="Adornment.End"
+                      AdornmentIcon="@_passwordInputIcon"
+                      Class="my-3" />
+
+        <MudButton OnClick="SignInToSystem"
+                   Disabled="@(!_isFormValid)"
+                   Variant="Variant.Outlined"
+                   Size="Size.Large"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Login"
+                   Class="mt-3">
+            Войти в систему
+        </MudButton>
+    </MudForm>
+</MudPaper>
+
+@code {
+
+    private MudForm? _formSelector;
+    private string? _enteredSecret = null;
+    private bool _isFormValid = false;
+
+    private bool _isPasswordShowed;
+    private InputType _passwordInputType = InputType.Password;
+    private string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+
+    private async Task SignInToSystem()
+    {
+        await _formSelector!.Validate();
+        if (!_isFormValid)
+        {
+            return;
+        }
+
+        await AuthenticationProvider.SignIn(_enteredSecret!);
+        NavigationManager.NavigateTo(NavigationManager.Uri, true);
+    }
+
+    private void ShowPassword()
+    {
+        @if (_isPasswordShowed)
+        {
+            _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
+            _passwordInputType = InputType.Password;
+        }
+        else
+        {
+            _passwordInputIcon = Icons.Material.Filled.Visibility;
+            _passwordInputType = InputType.Text;
+        }
+
+        _isPasswordShowed = !_isPasswordShowed;
+    }
+}
