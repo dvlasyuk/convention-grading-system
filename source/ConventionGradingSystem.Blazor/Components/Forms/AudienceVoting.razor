@@ -2,17 +2,309 @@
 @layout BaseLayout
 
 @using ConventionGradingSystem.Blazor.Components.Shared
+@using ConventionGradingSystem.DataAccess.Configuration
+@using ConventionGradingSystem.DataAccess.Database
+@using ConventionGradingSystem.DataAccess.Database.Entities
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.Extensions.Options
 @using MudBlazor
 
-<PageTitle>Форма зрительского голосования @VotingId</PageTitle>
-<MudText Typo="Typo.h6">Форма зрительского голосования @VotingId</MudText>
+@inject IOptions<ApplicationConfiguration> Configuration
+@inject DatabaseContext DatabaseContext
+@inject NavigationManager NavigationManager
+@inject ProtectedLocalStorage LocalStorage
+
+@if (_votingDetails == null)
+{
+    <PageTitle>Форма неизвестного зрительского голосования</PageTitle>
+    <MudAlert Severity="Severity.Warning">
+        Зрительское голосование с идентификатором <em>@VotingId</em> <strong>не найдено</strong>. Если ты
+        вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
+        проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
+        корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
+        с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
+    </MudAlert>
+    return;
+}
+
+<PageTitle>Форма зрительского голосования @_votingDetails.Name</PageTitle>
+
+@if (_isFormDisabled)
+{
+    <MudAlert Severity="Severity.Info">
+        Твой голос в голосовании <strong>@_votingDetails.Name</strong> принят. Спасибо большое за участие!
+    </MudAlert>
+    return;
+}
+
+<MudAlert Severity="Severity.Info">
+    Приветствуем тебя! Ты можешь принять участние в голосовании <strong>@_votingDetails.Name</strong>.
+    Выбери, пожалуйста, @(_votingDetails.VotesQuantity > 1 ? "кандидатов" : "кандидата"),
+    @(_votingDetails.VotesQuantity > 1 ? "которые понравились" : "который понравился") тебе больше остальных,
+    и нажми кнопку <em>Проголосовать</em>
+</MudAlert>
+
+<MudPaper Class="mt-3 pa-3">
+    <MudForm @ref="_formSelector" @bind-IsValid="@_isFormValid">
+        <MudAutocomplete T="Team"
+                         @bind-Value="_selectedTeam"
+                         @bind-Value:after="OnSelectedTeamChange"
+                         SearchFunc="@SearchTeam"
+                         Required="true"
+                         ResetValueOnEmptyText="true"
+                         Label="Выбери свою команду"
+                         RequiredError="Выбор команды обязателен"
+                         Variant="Variant.Outlined"
+                         Adornment="Adornment.End"
+                         AdornmentIcon="@Icons.Material.Filled.Search"
+                         Class="my-3"/>
+
+        <MudAutocomplete T="Participant"
+                         @ref="_participantSelector"
+                         @bind-Value="_selectedParticipant"
+                         @bind-Value:after="OnSelectedParticipantChange"
+                         Disabled="@(_selectedTeam == null)"
+                         SearchFunc="@SearchParticipant"
+                         Required="true"
+                         ResetValueOnEmptyText="true"
+                         Label="Выбери себя"
+                         RequiredError="Выбор участника обязателен"
+                         Variant="Variant.Outlined"
+                         Adornment="Adornment.End"
+                         AdornmentIcon="@Icons.Material.Filled.Search"
+                         Class="my-3" />
+
+        @for (var number = 0; number < _votingDetails.VotesQuantity; number++)
+        {
+            var index = number;
+            <MudSelect T="Candidate"
+                       @ref="CandidateSelector"
+                       @bind-Value="_selectedCandidates[index]"
+                       @bind-Value:after="@(() => OnSelectedCandidateChange(index))"
+                       Disabled="@(DisableCandidateSelector(index))"
+                       Validation="@(new Func<Candidate, string?>((value) => ValidateSelectedCandidate(index, value)))"
+                       Required="true"
+                       Label="Выбери понравившегося кандидата"
+                       RequiredError="Выбор кандидата обязателен"
+                       Variant="Variant.Outlined"
+                       Adornment="Adornment.Start"
+                       AdornmentIcon="@Icons.Material.Filled.HowToVote"
+                       Class="my-3">
+
+                @foreach (var candidate in _votingDetails.Candidates)
+                {
+                    <MudSelectItem Value="candidate" />
+                }
+            </MudSelect>
+        }
+
+        <MudTextField T="string"
+                      @bind-Value="_enteredNote"
+                      Label="Оставь любой дополнительный комментарий"
+                      Variant="Variant.Outlined"
+                      Lines="3" />
+
+        <MudDivider />
+        <MudButton OnClick="ProcessForm"
+                   Disabled="@(!_isFormValid)"
+                   Variant="Variant.Outlined"
+                   Size="Size.Large"
+                   Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Send"
+                   Class="mt-3">
+            Проголосовать
+        </MudButton>
+    </MudForm>
+</MudPaper>
 
 @code {
+
+    private VotingDetails? _votingDetails = null;
+    private bool _isFormDisabled = false;
+    private bool _isFormValid = false;
+
+    private MudForm? _formSelector;
+    private MudAutocomplete<Participant>? _participantSelector;
+    private List<MudSelect<Candidate>> _candidateSelectors = new List<MudSelect<Candidate>>();
+    MudSelect<Candidate> CandidateSelector { set => _candidateSelectors.Add(value); }
+
+    private Team? _selectedTeam = null;
+    private Participant? _selectedParticipant = null;
+    private Candidate?[] _selectedCandidates = Array.Empty<Candidate?>();
+    private string? _enteredNote = null;
 
     /// <summary>
     /// Идентификатор зрительского голосования.
     /// </summary>
     [Parameter]
     public string? VotingId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var voting = Configuration.Value.Votings.FirstOrDefault(item => item.Identifier == VotingId);
+        if (voting == null)
+        {
+            return;
+        }
+
+        var result = await LocalStorage.GetAsync<string>(GetLocalStorageKey());
+        _isFormDisabled = result.Success;
+
+        _votingDetails = new VotingDetails(
+            Name: voting.Name,
+            FriendlyVoting: voting.FriendlyVoting,
+            VotesQuantity: voting.VotesQuantity,
+            Candidates: voting.Candidates
+                .Select(candidate => new Candidate(
+                    Identifer: candidate.Identifier,
+                    Name: candidate.Name,
+                    Brigades: candidate.Brigades.ToList()))
+                .ToList());
+
+        _selectedCandidates = new Candidate?[_votingDetails.VotesQuantity];
+    }
+
+    private async Task ProcessForm()
+    {
+        await _formSelector!.Validate();
+        if (!_isFormValid)
+        {
+            return;
+        }
+
+        DatabaseContext.ParticipantVotes.AddRange(_selectedCandidates.Select(candidate => new ParticipantVote
+        {
+            ParticipantId = _selectedParticipant!.Identifier,
+            CandidateId = candidate!.Identifer,
+            Note = _enteredNote
+        }));
+
+        await DatabaseContext.SaveChangesAsync();
+        await LocalStorage.SetAsync(GetLocalStorageKey(), DateTime.UtcNow.ToString());
+
+        NavigationManager.NavigateTo($"/forms/audience-voting/{VotingId}", true);
+    }
+
+    private Task<IEnumerable<Team>> SearchTeam(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return Task.FromResult(Enumerable.Empty<Team>());
+        }
+
+        return Task.FromResult<IEnumerable<Team>>(Configuration.Value.Teams
+            .Where(team => team.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
+            .Select(team => new Team(
+                Identifier: team.Identifier,
+                Name: team.Name))
+            .ToList());
+    }
+
+    private Task<IEnumerable<Participant>> SearchParticipant(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return Task.FromResult(Enumerable.Empty<Participant>());
+        }
+        if (_selectedTeam == null)
+        {
+            return Task.FromResult(Enumerable.Empty<Participant>());
+        }
+
+        return Task.FromResult<IEnumerable<Participant>>(Configuration.Value.Teams
+            .Where(team => team.Identifier == _selectedTeam.Identifier)
+            .SelectMany(team => team.Members)
+            .Where(member => member.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
+            .Select(member => new Participant(
+                Identifier: member.Identifier,
+                Name: member.Name,
+                Brigade: member.Brigade))
+            .ToList());
+    }
+
+    private string? ValidateSelectedCandidate(int index, Candidate value)
+    {
+        if (value == null)
+        {
+            return null;
+        }
+        if (!_votingDetails!.FriendlyVoting && value.Brigades.Contains(_selectedParticipant!.Brigade))
+        {
+            return "Нельзя голосовать за кандидата, связанного с твоим отрядом";
+        }
+        if (index > 0 && _selectedCandidates.Take(index).Contains(value))
+        {
+            return "Нельзя дважды проголосовать за одного и того же кандидата";
+        }
+
+        return null;
+    }
+
+    private void OnSelectedTeamChange()
+    {
+        _participantSelector?.Clear();
+        _participantSelector?.ResetValidation();
+    }
+
+    private void OnSelectedParticipantChange()
+    {
+        foreach (var selector in _candidateSelectors)
+        {
+            selector.Clear();
+            selector.ResetValidation();
+        }
+    }
+
+    private void OnSelectedCandidateChange(int index)
+    {
+        for (var number = _candidateSelectors.Count - 1; number > index; number--)
+        {
+            _candidateSelectors[number].Clear();
+            _candidateSelectors[number].ResetValidation();
+        }
+    }
+
+    private bool DisableCandidateSelector(int index)
+    {
+        if (_selectedParticipant == null)
+        {
+            return true;
+        }
+        if (index == 0)
+        {
+            return false;
+        }
+
+        return _selectedCandidates[index - 1] == null;
+    }
+
+    private string GetLocalStorageKey() => $"AudienceVoting-{VotingId}";
+
+    private record VotingDetails(
+        string Name,
+        bool FriendlyVoting,
+        int VotesQuantity,
+        IReadOnlyCollection<Candidate> Candidates);
+
+    private record Team(string Identifier, string Name)
+    {
+        public override string ToString() => Name;
+    }
+
+    private record Participant(
+        string Identifier,
+        string Name,
+        string Brigade)
+    {
+        public override string ToString() => Name;
+    }
+
+    private record Candidate(
+        string Identifer,
+        string Name,
+        IReadOnlyCollection<string> Brigades)
+    {
+        public override string ToString() => Name;
+    }
 }
