@@ -117,6 +117,7 @@
 
         <MudTd>@context.TotalGrade.ToString("0.0")</MudTd>
         <MudTd>
+
             @if (_contest.ExpertCriterionsQuantity > 0)
             {
                 <MudButton Href="@context.ExpertFeedbacksLink"
@@ -125,13 +126,6 @@
                            StartIcon="@Icons.Material.Filled.Info"
                            Class="mr-3 mb-3">
                     Отзывы экспертов
-                </MudButton>
-                <MudButton Href="@context.ExpertFormLink"
-                           Variant="Variant.Outlined"
-                           Color="Color.Secondary"
-                           StartIcon="@Icons.Material.Filled.QrCode"
-                           Class="mr-3 mb-3">
-                    Форма эксперта
                 </MudButton>
             }
             @if (_contest.ParticipantCriterionsQuantity > 0)
@@ -143,6 +137,22 @@
                            Class="mr-3 mb-3">
                     Отзывы участников
                 </MudButton>
+            }
+
+            <br/>
+
+            @if (_contest.ExpertCriterionsQuantity > 0)
+            {
+                <MudButton Href="@context.ExpertFormLink"
+                           Variant="Variant.Outlined"
+                           Color="Color.Secondary"
+                           StartIcon="@Icons.Material.Filled.QrCode"
+                           Class="mr-3 mb-3">
+                    Форма эксперта
+                </MudButton>
+            }
+            @if (_contest.ParticipantCriterionsQuantity > 0)
+            {
                 <MudButton Href="@context.ParticipantFormLink"
                            Variant="Variant.Outlined"
                            Color="Color.Secondary"
@@ -151,6 +161,7 @@
                     Форма участника
                 </MudButton>
             }
+
         </MudTd>
 
     </RowTemplate>

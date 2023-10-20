@@ -42,7 +42,7 @@
     Приветствуем тебя! Ты можешь принять участние в голосовании <strong>@_votingDetails.Name</strong>.
     Выбери, пожалуйста, @(_votingDetails.VotesQuantity > 1 ? "кандидатов" : "кандидата"),
     @(_votingDetails.VotesQuantity > 1 ? "которые понравились" : "который понравился") тебе больше остальных,
-    и нажми кнопку <em>Проголосовать</em>
+    оставь дополнительный комментарий, если хочешь, и нажми кнопку <em>Проголосовать</em>
 </MudAlert>
 
 <MudPaper Class="mt-3 pa-3">
@@ -103,7 +103,8 @@
                       @bind-Value="_enteredNote"
                       Label="Оставь любой дополнительный комментарий"
                       Variant="Variant.Outlined"
-                      Lines="3" />
+                      Lines="3"
+                      Class="my-3" />
 
         <MudDivider />
         <MudButton OnClick="ProcessForm"
