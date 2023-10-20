@@ -1,15 +1,274 @@
 @page "/contests/{contestId}"
+
+@using ConventionGradingSystem.DataAccess.Configuration
+@using ConventionGradingSystem.DataAccess.Database
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Options
 @using MudBlazor
 
-<PageTitle>Конкурс мероприятий @ContestId</PageTitle>
-<MudText Typo="Typo.h6">Конкурс мероприятий @ContestId</MudText>
+@inject IOptions<ApplicationConfiguration> Configuration
+@inject DatabaseContext DatabaseContext
+
+@if (_contest == null)
+{
+    <PageTitle>Неизвестный конкурс мероприятий</PageTitle>
+    <MudAlert Severity="Severity.Warning">
+        Конкурс мероприятий с идентификатором <em>@ContestId</em> <strong>не найден</strong>. Если ты
+        вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
+        проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
+        корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
+        с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
+    </MudAlert>
+    return;
+}
+
+<PageTitle>Конкурс мероприятий @_contest.Name</PageTitle>
+
+<MudExpansionPanels Class="mb-3">
+    <MudExpansionPanel>
+        <TitleContent>
+            <div class="d-flex">
+                <MudIcon Color="Color.Primary" Icon="@Icons.Material.Filled.Info" />
+                <MudText Color="Color.Primary" Class="ml-3">Конкурс мероприятий <strong>@_contest.Name</strong></MudText>
+            </div>
+        </TitleContent>
+        <ChildContent>
+
+            <MudText>Принимаются ли отзывы экспертов: <strong>@(_contest.ExpertCriterionsQuantity > 0 ? "Да" : "Нет")</strong></MudText>
+            <MudText>Принимаются ли отзывы участников: <strong>@(_contest.ParticipantCriterionsQuantity > 0 ? "Да" : "Нет")</strong></MudText>
+
+            @if (_contest.ExpertCriterionsQuantity > 0)
+            {
+                <MudText>Количество критериев оценивания экспертами: <strong>@_contest.ExpertCriterionsQuantity</strong></MudText>
+            }
+            @if (_contest.ParticipantCriterionsQuantity > 0)
+            {
+                <MudText>Количество критериев оценивания участниками: <strong>@_contest.ParticipantCriterionsQuantity</strong></MudText>
+            }
+            
+            <MudText>Общее число мероприятий в конкурсе: <strong>@_contest.EventsQuantity</strong></MudText>
+
+            @if (_contest.ExpertCriterionsQuantity > 0)
+            {
+                <MudText>Число отзывов, оставленных экспертами: <strong>@_contest.ExpertFeedbacksQuantity</strong></MudText>
+            }
+            @if (_contest.ParticipantCriterionsQuantity > 0)
+            {
+                <MudText>Число отзывов, оставленных участниками: <strong>@_contest.ParticipantFeedbacksQuantity</strong></MudText>
+            }
+
+        </ChildContent>
+    </MudExpansionPanel>
+</MudExpansionPanels>
+
+<MudTable Items="@_contestEvents"
+          Filter="FilterRecords"
+          Breakpoint="Breakpoint.None"
+          Hover="true"
+          HorizontalScrollbar="true">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Мероприятия конкурса</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchFilter"
+                      MaxLength="50"
+                      Clearable="true"
+                      Placeholder="Поиск"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" />
+    </ToolBarContent>
+
+    <HeaderContent>
+
+        <MudTh>#</MudTh>
+        <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectNameField">Название мероприятия</MudTableSortLabel></MudTh>
+
+        @if (_contest.ExpertCriterionsQuantity > 0)
+        {
+            <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectExpertFeedbacksField">Количество отзывов экспертов</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectExpertGradeField">Оценка экспертов</MudTableSortLabel></MudTh>
+        }
+        @if (_contest.ParticipantCriterionsQuantity > 0)
+        {
+            <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectParticipantFeedbacksField">Количество отзывов участников</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectParticipantGradeField">Оценка участников</MudTableSortLabel></MudTh>
+        }
+
+        <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectTotalGradeField">Общая оценка</MudTableSortLabel></MudTh>
+        <MudTh>Действия</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+
+        <MudTd>@context.Number</MudTd>
+        <MudTd>@context.Name</MudTd>
+
+        @if (_contest.ExpertCriterionsQuantity > 0)
+        {
+            <MudTd>@context.ExprertFeedbacksQuantity</MudTd>
+            <MudTd>@context.ExpertGrade.ToString("0.0")</MudTd>
+        }
+        @if (_contest.ParticipantCriterionsQuantity > 0)
+        {
+            <MudTd>@context.ParticipantFeedbacksQuantity</MudTd>
+            <MudTd>@context.ParticipantGrade.ToString("0.0")</MudTd>
+        }
+
+        <MudTd>@context.TotalGrade.ToString("0.0")</MudTd>
+        <MudTd>
+            @if (_contest.ExpertCriterionsQuantity > 0)
+            {
+                <MudButton Href="@context.ExpertFeedbacksLink"
+                           Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Info"
+                           Class="mr-3 mb-3">
+                    Отзывы экспертов
+                </MudButton>
+                <MudButton Href="@context.ExpertFormLink"
+                           Variant="Variant.Outlined"
+                           Color="Color.Secondary"
+                           StartIcon="@Icons.Material.Filled.QrCode"
+                           Class="mr-3 mb-3">
+                    Форма эксперта
+                </MudButton>
+            }
+            @if (_contest.ParticipantCriterionsQuantity > 0)
+            {
+                <MudButton Href="@context.ParticipantFeedbacksLink"
+                           Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Info"
+                           Class="mr-3 mb-3">
+                    Отзывы участников
+                </MudButton>
+                <MudButton Href="@context.ParticipantFormLink"
+                           Variant="Variant.Outlined"
+                           Color="Color.Secondary"
+                           StartIcon="@Icons.Material.Filled.QrCode"
+                           Class="mr-3 mb-3">
+                    Форма участника
+                </MudButton>
+            }
+        </MudTd>
+
+    </RowTemplate>
+</MudTable>
 
 @code {
+
+    private Contest? _contest = null;
+    private IEnumerable<ContestEvent> _contestEvents = new List<ContestEvent>();
+    private string? _searchFilter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var contest = Configuration.Value.Contests.FirstOrDefault(item => item.Identifier == ContestId);
+        if (contest == null)
+        {
+            return;
+        }
+
+        var eventIds = contest.Events
+            .Select(item => item.Identifier)
+            .ToList();
+
+        var expertFeedbacks = await DatabaseContext.ExpertFeedbacks
+            .Where(item => eventIds.Contains(item.EventId))
+            .Include(item => item.Grades)
+            .ToListAsync();
+
+        var participantFeedbacks = await DatabaseContext.ParticipantFeedbacks
+            .Where(item => eventIds.Contains(item.EventId))
+            .Include(item => item.Grades)
+            .ToListAsync();
+
+        _contest = new Contest(
+            Name: contest.Name,
+            ExpertCriterionsQuantity: contest.ExpertCriterions.Count,
+            ParticipantCriterionsQuantity: contest.ParticipantCriterions.Count,
+            EventsQuantity: contest.Events.Count,
+            ExpertFeedbacksQuantity: expertFeedbacks.Count,
+            ParticipantFeedbacksQuantity: participantFeedbacks.Count);
+
+        _contestEvents = contest.Events
+            .OrderBy(@event => @event.Identifier)
+            .Select((@event, index) => new ContestEvent(
+                Number: index + 1,
+                Identifier: @event.Identifier,
+                Name: @event.Name,
+                ExprertFeedbacksQuantity: expertFeedbacks
+                    .Count(feedback => feedback.EventId == @event.Identifier),
+                ParticipantFeedbacksQuantity: participantFeedbacks
+                    .Count(feedback => feedback.EventId == @event.Identifier),
+                ExpertGrade: expertFeedbacks
+                    .Where(feedback => feedback.EventId == @event.Identifier)
+                    .SelectMany(feedback => feedback.Grades)
+                    .GroupBy(grade => grade.CriterionId)
+                    .Sum(group => group.Sum(grade => grade.GradeValue) / (float)group.Count()),
+                ParticipantGrade: participantFeedbacks
+                    .Where(feedback => feedback.EventId == @event.Identifier)
+                    .SelectMany(feedback => feedback.Grades)
+                    .GroupBy(grade => grade.CriterionId)
+                    .Sum(group => group.Sum(grade => grade.GradeValue) / (float)group.Count()),
+                TotalGrade:
+                    expertFeedbacks
+                        .Where(feedback => feedback.EventId == @event.Identifier)
+                        .SelectMany(feedback => feedback.Grades)
+                        .GroupBy(grade => grade.CriterionId)
+                        .Sum(group => group.Sum(grade => grade.GradeValue) / (float)group.Count()) +
+                    participantFeedbacks
+                        .Where(feedback => feedback.EventId == @event.Identifier)
+                        .SelectMany(feedback => feedback.Grades)
+                        .GroupBy(grade => grade.CriterionId)
+                        .Sum(group => group.Sum(grade => grade.GradeValue) / (float)group.Count()),
+                ExpertFormLink: $"/forms/expert-feedback/{@event.Identifier}",
+                ExpertFeedbacksLink: $"/events/{@event.Identifier}/expert-feedbacks",
+                ParticipantFormLink: $"/forms/participant-feedback/{@event.Identifier}",
+                ParticipantFeedbacksLink: $"/events/{@event.Identifier}/participant-feedbacks"))
+            .ToList();
+    }
+
+    private bool FilterRecords(ContestEvent contestEvent)
+    {
+        return string.IsNullOrWhiteSpace(_searchFilter) ||
+            contestEvent.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            contestEvent.Identifier.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private object SelectNameField(ContestEvent contestEvent) => contestEvent.Name;
+    private object SelectExpertFeedbacksField(ContestEvent contestEvent) => contestEvent.ExprertFeedbacksQuantity;
+    private object SelectParticipantFeedbacksField(ContestEvent contestEvent) => contestEvent.ParticipantFeedbacksQuantity;
+    private object SelectExpertGradeField(ContestEvent contestEvent) => contestEvent.ExpertGrade;
+    private object SelectParticipantGradeField(ContestEvent contestEvent) => contestEvent.ParticipantGrade;
+    private object SelectTotalGradeField(ContestEvent contestEvent) => contestEvent.TotalGrade;
 
     /// <summary>
     /// Идентификатор конкурса мероприятий.
     /// </summary>
     [Parameter]
     public string? ContestId { get; set; }
+
+    private record Contest(
+        string Name,
+        int ExpertCriterionsQuantity,
+        int ParticipantCriterionsQuantity,
+        int EventsQuantity,
+        int ExpertFeedbacksQuantity,
+        int ParticipantFeedbacksQuantity);
+
+    private record ContestEvent(
+        int Number,
+        string Identifier,
+        string Name,
+        int ExprertFeedbacksQuantity,
+        int ParticipantFeedbacksQuantity,
+        float ExpertGrade,
+        float ParticipantGrade,
+        float TotalGrade,
+        string ExpertFormLink,
+        string ExpertFeedbacksLink,
+        string ParticipantFormLink,
+        string ParticipantFeedbacksLink);
 }

@@ -1,6 +1,101 @@
 @page "/contests"
+
+@using ConventionGradingSystem.DataAccess.Configuration
+@using ConventionGradingSystem.DataAccess.Database
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Options
 @using MudBlazor
 
+@inject IOptions<ApplicationConfiguration> Configuration
+@inject DatabaseContext DatabaseContext
+
 <PageTitle>Конкурсы мероприятий</PageTitle>
-<MudText Typo="Typo.h6">Конкурсы мероприятий</MudText>
+
+<MudTable Items="@_contests"
+          Filter="FilterRecords"
+          Breakpoint="Breakpoint.None"
+          Hover="true">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Конкурсы мероприятий</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="_searchFilter"
+                      MaxLength="50"
+                      Clearable="true"
+                      Placeholder="Поиск"
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" />
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh><MudTableSortLabel T="Contest" SortBy="SelectNameField">Название конкурса</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="Contest" SortBy="SelectEventsField">Количество Мероприятий</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="Contest" SortBy="SelectExpertField">Количество отзывов экспертов</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="Contest" SortBy="SelectParticipantField">Количество отзывов участников</MudTableSortLabel></MudTh>
+        <MudTh>Действия</MudTh>
+    </HeaderContent>
+
+    <RowTemplate>
+        <MudTd>@context.Number</MudTd>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>@context.EventsQuantity</MudTd>
+        <MudTd>@context.ExpertFeedbaksQuantity</MudTd>
+        <MudTd>@context.ParticiapntFeedbaksQuantity</MudTd>
+        <MudTd>
+            <MudButton Href="@context.DetailsLink"
+                       Variant="Variant.Outlined"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Info">
+                Детали
+            </MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
+
+@code {
+    private IEnumerable<Contest> _contests = new List<Contest>();
+    private string? _searchFilter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var expertFeedbacks = await DatabaseContext.ExpertFeedbacks.ToListAsync();
+        var participantFeedbacks = await DatabaseContext.ParticipantFeedbacks.ToListAsync();
+
+        _contests = Configuration.Value.Contests
+            .OrderBy(contest => contest.Identifier)
+            .Select((contest, index) => new Contest(
+                Number: index + 1,
+                Identifier: contest.Identifier,
+                Name: contest.Name,
+                EventsQuantity: contest.Events.Count,
+                ExpertFeedbaksQuantity: contest.Events.Sum(@event =>
+                    expertFeedbacks.Count(feedback => feedback.EventId == @event.Identifier) ),
+                ParticiapntFeedbaksQuantity: contest.Events.Sum(@event =>
+                    expertFeedbacks.Count(feedback => feedback.EventId == @event.Identifier)),
+                DetailsLink: $"/contests/{contest.Identifier}"))
+            .ToList();
+    }
+
+    private bool FilterRecords(Contest contest)
+    {
+        return string.IsNullOrWhiteSpace(_searchFilter) ||
+            contest.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            contest.Identifier.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private object SelectNameField(Contest voting) => voting.Name;
+    private object SelectEventsField(Contest voting) => voting.EventsQuantity;
+    private object SelectExpertField(Contest voting) => voting.ExpertFeedbaksQuantity;
+    private object SelectParticipantField(Contest voting) => voting.ParticiapntFeedbaksQuantity;
+
+    private record Contest(
+        int Number,
+        string Identifier,
+        string Name,
+        int EventsQuantity,
+        int ExpertFeedbaksQuantity,
+        int ParticiapntFeedbaksQuantity,
+        string DetailsLink);
+}

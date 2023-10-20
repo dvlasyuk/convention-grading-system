@@ -124,15 +124,15 @@
     private bool _isFormDisabled = false;
     private bool _isFormValid = false;
 
-    private MudForm? _formSelector;
-    private MudAutocomplete<Participant>? _participantSelector;
-    private List<MudSelect<Candidate>> _candidateSelectors = new List<MudSelect<Candidate>>();
-    MudSelect<Candidate> CandidateSelector { set => _candidateSelectors.Add(value); }
-
     private Team? _selectedTeam = null;
     private Participant? _selectedParticipant = null;
     private Candidate?[] _selectedCandidates = Array.Empty<Candidate?>();
     private string? _enteredNote = null;
+
+    private MudForm? _formSelector;
+    private MudAutocomplete<Participant>? _participantSelector;
+    private List<MudSelect<Candidate>> _candidateSelectors = new List<MudSelect<Candidate>>();
+    MudSelect<Candidate> CandidateSelector { set => _candidateSelectors.Add(value); }
 
     /// <summary>
     /// Идентификатор зрительского голосования.

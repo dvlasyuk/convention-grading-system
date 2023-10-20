@@ -73,11 +73,8 @@
                 Identifier: voting.Identifier,
                 Name: voting.Name,
                 CandidatesQuantity: voting.Candidates.Count,
-                TotalVotesQuantity: voting.Candidates
-                    .Select(candidate => savedVotes
-                        .Where(vote => vote.CandidateId == candidate.Identifier)
-                        .Count())
-                    .Sum(),
+                TotalVotesQuantity: voting.Candidates.Sum(candidate =>
+                    savedVotes.Count(vote => vote.CandidateId == candidate.Identifier)),
                 DetailsLink: $"/votings/{voting.Identifier}",
                 FormLink: $"/forms/audience-voting/{voting.Identifier}"))
             .ToList();
