@@ -73,7 +73,7 @@
                 ExpertFeedbaksQuantity: contest.Events.Sum(@event =>
                     expertFeedbacks.Count(feedback => feedback.EventId == @event.Identifier) ),
                 ParticiapntFeedbaksQuantity: contest.Events.Sum(@event =>
-                    expertFeedbacks.Count(feedback => feedback.EventId == @event.Identifier)),
+                    participantFeedbacks.Count(feedback => feedback.EventId == @event.Identifier)),
                 DetailsLink: $"/contests/{contest.Identifier}"))
             .ToList();
     }
