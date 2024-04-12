@@ -25,5 +25,5 @@ public class ContestEvent
     /// 100 человек. Каждое не должно быть пустым и его длина не должна превышать 50 символов. Каждое
     /// значение должно быть уникальным в рамках мероприятия. Каждое значение должно являться
     /// идентификатором одного из сконфигурированных в рамках команд участников.</remarks>
-    public ICollection<string> Participants { get; } = new List<string>();
+    public ICollection<string> Participants { get; } = [];
 }

@@ -67,25 +67,25 @@
                     .SelectMany(member => Configuration.Value.Contests
                         .SelectMany(item => item.Events)
                         .SelectMany(item => item.Participants)
-                        .Where(identifier => identifier == member.Identifier))
+                        .Where(identifier => identifier == member))
                     .Count(),
                 AttendancesQuantity: team.Members
                     .SelectMany(member => attendanceMarks
-                        .Where(mark => mark.ParticipantId == member.Identifier))
+                        .Where(mark => mark.ParticipantId == member))
                     .Count(),
                 AbsencesQuantity:
                     team.Members
                         .SelectMany(member => Configuration.Value.Contests
                             .SelectMany(item => item.Events)
                             .SelectMany(item => item.Participants)
-                            .Where(identifier => identifier == member.Identifier))
+                            .Where(identifier => identifier == member))
                         .Count() -
                     team.Members.SelectMany(member => attendanceMarks
-                        .Where(mark => mark.ParticipantId == member.Identifier))
+                        .Where(mark => mark.ParticipantId == member))
                         .Count(),
                 SpecialMarksQuantity: team.Members
                     .SelectMany(member => attendanceMarks
-                        .Where(mark => mark.ParticipantId == member.Identifier))
+                        .Where(mark => mark.ParticipantId == member))
                     .Where(mark => mark.SpecialMark)
                     .Count()))
             .ToList();

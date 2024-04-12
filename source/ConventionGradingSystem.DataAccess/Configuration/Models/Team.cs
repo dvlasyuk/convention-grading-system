@@ -23,5 +23,5 @@ public class Team
     /// </summary>
     /// <remarks>Количество сконфигурированных участников не может быть нулевым и не должно превышать
     /// 100 человек</remarks>
-    public ICollection<Participant> Members { get; } = new List<Participant>();
+    public ICollection<string> Members { get; } = [];
 }

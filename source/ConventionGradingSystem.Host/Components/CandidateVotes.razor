@@ -112,10 +112,7 @@
             Brigades: candidate.Brigades.ToList(),
             VotesQuantity: savedVotes.Count());
 
-        var participants = Configuration.Value.Teams
-            .SelectMany(item => item.Members)
-            .ToDictionary(item => item.Identifier);
-
+        var participants = Configuration.Value.Participants.ToDictionary(item => item.Identifier);
         _participantVotes = savedVotes
             .OrderBy(vote => vote.Identifier)
             .Select((vote, index) => new ParticipantVote(

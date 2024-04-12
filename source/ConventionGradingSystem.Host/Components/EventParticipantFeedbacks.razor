@@ -172,10 +172,7 @@
                         (float)feedbacks.Count))
                 .ToList());
 
-        var participants = Configuration.Value.Teams
-            .SelectMany(item => item.Members)
-            .ToDictionary(item => item.Identifier);
-
+        var participants = Configuration.Value.Participants.ToDictionary(item => item.Identifier);
         _feedbacks = feedbacks
             .OrderBy(feedback => feedback.Identifier)
             .Select((feedback, index) => new Feedback(

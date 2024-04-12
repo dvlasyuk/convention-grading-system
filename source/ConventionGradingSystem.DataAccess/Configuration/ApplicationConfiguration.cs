@@ -10,20 +10,25 @@ public class ApplicationConfiguration
     /// <summary>
     /// Конфигурация конкурсов мероприятий.
     /// </summary>
-    public ICollection<Contest> Contests { get; } = new List<Contest>();
+    public ICollection<Contest> Contests { get; } = [];
 
     /// <summary>
     /// Конфигурация зрительских голосований.
     /// </summary>
-    public ICollection<Voting> Votings { get; } = new List<Voting>();
+    public ICollection<Voting> Votings { get; } = [];
 
     /// <summary>
     /// Конфигурация команд участников.
     /// </summary>
-    public ICollection<Team> Teams { get; } = new List<Team>();
+    public ICollection<Team> Teams { get; } = [];
+
+    /// <summary>
+    /// Конфигурация участников.
+    /// </summary>
+    public ICollection<Participant> Participants { get; } = [];
 
     /// <summary>
     /// Конфигурация экспертов.
     /// </summary>
-    public ICollection<Expert> Experts { get; } = new List<Expert>();
+    public ICollection<Expert> Experts { get; } = [];
 }

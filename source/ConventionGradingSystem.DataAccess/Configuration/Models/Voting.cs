@@ -36,5 +36,5 @@ public class Voting
     /// </summary>
     /// <remarks>Количество сконфигурированных участников не может быть нулевым и не должно превышать
     /// 100 участников.</remarks>
-    public ICollection<Candidate> Candidates { get; } = new List<Candidate>();
+    public ICollection<Candidate> Candidates { get; } = [];
 }

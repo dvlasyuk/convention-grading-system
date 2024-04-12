@@ -71,13 +71,13 @@
                 <MudTd>@rowContext.Name</MudTd>
                 <MudTd>@rowContext.Brigade</MudTd>
                 <MudTd>
-                    <MudCheckBox @bind-Checked="@_attendanceMarks[rowContext.Identifier]"
+                    <MudCheckBox @bind-Value="@_attendanceMarks[rowContext.Identifier]"
                                  Label="Посещение"
                                  Color="Color.Success"
                                  UnCheckedColor="Color.Error" />
                 </MudTd>
                 <MudTd>
-                    <MudCheckBox @bind-Checked="@_specialMarks[rowContext.Identifier]"
+                    <MudCheckBox @bind-Value="@_specialMarks[rowContext.Identifier]"
                                  Label="Отличие"
                                  Color="Color.Primary"
                                  UnCheckedColor="Color.Default" />
@@ -127,13 +127,13 @@
         }
 
         var contest = Configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
+        var participants = Configuration.Value.Participants.ToDictionary(item => item.Identifier);
+
         _eventDetails = new EventDetails(
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             Participants: contestEvent.Participants
-                .Select(identifier => Configuration.Value.Teams
-                    .SelectMany(team => team.Members)
-                    .First(member => member.Identifier == identifier))
+                .Select(identifier => participants[identifier])
                 .Select(participant => new Participant(
                     Identifier: participant.Identifier,
                     Name: participant.Name,

@@ -21,25 +21,16 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
     {
         var failureMessages = new List<string>();
 
-        var participantIds = options.Teams
-            .SelectMany(team => team.Members)
+        var participantIds = options.Participants
             .Select(participant => participant.Identifier)
             .ToList();
 
         failureMessages.AddRange(ValidateIdentifiersUniqueness(options));
         failureMessages.AddRange(options.Contests.SelectMany(item => ValidateContest(item, participantIds)));
         failureMessages.AddRange(options.Votings.SelectMany(ValidateVoting));
-        failureMessages.AddRange(options.Teams.SelectMany(ValidateTeam));
+        failureMessages.AddRange(options.Teams.SelectMany(item => ValidateTeam(item, participantIds)));
+        failureMessages.AddRange(options.Participants.SelectMany(ValidateParticipant));
         failureMessages.AddRange(options.Experts.SelectMany(ValidateExpert));
-
-        if (options.Experts.Count == 0)
-        {
-            failureMessages.Add($"Не задано ни одного эксперта");
-        }
-        if (options.Experts.Count > 100)
-        {
-            failureMessages.Add($"Задано более 100 экспертов");
-        }
 
         return failureMessages.Count > 0
             ? ValidateOptionsResult.Fail(failureMessages)
@@ -95,20 +86,19 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
 
         failureMessages.AddRange(ValidateUniqueness(
             name: "Идентификатор участника",
-            values: options.Teams
-                .SelectMany(team => team.Members)
+            values: options.Participants
                 .Select(participant => participant.Identifier),
             validator: IsValidIdentifier));
 
         failureMessages.AddRange(ValidateUniqueness(
             name: "Идентификатор эксперта",
-            values: options.Experts.Select(team => team.Identifier),
+            values: options.Experts.Select(expert => expert.Identifier),
             validator: IsValidIdentifier));
 
         return failureMessages;
     }
 
-    private static List<string> ValidateContest(Contest contest, ICollection<string> participantIds)
+    private static List<string> ValidateContest(Contest contest, List<string> participantIds)
     {
         var failureMessages = new List<string>();
 
@@ -201,7 +191,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static List<string> ValidateContestEvent(ContestEvent contestEvent, ICollection<string> participantIds)
+    private static List<string> ValidateContestEvent(ContestEvent contestEvent, List<string> participantIds)
     {
         var failureMessages = new List<string>();
 
@@ -340,7 +330,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static List<string> ValidateTeam(Team team)
+    private static List<string> ValidateTeam(Team team, List<string> participantIds)
     {
         var failureMessages = new List<string>();
 
@@ -368,7 +358,18 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для команды {team.Identifier} задано более 100 участников");
         }
 
-        failureMessages.AddRange(team.Members.SelectMany(ValidateParticipant));
+        foreach (var member in team.Members)
+        {
+            if (!IsValidIdentifier(member))
+            {
+                failureMessages.Add($"Для команды {team.Identifier} задан пустой или слишком длинный идентификатор участника");
+                continue;
+            }
+            if (!participantIds.Contains(member))
+            {
+                failureMessages.Add($"Для команды {team.Identifier} задан несуществующий идентификатор участника");
+            }
+        }
 
         return failureMessages;
     }

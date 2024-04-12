@@ -24,5 +24,5 @@ public class Candidate
     /// <remarks>Количество сконфигурированных отрядов не может быть нулевым и не должно превышать
     /// 10 отрядов. Каждое значение не должно быть пустым и его длина не должна превышать 100 символов.
     /// Каждое значение должно быть уникальным в рамках кандидита.</remarks>
-    public ICollection<string> Brigades { get; } = new List<string>();
+    public ICollection<string> Brigades { get; } = [];
 }

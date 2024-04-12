@@ -213,14 +213,16 @@
             return Task.FromResult(Enumerable.Empty<Participant>());
         }
 
+        var participants = Configuration.Value.Participants.ToDictionary(item => item.Identifier);
         return Task.FromResult<IEnumerable<Participant>>(Configuration.Value.Teams
             .Where(team => team.Identifier == _selectedTeam.Identifier)
             .SelectMany(team => team.Members)
-            .Where(member => member.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
-            .Select(member => new Participant(
-                Identifier: member.Identifier,
-                Name: member.Name,
-                Brigade: member.Brigade))
+            .Select(member => participants[member])
+            .Where(participant => participant.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
+            .Select(participant => new Participant(
+                Identifier: participant.Identifier,
+                Name: participant.Name,
+                Brigade: participant.Brigade))
             .ToList());
     }
 
