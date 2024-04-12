@@ -2,10 +2,11 @@ using ConventionGradingSystem.DataAccess;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Configuration;
 
-using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+
+using MudBlazor.Services;
 
 namespace ConventionGradingSystem.Host;
 
@@ -22,21 +23,15 @@ public static class Program
     {
         var applicationBuilder = WebApplication.CreateBuilder(arguments);
 
-        applicationBuilder.Services
-            .AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-            .AddCookie(cookieOptions =>
-            {
-                cookieOptions.LoginPath = "/login";
-                cookieOptions.AccessDeniedPath = "/denied";
-            });
-
-        applicationBuilder.Services.AddAuthorization();
-
-        applicationBuilder.Services.AddRazorPages(options => options.Conventions
-            .ConfigureFilter(new IgnoreAntiforgeryTokenAttribute()));
+        applicationBuilder.Services.AddRazorPages();
+        applicationBuilder.Services.AddServerSideBlazor();
+        applicationBuilder.Services.AddMudServices();
 
         applicationBuilder.Services.AddOptions<SecurityConfiguration>().BindConfiguration("SecurityConfiguration");
         applicationBuilder.Services.AddSingleton<IValidateOptions<SecurityConfiguration>, SecurityConfigurationValidator>();
+
+        applicationBuilder.Services.AddScoped<AuthenticationProvider>();
+        applicationBuilder.Services.AddScoped<AuthenticationStateProvider, AuthenticationProvider>();
 
         applicationBuilder.Services.AddDataAccess(
             configurationSection: "ApplicationConfiguration",
@@ -48,10 +43,10 @@ public static class Program
         var databaseContext = migrationScope.ServiceProvider.GetRequiredService<DatabaseContext>();
         databaseContext.Database.Migrate();
 
+        application.UseStaticFiles();
         application.UseRouting();
-        application.UseAuthentication();
-        application.UseAuthorization();
-        application.MapRazorPages();
+        application.MapBlazorHub();
+        application.MapFallbackToPage("/Application");
 
         application.Run();
     }
