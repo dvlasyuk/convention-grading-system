@@ -218,15 +218,6 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано название, превышающее 100 символов");
         }
 
-        if (contestEvent.Participants.Count == 0)
-        {
-            failureMessages.Add($"Для мероприятия {contestEvent.Identifier} не задано ни одного участника");
-        }
-        if (contestEvent.Participants.Count > 100)
-        {
-            failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано более 100 участников");
-        }
-
         if (gradeMode == GradeMode.NonFriendly)
         {
             if (contestEvent.Brigades.Count == 0)
@@ -256,8 +247,17 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
                 validator: value => !string.IsNullOrWhiteSpace(value) && value.Length <= 100));
         }
 
-        if (gradeMode != GradeMode.Registered && !attendanceControl)
+        if (gradeMode == GradeMode.Registered || attendanceControl)
         {
+            if (contestEvent.Participants.Count == 0)
+            {
+                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} не задано ни одного участника");
+            }
+            if (contestEvent.Participants.Count > 100)
+            {
+                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано более 100 участников");
+            }
+
             foreach (var participant in contestEvent.Participants)
             {
                 if (!IsValidIdentifier(participant))
