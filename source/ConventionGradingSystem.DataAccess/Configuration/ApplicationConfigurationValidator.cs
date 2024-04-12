@@ -41,12 +41,12 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Задано более 100 экспертов");
         }
 
-        return failureMessages.Any()
+        return failureMessages.Count > 0
             ? ValidateOptionsResult.Fail(failureMessages)
             : ValidateOptionsResult.Success;
     }
 
-    private static IEnumerable<string> ValidateIdentifiersUniqueness(ApplicationConfiguration options)
+    private static List<string> ValidateIdentifiersUniqueness(ApplicationConfiguration options)
     {
         var failureMessages = new List<string>();
 
@@ -108,7 +108,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static IEnumerable<string> ValidateContest(Contest contest, ICollection<string> participantIds)
+    private static List<string> ValidateContest(Contest contest, ICollection<string> participantIds)
     {
         var failureMessages = new List<string>();
 
@@ -157,7 +157,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static IEnumerable<string> ValidateGradeCriterion(GradeCriterion criterion)
+    private static List<string> ValidateGradeCriterion(GradeCriterion criterion)
     {
         var failureMessages = new List<string>();
 
@@ -201,7 +201,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static IEnumerable<string> ValidateContestEvent(ContestEvent contestEvent, ICollection<string> participantIds)
+    private static List<string> ValidateContestEvent(ContestEvent contestEvent, ICollection<string> participantIds)
     {
         var failureMessages = new List<string>();
 
@@ -250,7 +250,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static IEnumerable<string> ValidateVoting(Voting voting)
+    private static List<string> ValidateVoting(Voting voting)
     {
         var failureMessages = new List<string>();
 
@@ -292,7 +292,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static IEnumerable<string> ValidateCandidate(Candidate candidate)
+    private static List<string> ValidateCandidate(Candidate candidate)
     {
         var failureMessages = new List<string>();
 
@@ -340,7 +340,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static IEnumerable<string> ValidateTeam(Team team)
+    private static List<string> ValidateTeam(Team team)
     {
         var failureMessages = new List<string>();
 
@@ -373,7 +373,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static IEnumerable<string> ValidateParticipant(Participant participant)
+    private static List<string> ValidateParticipant(Participant participant)
     {
         var failureMessages = new List<string>();
 
@@ -404,7 +404,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static IEnumerable<string> ValidateExpert(Expert expert)
+    private static List<string> ValidateExpert(Expert expert)
     {
         var failureMessages = new List<string>();
 
@@ -429,7 +429,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
     private static bool IsValidIdentifier(string identifier) =>
         !string.IsNullOrWhiteSpace(identifier) && identifier.Length <= 50;
 
-    private static IEnumerable<string> ValidateUniqueness(string name, IEnumerable<string> values, Func<string, bool> validator)
+    private static List<string> ValidateUniqueness(string name, IEnumerable<string> values, Func<string, bool> validator)
     {
         return values
             .Where(validator)

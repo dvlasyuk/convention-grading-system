@@ -76,8 +76,8 @@ public class LoginFormModel : PageModel
             principal: new ClaimsPrincipal(new ClaimsIdentity(
                 claims: new List<Claim>
                 {
-                    new Claim(ClaimTypes.Name, user),
-                    new Claim(ClaimTypes.Role, user)
+                    new(ClaimTypes.Name, user),
+                    new(ClaimTypes.Role, user)
                 },
                 authenticationType: CookieAuthenticationDefaults.AuthenticationScheme)));
 

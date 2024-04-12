@@ -46,7 +46,7 @@ public class SecurityConfigurationValidator : IValidateOptions<SecurityConfigura
             failureMessages.Add("Для секретной фразы эксперта задан хэш, превышающий 100 символов");
         }
 
-        return failureMessages.Any()
+        return failureMessages.Count > 0
             ? ValidateOptionsResult.Fail(failureMessages)
             : ValidateOptionsResult.Success;
     }

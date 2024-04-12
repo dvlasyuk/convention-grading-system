@@ -61,10 +61,7 @@ public class AuthenticationProvider : AuthenticationStateProvider
     /// <param name="secretPhrase">Секретная фраза пользователя.</param>
     public async Task SignIn(string secretPhrase)
     {
-        if (secretPhrase == null)
-        {
-            throw new ArgumentNullException(nameof(secretPhrase));
-        }
+        ArgumentNullException.ThrowIfNull(secretPhrase);
 
         var secretBytes = Encoding.UTF8.GetBytes(secretPhrase);
         var hashedBytes = SHA256.HashData(secretBytes);
@@ -112,8 +109,8 @@ public class AuthenticationProvider : AuthenticationStateProvider
         return new ClaimsPrincipal(new ClaimsIdentity(
             claims: new List<Claim>
             {
-                new Claim(ClaimTypes.Name, role),
-                new Claim(ClaimTypes.Role, role)
+                new(ClaimTypes.Name, role),
+                new(ClaimTypes.Role, role)
             },
             authenticationType: "ConventonGradingSystem"));
     }
