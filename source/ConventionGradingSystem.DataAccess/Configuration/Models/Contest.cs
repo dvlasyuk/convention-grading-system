@@ -24,6 +24,11 @@ public class Contest
     public GradeMode GradeMode { get; set; } = GradeMode.Registered;
 
     /// <summary>
+    /// Признак, контролируется ли посещаемость мероприятий в рамках конкурса.
+    /// </summary>
+    public bool AttendanceControl { get; set; } = true;
+
+    /// <summary>
     /// Критерии оценивания конкурса экспертами.
     /// </summary>
     /// <remarks>Количество сконфигурированных критериев не должно превышать 10 и может быть нулевым,

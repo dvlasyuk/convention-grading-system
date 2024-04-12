@@ -53,7 +53,8 @@
             {
                 <MudText>Количество критериев оценивания участниками: <strong>@_contest.ParticipantCriterionsQuantity</strong></MudText>
             }
-            
+
+            <MudText>Контролируется ли посещаемость мероприятий: <strong>@(_contest.AttendanceControl ? "Да" : "Нет")</strong></MudText>
             <MudText>Общее число мероприятий в конкурсе: <strong>@_contest.EventsQuantity</strong></MudText>
 
             @if (_contest.ExpertCriterionsQuantity > 0)
@@ -179,13 +180,16 @@
 
             <br />
 
-            <MudButton Href="@context.AttendanceFormLink"
-                       Variant="Variant.Outlined"
-                       Color="Color.Tertiary"
-                       StartIcon="@Icons.Material.Filled.QrCode"
-                       Class="mr-3 mb-3">
-                Форма посещаемости
-            </MudButton>
+            @if (_contest.AttendanceControl)
+            {
+                <MudButton Href="@context.AttendanceFormLink"
+                    Variant="Variant.Outlined"
+                           Color="Color.Tertiary"
+                           StartIcon="@Icons.Material.Filled.QrCode"
+                           Class="mr-3 mb-3">
+                    Форма посещаемости
+                </MudButton>
+            }
 
         </MudTd>
 
@@ -223,6 +227,7 @@
         _contest = new Contest(
             Name: contest.Name,
             GradeMode: contest.GradeMode,
+            AttendanceControl: contest.AttendanceControl,
             ExpertCriterionsQuantity: contest.ExpertCriterions.Count,
             ParticipantCriterionsQuantity: contest.ParticipantCriterions.Count,
             EventsQuantity: contest.Events.Count,
@@ -292,6 +297,7 @@
     private record Contest(
         string Name,
         GradeMode GradeMode,
+        bool AttendanceControl,
         int ExpertCriterionsQuantity,
         int ParticipantCriterionsQuantity,
         int EventsQuantity,

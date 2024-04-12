@@ -142,7 +142,11 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для конкурса {contest.Identifier} задано более 100 мероприятий");
         }
 
-        failureMessages.AddRange(contest.Events.SelectMany(item => ValidateContestEvent(item, participantIds)));
+        failureMessages.AddRange(contest.Events.SelectMany(item => ValidateContestEvent(
+            contestEvent: item,
+            gradeMode: contest.GradeMode,
+            attendanceControl: contest.AttendanceControl,
+            participantIds: participantIds)));
 
         return failureMessages;
     }
@@ -191,7 +195,11 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static List<string> ValidateContestEvent(ContestEvent contestEvent, List<string> participantIds)
+    private static List<string> ValidateContestEvent(
+        ContestEvent contestEvent,
+        GradeMode gradeMode,
+        bool attendanceControl,
+        List<string> participantIds)
     {
         var failureMessages = new List<string>();
 
@@ -219,49 +227,55 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано более 100 участников");
         }
 
-        if (contestEvent.Brigades.Count == 0)
+        if (gradeMode == GradeMode.NonFriendly)
         {
-            failureMessages.Add($"Для мероприятия {contestEvent.Identifier} не задано ни одного связанного отряда");
-        }
-        if (contestEvent.Brigades.Count > 10)
-        {
-            failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано более 10 связанных отрядов");
-        }
+            if (contestEvent.Brigades.Count == 0)
+            {
+                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} не задано ни одного связанного отряда");
+            }
+            if (contestEvent.Brigades.Count > 10)
+            {
+                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано более 10 связанных отрядов");
+            }
 
-        foreach (var brigade in contestEvent.Brigades)
-        {
-            if (string.IsNullOrWhiteSpace(brigade))
+            foreach (var brigade in contestEvent.Brigades)
             {
-                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано пустое название связанного отряда");
+                if (string.IsNullOrWhiteSpace(brigade))
+                {
+                    failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано пустое название связанного отряда");
+                }
+                else if (brigade.Length > 100)
+                {
+                    failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано название связанного отряда, превышающее 100 символов");
+                }
             }
-            else if (brigade.Length > 100)
-            {
-                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано название связанного отряда, превышающее 100 символов");
-            }
-        }
 
-        failureMessages.AddRange(ValidateUniqueness(
-            name: $"Название связанного отряда для мероприятия {contestEvent.Identifier}",
-            values: contestEvent.Brigades,
-            validator: value => !string.IsNullOrWhiteSpace(value) && value.Length <= 100));
-
-        foreach (var participant in contestEvent.Participants)
-        {
-            if (!IsValidIdentifier(participant))
-            {
-                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан пустой или слишком длинный идентификатор участника");
-                continue;
-            }
-            if (!participantIds.Contains(participant))
-            {
-                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан несуществующий идентификатор участника");
-            }
+            failureMessages.AddRange(ValidateUniqueness(
+                name: $"Название связанного отряда для мероприятия {contestEvent.Identifier}",
+                values: contestEvent.Brigades,
+                validator: value => !string.IsNullOrWhiteSpace(value) && value.Length <= 100));
         }
 
-        failureMessages.AddRange(ValidateUniqueness(
-            name: $"Идентификатор участника для мероприятия {contestEvent.Identifier}",
-            values: contestEvent.Participants,
-            validator: IsValidIdentifier));
+        if (gradeMode != GradeMode.Registered && !attendanceControl)
+        {
+            foreach (var participant in contestEvent.Participants)
+            {
+                if (!IsValidIdentifier(participant))
+                {
+                    failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан пустой или слишком длинный идентификатор участника");
+                    continue;
+                }
+                if (!participantIds.Contains(participant))
+                {
+                    failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан несуществующий идентификатор участника");
+                }
+            }
+
+            failureMessages.AddRange(ValidateUniqueness(
+                name: $"Идентификатор участника для мероприятия {contestEvent.Identifier}",
+                values: contestEvent.Participants,
+                validator: IsValidIdentifier));
+        }
 
         return failureMessages;
     }
