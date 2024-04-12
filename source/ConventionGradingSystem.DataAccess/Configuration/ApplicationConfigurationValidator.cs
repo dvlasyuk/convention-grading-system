@@ -317,12 +317,12 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано более 100 кандидатов");
         }
 
-        failureMessages.AddRange(voting.Candidates.SelectMany(ValidateCandidate));
+        failureMessages.AddRange(voting.Candidates.SelectMany(item => ValidateCandidate(item, voting.FriendlyVoting)));
 
         return failureMessages;
     }
 
-    private static List<string> ValidateCandidate(Candidate candidate)
+    private static List<string> ValidateCandidate(Candidate candidate, bool friendlyVoting)
     {
         var failureMessages = new List<string>();
 
@@ -341,31 +341,34 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано название/имя, превышающее 100 символов");
         }
 
-        if (candidate.Brigades.Count == 0)
+        if (!friendlyVoting)
         {
-            failureMessages.Add($"Для кандидата голосования {candidate.Identifier} не задано ни одного связанного отряда");
-        }
-        if (candidate.Brigades.Count > 10)
-        {
-            failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано более 10 связанных отрядов");
-        }
-
-        foreach (var brigade in candidate.Brigades)
-        {
-            if (string.IsNullOrWhiteSpace(brigade))
+            if (candidate.Brigades.Count == 0)
             {
-                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано пустое название связанного отряда");
+                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} не задано ни одного связанного отряда");
             }
-            else if (brigade.Length > 100)
+            if (candidate.Brigades.Count > 10)
             {
-                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано название связанного отряда, превышающее 100 символов");
+                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано более 10 связанных отрядов");
             }
-        }
 
-        failureMessages.AddRange(ValidateUniqueness(
-            name: $"Название связанного отряда для кандидата голосования {candidate.Identifier}",
-            values: candidate.Brigades,
-            validator: value => !string.IsNullOrWhiteSpace(value) && value.Length <= 100));
+            foreach (var brigade in candidate.Brigades)
+            {
+                if (string.IsNullOrWhiteSpace(brigade))
+                {
+                    failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано пустое название связанного отряда");
+                }
+                else if (brigade.Length > 100)
+                {
+                    failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано название связанного отряда, превышающее 100 символов");
+                }
+            }
+
+            failureMessages.AddRange(ValidateUniqueness(
+                name: $"Название связанного отряда для кандидата голосования {candidate.Identifier}",
+                values: candidate.Brigades,
+                validator: value => !string.IsNullOrWhiteSpace(value) && value.Length <= 100));
+        }
 
         return failureMessages;
     }
