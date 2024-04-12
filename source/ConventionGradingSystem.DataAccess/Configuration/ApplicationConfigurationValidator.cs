@@ -219,6 +219,32 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано более 100 участников");
         }
 
+        if (contestEvent.Brigades.Count == 0)
+        {
+            failureMessages.Add($"Для мероприятия {contestEvent.Identifier} не задано ни одного связанного отряда");
+        }
+        if (contestEvent.Brigades.Count > 10)
+        {
+            failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано более 10 связанных отрядов");
+        }
+
+        foreach (var brigade in contestEvent.Brigades)
+        {
+            if (string.IsNullOrWhiteSpace(brigade))
+            {
+                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано пустое название связанного отряда");
+            }
+            else if (brigade.Length > 100)
+            {
+                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано название связанного отряда, превышающее 100 символов");
+            }
+        }
+
+        failureMessages.AddRange(ValidateUniqueness(
+            name: $"Название связанного отряда для мероприятия {contestEvent.Identifier}",
+            values: contestEvent.Brigades,
+            validator: value => !string.IsNullOrWhiteSpace(value) && value.Length <= 100));
+
         foreach (var participant in contestEvent.Participants)
         {
             if (!IsValidIdentifier(participant))

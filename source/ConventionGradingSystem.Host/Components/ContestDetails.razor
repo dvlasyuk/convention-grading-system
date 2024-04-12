@@ -1,6 +1,7 @@
 @page "/contests/{contestId}"
 
 @using ConventionGradingSystem.DataAccess.Configuration
+@using ConventionGradingSystem.DataAccess.Configuration.Models
 @using ConventionGradingSystem.DataAccess.Database
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.EntityFrameworkCore
@@ -37,6 +38,12 @@
 
             <MudText>Принимаются ли отзывы экспертов: <strong>@(_contest.ExpertCriterionsQuantity > 0 ? "Да" : "Нет")</strong></MudText>
             <MudText>Принимаются ли отзывы участников: <strong>@(_contest.ParticipantCriterionsQuantity > 0 ? "Да" : "Нет")</strong></MudText>
+
+            @if (_contest.ParticipantCriterionsQuantity > 0)
+            {
+                <MudText>Принимаются ли отзывы от любых участников: <strong>@(_contest.GradeMode != GradeMode.Registered ? "Да" : "Нет")</strong></MudText>
+                <MudText>Принимаются ли отзывы участников на свой отряд: <strong>@(_contest.GradeMode != GradeMode.NonFriendly ? "Да" : "Нет")</strong></MudText>
+            }
 
             @if (_contest.ExpertCriterionsQuantity > 0)
             {
@@ -83,15 +90,16 @@
 
         <MudTh>#</MudTh>
         <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectNameField">Название мероприятия</MudTableSortLabel></MudTh>
+        <MudTh>Связанные отряды</MudTh>
 
         @if (_contest.ExpertCriterionsQuantity > 0)
         {
-            <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectExpertFeedbacksField">Количество отзывов экспертов</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectExpertFeedbacksField">Отзывы экспертов</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectExpertGradeField">Оценка экспертов</MudTableSortLabel></MudTh>
         }
         @if (_contest.ParticipantCriterionsQuantity > 0)
         {
-            <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectParticipantFeedbacksField">Количество отзывов участников</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectParticipantFeedbacksField">Отзывы участников</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectParticipantGradeField">Оценка участников</MudTableSortLabel></MudTh>
         }
 
@@ -103,6 +111,13 @@
 
         <MudTd>@context.Number</MudTd>
         <MudTd>@context.Name</MudTd>
+        <MudTd>
+            @foreach (var item in @context.Brigades)
+            {
+                @item
+                <br />
+            }
+        </MudTd>
 
         @if (_contest.ExpertCriterionsQuantity > 0)
         {
@@ -207,6 +222,7 @@
 
         _contest = new Contest(
             Name: contest.Name,
+            GradeMode: contest.GradeMode,
             ExpertCriterionsQuantity: contest.ExpertCriterions.Count,
             ParticipantCriterionsQuantity: contest.ParticipantCriterions.Count,
             EventsQuantity: contest.Events.Count,
@@ -219,6 +235,7 @@
                 Number: index + 1,
                 Identifier: @event.Identifier,
                 Name: @event.Name,
+                Brigades: @event.Brigades.ToList(),
                 ExprertFeedbacksQuantity: expertFeedbacks
                     .Count(feedback => feedback.EventId == @event.Identifier),
                 ParticipantFeedbacksQuantity: participantFeedbacks
@@ -274,6 +291,7 @@
 
     private record Contest(
         string Name,
+        GradeMode GradeMode,
         int ExpertCriterionsQuantity,
         int ParticipantCriterionsQuantity,
         int EventsQuantity,
@@ -284,6 +302,7 @@
         int Number,
         string Identifier,
         string Name,
+        IReadOnlyCollection<string> Brigades,
         int ExprertFeedbacksQuantity,
         int ParticipantFeedbacksQuantity,
         float ExpertGrade,

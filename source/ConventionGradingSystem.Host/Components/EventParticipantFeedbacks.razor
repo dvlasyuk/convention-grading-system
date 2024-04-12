@@ -46,6 +46,7 @@
         </TitleContent>
         <ChildContent>
             <MudText>Название конкурса мероприятий: <strong>@_contestEvent.ContestName</strong></MudText>
+            <MudText>Связанные с мероприятием отряды: <strong>@(string.Join(", ", _contestEvent.Brigades))</strong></MudText>
             <MudText>Число отзывов, оставленных участниками: <strong>@_contestEvent.FeedbacksQuantity</strong></MudText>
 
             @foreach (var criterion in _contestEvent.GradeCriterions)
@@ -159,6 +160,7 @@
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             IsGraded: contest.ParticipantCriterions.Count > 0,
+            Brigades: contestEvent.Brigades.ToList(),
             FeedbacksQuantity: feedbacks.Count(),
             GradeCriterions: contest.ParticipantCriterions
                 .Select(criterion => new GradeCriterion(
@@ -203,6 +205,7 @@
         string EventName,
         string ContestName,
         bool IsGraded,
+        IReadOnlyCollection<string> Brigades,
         int FeedbacksQuantity,
         IReadOnlyList<GradeCriterion> GradeCriterions);
 

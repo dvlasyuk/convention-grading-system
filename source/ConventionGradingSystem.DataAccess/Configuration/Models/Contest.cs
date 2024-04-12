@@ -19,6 +19,11 @@ public class Contest
     public string Name { get; set; } = "Неизвестный конкурс";
 
     /// <summary>
+    /// Способ оценивания конкурса участниками.
+    /// </summary>
+    public GradeMode GradeMode { get; set; } = GradeMode.Registered;
+
+    /// <summary>
     /// Критерии оценивания конкурса экспертами.
     /// </summary>
     /// <remarks>Количество сконфигурированных критериев не должно превышать 10 и может быть нулевым,
