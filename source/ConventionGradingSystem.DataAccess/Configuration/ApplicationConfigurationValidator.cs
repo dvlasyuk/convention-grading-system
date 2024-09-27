@@ -25,9 +25,13 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             .Select(participant => participant.Identifier)
             .ToList();
 
+        var teamIds = options.Teams
+            .Select(team => team.Identifier)
+            .ToList();
+
         failureMessages.AddRange(ValidateIdentifiersUniqueness(options));
         failureMessages.AddRange(options.Contests.SelectMany(item => ValidateContest(item, participantIds)));
-        failureMessages.AddRange(options.Votings.SelectMany(ValidateVoting));
+        failureMessages.AddRange(options.Votings.SelectMany(item => ValidateVoting(item, teamIds)));
         failureMessages.AddRange(options.Teams.SelectMany(item => ValidateTeam(item, participantIds)));
         failureMessages.AddRange(options.Participants.SelectMany(ValidateParticipant));
         failureMessages.AddRange(options.Experts.SelectMany(ValidateExpert));
@@ -282,7 +286,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static List<string> ValidateVoting(Voting voting)
+    private static List<string> ValidateVoting(Voting voting, List<string> teamIds)
     {
         var failureMessages = new List<string>();
 
@@ -309,6 +313,29 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         {
             failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано количество голосов, большее или равное количеству кандидатов");
         }
+
+        if (voting.BannedTeams.Count > 100)
+        {
+            failureMessages.Add($"Для зрительского голосования {voting.Identifier} задано более 100 исключённых команд");
+        }
+
+        foreach (var team in voting.BannedTeams)
+        {
+            if (!IsValidIdentifier(team))
+            {
+                failureMessages.Add($"Для зрительского голосования {voting.Identifier} задан пустой или слишком длинный идентификатор исключённой команды");
+                continue;
+            }
+            if (!teamIds.Contains(team))
+            {
+                failureMessages.Add($"Для зрительского голосования {voting.Identifier} задан несуществующий идентификатор исключённой команды");
+            }
+        }
+
+        failureMessages.AddRange(ValidateUniqueness(
+            name: $"Идентификатор исключённой команды для зрительского голосования {voting.Identifier}",
+            values: voting.BannedTeams,
+            validator: IsValidIdentifier));
 
         if (voting.Candidates.Count == 0)
         {

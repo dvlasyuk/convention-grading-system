@@ -156,6 +156,7 @@
             Name: voting.Name,
             FriendlyVoting: voting.FriendlyVoting,
             VotesQuantity: voting.VotesQuantity,
+            BannedTeams: voting.BannedTeams.ToList(),
             Candidates: voting.Candidates
                 .Select(candidate => new Candidate(
                     Identifer: candidate.Identifier,
@@ -195,6 +196,7 @@
         }
 
         return Task.FromResult<IEnumerable<Team>>(Configuration.Value.Teams
+            .Where(team => !_votingDetails!.BannedTeams.Contains(team.Identifier))
             .Where(team => team.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
             .Select(team => new Team(
                 Identifier: team.Identifier,
@@ -288,6 +290,7 @@
         string Name,
         bool FriendlyVoting,
         int VotesQuantity,
+        IReadOnlyCollection<string> BannedTeams,
         IReadOnlyCollection<Candidate> Candidates);
 
     private record Team(string Identifier, string Name)
