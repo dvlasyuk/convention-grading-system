@@ -144,7 +144,8 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
 
         failureMessages.AddRange(contest.Events.SelectMany(item => ValidateContestEvent(
             contestEvent: item,
-            gradeMode: contest.GradeMode,
+            registeredGrading: contest.RegisteredGrading,
+            friendlyGrading: contest.FriendlyGrading,
             attendanceControl: contest.AttendanceControl,
             participantIds: participantIds)));
 
@@ -197,7 +198,8 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
 
     private static List<string> ValidateContestEvent(
         ContestEvent contestEvent,
-        GradeMode gradeMode,
+        bool registeredGrading,
+        bool friendlyGrading,
         bool attendanceControl,
         List<string> participantIds)
     {
@@ -218,7 +220,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано название, превышающее 100 символов");
         }
 
-        if (gradeMode == GradeMode.NonFriendly)
+        if (!friendlyGrading)
         {
             if (contestEvent.Brigades.Count == 0)
             {
@@ -247,7 +249,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
                 validator: value => !string.IsNullOrWhiteSpace(value) && value.Length <= 100));
         }
 
-        if (gradeMode == GradeMode.Registered || attendanceControl)
+        if (registeredGrading || attendanceControl)
         {
             if (contestEvent.Participants.Count == 0)
             {

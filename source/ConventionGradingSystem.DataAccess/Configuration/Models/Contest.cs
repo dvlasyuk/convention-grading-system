@@ -19,9 +19,16 @@ public class Contest
     public string Name { get; set; } = "Неизвестный конкурс";
 
     /// <summary>
-    /// Способ оценивания конкурса участниками.
+    /// Признак, допустимо ли оценивать мероприятие только участникам, которые зарегистрированы для
+    /// участия в нём.
     /// </summary>
-    public GradeMode GradeMode { get; set; } = GradeMode.Registered;
+    public bool RegisteredGrading { get; set; } = true;
+
+    /// <summary>
+    /// Признак, допустимо ли участникам оценивать мероприятие, имеющее прямое отношение к тому же
+    /// отряду, что и сами участники.
+    /// </summary>
+    public bool FriendlyGrading { get; set; } = true;
 
     /// <summary>
     /// Признак, контролируется ли посещаемость мероприятий в рамках конкурса.

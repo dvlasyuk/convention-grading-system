@@ -163,7 +163,8 @@
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             IsGraded: contest.ParticipantCriterions.Count > 0,
-            GradeMode: contest.GradeMode,
+            RegisteredGrading: contest.RegisteredGrading,
+            FriendlyGrading: contest.FriendlyGrading,
             Brigades: contestEvent.Brigades.ToList(),
             Participants: contestEvent.Participants.ToList(),
             Criterions: contest.ParticipantCriterions
@@ -224,12 +225,13 @@
         return Task.FromResult<IEnumerable<Team>>(Configuration.Value.Teams
             .Where(team => team.Members
                 .Select(member => participants[member])
-                .Any(participant => _eventDetails!.GradeMode switch
-                    {
-                        GradeMode.Registered => _eventDetails!.Participants.Contains(participant.Identifier),
-                        GradeMode.NonFriendly => !_eventDetails!.Brigades.Contains(participant.Brigade),
-                        _ => true,
-                    }))
+                .Where(participant =>
+                    !_eventDetails!.RegisteredGrading ||
+                    _eventDetails!.Participants.Contains(participant.Identifier))
+                .Where(participant =>
+                    _eventDetails!.FriendlyGrading ||
+                    !_eventDetails!.Brigades.Contains(participant.Brigade))
+                .Any())
             .Where(team => team.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
             .Select(team => new Team(
                 Identifier: team.Identifier,
@@ -253,12 +255,12 @@
             .Where(team => team.Identifier == _selectedTeam.Identifier)
             .SelectMany(team => team.Members)
             .Select(member => participants[member])
-            .Where(participant => _eventDetails!.GradeMode switch
-                {
-                    GradeMode.Registered => _eventDetails!.Participants.Contains(participant.Identifier),
-                    GradeMode.NonFriendly => !_eventDetails!.Brigades.Contains(participant.Brigade),
-                    _ => true,
-                })
+            .Where(participant =>
+                !_eventDetails!.RegisteredGrading ||
+                _eventDetails!.Participants.Contains(participant.Identifier))
+            .Where(participant =>
+                _eventDetails!.FriendlyGrading ||
+                !_eventDetails!.Brigades.Contains(participant.Brigade))
             .Where(participant => participant.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
             .Select(participant => new Participant(
                 Identifier: participant.Identifier,
@@ -283,7 +285,8 @@
         string EventName,
         string ContestName,
         bool IsGraded,
-        GradeMode GradeMode,
+        bool RegisteredGrading,
+        bool FriendlyGrading,
         IReadOnlyCollection<string> Brigades,
         IReadOnlyCollection<string> Participants,
         IReadOnlyList<GradeCriterion> Criterions);

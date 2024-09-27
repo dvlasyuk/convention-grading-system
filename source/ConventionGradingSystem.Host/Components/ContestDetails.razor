@@ -41,8 +41,8 @@
 
             @if (_contest.ParticipantCriterionsQuantity > 0)
             {
-                <MudText>Принимаются ли отзывы от любых участников: <strong>@(_contest.GradeMode != GradeMode.Registered ? "Да" : "Нет")</strong></MudText>
-                <MudText>Принимаются ли отзывы участников на свой отряд: <strong>@(_contest.GradeMode != GradeMode.NonFriendly ? "Да" : "Нет")</strong></MudText>
+                <MudText>Принимаются ли отзывы от любых участников: <strong>@(!_contest.RegisteredGrading ? "Да" : "Нет")</strong></MudText>
+                <MudText>Принимаются ли отзывы участников на свой отряд: <strong>@(_contest.FriendlyGrading ? "Да" : "Нет")</strong></MudText>
             }
 
             @if (_contest.ExpertCriterionsQuantity > 0)
@@ -226,7 +226,8 @@
 
         _contest = new Contest(
             Name: contest.Name,
-            GradeMode: contest.GradeMode,
+            RegisteredGrading: contest.RegisteredGrading,
+            FriendlyGrading: contest.FriendlyGrading,
             AttendanceControl: contest.AttendanceControl,
             ExpertCriterionsQuantity: contest.ExpertCriterions.Count,
             ParticipantCriterionsQuantity: contest.ParticipantCriterions.Count,
@@ -296,7 +297,8 @@
 
     private record Contest(
         string Name,
-        GradeMode GradeMode,
+        bool RegisteredGrading,
+        bool FriendlyGrading,
         bool AttendanceControl,
         int ExpertCriterionsQuantity,
         int ParticipantCriterionsQuantity,
