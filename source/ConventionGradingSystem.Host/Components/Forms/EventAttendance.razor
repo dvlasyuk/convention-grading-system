@@ -141,6 +141,7 @@
 
         var contest = Configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
         var participants = Configuration.Value.Participants.ToDictionary(item => item.Identifier);
+        var brigades = Configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
 
         _eventDetails = new EventDetails(
             EventName: contestEvent.Name,
@@ -151,7 +152,7 @@
                 .Select(participant => new Participant(
                     Identifier: participant.Identifier,
                     Name: participant.Name,
-                    Brigade: participant.Brigade))
+                    Brigade: brigades[participant.Brigade].Name))
                 .ToList());
 
         var savedAttendanceMarks = await DatabaseContext.AttendanceMarks

@@ -131,13 +131,17 @@
             CandidatesQuantity: voting.Candidates.Count,
             TotalVotesQuantity: savedVotes.Count);
 
+        var brigades = Configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
         _votingCandidates = voting.Candidates
             .OrderBy(candidate => candidate.Identifier)
             .Select((candidate, index) => new VotingCandidate(
                 Number: index + 1,
                 Identifier: candidate.Identifier,
                 Name: candidate.Name,
-                Brigades: candidate.Brigades.ToList(),
+                Brigades: candidate.Brigades
+                    .Select(identifier => brigades[identifier])
+                    .Select(brigade => brigade.Name)
+                    .ToList(),
                 VotesQuantity: savedVotes
                     .Count(vote => vote.CandidateId == candidate.Identifier),
                 VotesLink: $"/candidates/{candidate.Identifier}/votes"))

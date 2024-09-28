@@ -235,13 +235,17 @@
             ExpertFeedbacksQuantity: expertFeedbacks.Count,
             ParticipantFeedbacksQuantity: participantFeedbacks.Count);
 
+        var brigades = Configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
         _contestEvents = contest.Events
             .OrderBy(@event => @event.Identifier)
             .Select((@event, index) => new ContestEvent(
                 Number: index + 1,
                 Identifier: @event.Identifier,
                 Name: @event.Name,
-                Brigades: @event.Brigades.ToList(),
+                Brigades: @event.Brigades
+                    .Select(identifier => brigades[identifier])
+                    .Select(brigade => brigade.Name)
+                    .ToList(),
                 ExprertFeedbacksQuantity: expertFeedbacks
                     .Count(feedback => feedback.EventId == @event.Identifier),
                 ParticipantFeedbacksQuantity: participantFeedbacks

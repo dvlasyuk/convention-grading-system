@@ -106,10 +106,15 @@
             .ToListAsync();
 
         var voting = Configuration.Value.Votings.First(item => item.Candidates.Contains(candidate));
+        var brigades = Configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
+
         _votingCandidate = new VotingCandidate(
             CandidateName: candidate.Name,
             VotingName: voting.Name,
-            Brigades: candidate.Brigades.ToList(),
+            Brigades: candidate.Brigades
+                .Select(identifier => brigades[identifier])
+                .Select(brigade => brigade.Name)
+                .ToList(),
             VotesQuantity: savedVotes.Count());
 
         var participants = Configuration.Value.Participants.ToDictionary(item => item.Identifier);
@@ -118,7 +123,7 @@
             .Select((vote, index) => new ParticipantVote(
                 Number: index + 1,
                 ParticipantName: participants[vote.ParticipantId].Name,
-                ParticipantBrigade: participants[vote.ParticipantId].Brigade,
+                ParticipantBrigade: brigades[participants[vote.ParticipantId].Brigade].Name,
                 Note: vote.Note))
             .ToList();
     }

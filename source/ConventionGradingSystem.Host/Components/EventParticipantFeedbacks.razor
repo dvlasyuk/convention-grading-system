@@ -156,11 +156,16 @@
             .ToListAsync();
 
         var contest = Configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
+        var brigades = Configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
+
         _contestEvent = new ContestEvent(
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             IsGraded: contest.ParticipantCriterions.Count > 0,
-            Brigades: contestEvent.Brigades.ToList(),
+            Brigades: contestEvent.Brigades
+                .Select(identifier => brigades[identifier])
+                .Select(brigade => brigade.Name)
+                .ToList(),
             FeedbacksQuantity: feedbacks.Count(),
             GradeCriterions: contest.ParticipantCriterions
                 .Select(criterion => new GradeCriterion(
@@ -180,7 +185,7 @@
             .Select((feedback, index) => new Feedback(
                 Number: index + 1,
                 ParticipantName: participants[feedback.ParticipantId].Name,
-                ParticipantBrigade: participants[feedback.ParticipantId].Brigade,
+                ParticipantBrigade: brigades[participants[feedback.ParticipantId].Brigade].Name,
                 Grades: feedback.Grades.ToDictionary(
                     grade => grade.CriterionId,
                     grade => grade.GradeValue),

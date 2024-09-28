@@ -23,6 +23,11 @@ public class ApplicationConfiguration
     public ICollection<Team> Teams { get; } = [];
 
     /// <summary>
+    /// Конфигурация отрядов.
+    /// </summary>
+    public ICollection<Brigade> Brigades { get; } = [];
+
+    /// <summary>
     /// Конфигурация участников.
     /// </summary>
     public ICollection<Participant> Participants { get; } = [];
