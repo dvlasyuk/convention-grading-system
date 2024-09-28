@@ -165,6 +165,7 @@
             IsGraded: contest.ParticipantCriterions.Count > 0,
             RegisteredGrading: contest.RegisteredGrading,
             FriendlyGrading: contest.FriendlyGrading,
+            BannedTeams: contest.BannedTeams.ToList(),
             Brigades: contestEvent.Brigades.ToList(),
             Participants: contestEvent.Participants.ToList(),
             Criterions: contest.ParticipantCriterions
@@ -223,6 +224,7 @@
 
         var participants = Configuration.Value.Participants.ToDictionary(item => item.Identifier);
         return Task.FromResult<IEnumerable<Team>>(Configuration.Value.Teams
+            .Where(team => !_eventDetails!.BannedTeams.Contains(team.Identifier))
             .Where(team => team.Members
                 .Select(member => participants[member])
                 .Where(participant =>
@@ -287,6 +289,7 @@
         bool IsGraded,
         bool RegisteredGrading,
         bool FriendlyGrading,
+        IReadOnlyCollection<string> BannedTeams,
         IReadOnlyCollection<string> Brigades,
         IReadOnlyCollection<string> Participants,
         IReadOnlyList<GradeCriterion> Criterions);

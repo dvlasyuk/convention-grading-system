@@ -30,7 +30,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             .ToList();
 
         failureMessages.AddRange(ValidateIdentifiersUniqueness(options));
-        failureMessages.AddRange(options.Contests.SelectMany(item => ValidateContest(item, participantIds)));
+        failureMessages.AddRange(options.Contests.SelectMany(item => ValidateContest(item, teamIds, participantIds)));
         failureMessages.AddRange(options.Votings.SelectMany(item => ValidateVoting(item, teamIds)));
         failureMessages.AddRange(options.Teams.SelectMany(item => ValidateTeam(item, participantIds)));
         failureMessages.AddRange(options.Participants.SelectMany(ValidateParticipant));
@@ -102,7 +102,10 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static List<string> ValidateContest(Contest contest, List<string> participantIds)
+    private static List<string> ValidateContest(
+        Contest contest,
+        List<string> teamIds,
+        List<string> participantIds)
     {
         var failureMessages = new List<string>();
 
@@ -120,6 +123,29 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         {
             failureMessages.Add($"Для конкурса {contest.Identifier} задано название, превышающее 100 символов");
         }
+
+        if (contest.BannedTeams.Count > 100)
+        {
+            failureMessages.Add($"Для конкурса {contest.Identifier} задано более 100 исключённых команд");
+        }
+
+        foreach (var team in contest.BannedTeams)
+        {
+            if (!IsValidIdentifier(team))
+            {
+                failureMessages.Add($"Для конкурса {contest.Identifier} задан пустой или слишком длинный идентификатор исключённой команды");
+                continue;
+            }
+            if (!teamIds.Contains(team))
+            {
+                failureMessages.Add($"Для конкурса {contest.Identifier} задан несуществующий идентификатор исключённой команды");
+            }
+        }
+
+        failureMessages.AddRange(ValidateUniqueness(
+            name: $"Идентификатор исключённой команды для конкурса {contest.Identifier}",
+            values: contest.BannedTeams,
+            validator: IsValidIdentifier));
 
         if (contest.ExpertCriterions.Count == 0 && contest.ParticipantCriterions.Count == 0)
         {
