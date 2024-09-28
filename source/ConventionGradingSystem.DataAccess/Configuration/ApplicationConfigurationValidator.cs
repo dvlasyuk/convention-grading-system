@@ -455,7 +455,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         {
             failureMessages.Add($"Для команды {team.Identifier} не задано ни одного участника");
         }
-        if (members.Count > 100)
+        if (members.Count > 1000)
         {
             failureMessages.Add($"Для команды {team.Identifier} задано более 100 участников");
         }
