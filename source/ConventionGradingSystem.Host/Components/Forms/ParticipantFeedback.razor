@@ -222,11 +222,10 @@
             return Task.FromResult(Enumerable.Empty<Team>());
         }
 
-        var participants = Configuration.Value.Participants.ToDictionary(item => item.Identifier);
         return Task.FromResult<IEnumerable<Team>>(Configuration.Value.Teams
             .Where(team => !_eventDetails!.BannedTeams.Contains(team.Identifier))
-            .Where(team => team.Members
-                .Select(member => participants[member])
+            .Where(team => Configuration.Value.Participants
+                .Where(participant => participant.Team == team.Identifier)
                 .Where(participant =>
                     !_eventDetails!.RegisteredGrading ||
                     _eventDetails!.Participants.Contains(participant.Identifier))
@@ -252,11 +251,10 @@
             return Task.FromResult(Enumerable.Empty<Participant>());
         }
 
-        var participants = Configuration.Value.Participants.ToDictionary(item => item.Identifier);
         return Task.FromResult<IEnumerable<Participant>>(Configuration.Value.Teams
             .Where(team => team.Identifier == _selectedTeam.Identifier)
-            .SelectMany(team => team.Members)
-            .Select(member => participants[member])
+            .SelectMany(team => Configuration.Value.Participants
+                .Where(participant => participant.Team == team.Identifier))
             .Where(participant =>
                 !_eventDetails!.RegisteredGrading ||
                 _eventDetails!.Participants.Contains(participant.Identifier))

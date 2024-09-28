@@ -21,19 +21,11 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
     {
         var failureMessages = new List<string>();
 
-        var participantIds = options.Participants
-            .Select(participant => participant.Identifier)
-            .ToList();
-
-        var teamIds = options.Teams
-            .Select(team => team.Identifier)
-            .ToList();
-
         failureMessages.AddRange(ValidateIdentifiersUniqueness(options));
-        failureMessages.AddRange(options.Contests.SelectMany(item => ValidateContest(item, teamIds, participantIds)));
-        failureMessages.AddRange(options.Votings.SelectMany(item => ValidateVoting(item, teamIds)));
-        failureMessages.AddRange(options.Teams.SelectMany(item => ValidateTeam(item, participantIds)));
-        failureMessages.AddRange(options.Participants.SelectMany(ValidateParticipant));
+        failureMessages.AddRange(options.Contests.SelectMany(item => ValidateContest(item, options.Teams, options.Participants)));
+        failureMessages.AddRange(options.Votings.SelectMany(item => ValidateVoting(item, options.Teams)));
+        failureMessages.AddRange(options.Teams.SelectMany(item => ValidateTeam(item, options.Participants)));
+        failureMessages.AddRange(options.Participants.SelectMany(item => ValidateParticipant(item, options.Teams)));
         failureMessages.AddRange(options.Experts.SelectMany(ValidateExpert));
 
         return failureMessages.Count > 0
@@ -104,8 +96,8 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
 
     private static List<string> ValidateContest(
         Contest contest,
-        List<string> teamIds,
-        List<string> participantIds)
+        ICollection<Team> teams,
+        ICollection<Participant> participants)
     {
         var failureMessages = new List<string>();
 
@@ -136,7 +128,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
                 failureMessages.Add($"Для конкурса {contest.Identifier} задан пустой или слишком длинный идентификатор исключённой команды");
                 continue;
             }
-            if (!teamIds.Contains(team))
+            if (!teams.Any(item => item.Identifier == team))
             {
                 failureMessages.Add($"Для конкурса {contest.Identifier} задан несуществующий идентификатор исключённой команды");
             }
@@ -177,7 +169,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             registeredGrading: contest.RegisteredGrading,
             friendlyGrading: contest.FriendlyGrading,
             attendanceControl: contest.AttendanceControl,
-            participantIds: participantIds)));
+            participants: participants)));
 
         return failureMessages;
     }
@@ -231,7 +223,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         bool registeredGrading,
         bool friendlyGrading,
         bool attendanceControl,
-        List<string> participantIds)
+        ICollection<Participant> participants)
     {
         var failureMessages = new List<string>();
 
@@ -297,7 +289,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
                     failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан пустой или слишком длинный идентификатор участника");
                     continue;
                 }
-                if (!participantIds.Contains(participant))
+                if (!participants.Any(item => item.Identifier == participant))
                 {
                     failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан несуществующий идентификатор участника");
                 }
@@ -312,7 +304,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static List<string> ValidateVoting(Voting voting, List<string> teamIds)
+    private static List<string> ValidateVoting(Voting voting, ICollection<Team> teams)
     {
         var failureMessages = new List<string>();
 
@@ -352,7 +344,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
                 failureMessages.Add($"Для зрительского голосования {voting.Identifier} задан пустой или слишком длинный идентификатор исключённой команды");
                 continue;
             }
-            if (!teamIds.Contains(team))
+            if (!teams.Any(item => item.Identifier == team))
             {
                 failureMessages.Add($"Для зрительского голосования {voting.Identifier} задан несуществующий идентификатор исключённой команды");
             }
@@ -428,7 +420,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages;
     }
 
-    private static List<string> ValidateTeam(Team team, List<string> participantIds)
+    private static List<string> ValidateTeam(Team team, ICollection<Participant> participants)
     {
         var failureMessages = new List<string>();
 
@@ -447,32 +439,23 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для команды {team.Identifier} задано название, превышающее 100 символов");
         }
 
-        if (team.Members.Count == 0)
+        var members = participants
+            .Where(participant => participant.Team == team.Identifier)
+            .ToList();
+
+        if (members.Count == 0)
         {
             failureMessages.Add($"Для команды {team.Identifier} не задано ни одного участника");
         }
-        if (team.Members.Count > 100)
+        if (members.Count > 100)
         {
             failureMessages.Add($"Для команды {team.Identifier} задано более 100 участников");
-        }
-
-        foreach (var member in team.Members)
-        {
-            if (!IsValidIdentifier(member))
-            {
-                failureMessages.Add($"Для команды {team.Identifier} задан пустой или слишком длинный идентификатор участника");
-                continue;
-            }
-            if (!participantIds.Contains(member))
-            {
-                failureMessages.Add($"Для команды {team.Identifier} задан несуществующий идентификатор участника");
-            }
         }
 
         return failureMessages;
     }
 
-    private static List<string> ValidateParticipant(Participant participant)
+    private static List<string> ValidateParticipant(Participant participant, ICollection<Team> teams)
     {
         var failureMessages = new List<string>();
 
@@ -498,6 +481,15 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         else if (participant.Brigade.Length > 100)
         {
             failureMessages.Add($"Для участника {participant.Identifier} задано название отряда, превышающее 100 символов");
+        }
+
+        if (!IsValidIdentifier(participant.Team))
+        {
+            failureMessages.Add($"Для участника {participant.Identifier} задан пустой или слишком длинный идентификатор команды");
+        }
+        if (!teams.Any(item => item.Identifier == participant.Team))
+        {
+            failureMessages.Add($"Для участника {participant.Identifier} задан несуществующий идентификатор команды");
         }
 
         return failureMessages;
