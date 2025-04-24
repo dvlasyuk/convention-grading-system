@@ -202,7 +202,7 @@
         NavigationManager.NavigateTo($"/forms/expert-feedback/{EventId}", true);
     }
 
-    private Task<IEnumerable<Expert>> SearchExpert(string value)
+    private Task<IEnumerable<Expert>> SearchExpert(string value, CancellationToken token)
     {
         if (string.IsNullOrEmpty(value))
         {

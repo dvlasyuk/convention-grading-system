@@ -62,31 +62,31 @@
     <MudForm @ref="_formSelector" @bind-IsValid="@_isFormValid">
 
         <MudAutocomplete T="Team"
-                         @bind-Value="_selectedTeam"
-                         @bind-Value:after="OnSelectedTeamChange"
-                         SearchFunc="@SearchTeam"
-                         Required="true"
-                         ResetValueOnEmptyText="true"
-                         Label="Выбери свою команду"
-                         RequiredError="Выбор команды обязателен"
-                         Variant="Variant.Outlined"
-                         Adornment="Adornment.End"
-                         AdornmentIcon="@Icons.Material.Filled.Search"
-                         Class="my-3" />
+        @bind-Value="_selectedTeam"
+        @bind-Value:after="OnSelectedTeamChange"
+        SearchFunc="@SearchTeam"
+        Required="true"
+        ResetValueOnEmptyText="true"
+        Label="Выбери свою команду"
+        RequiredError="Выбор команды обязателен"
+        Variant="Variant.Outlined"
+        Adornment="Adornment.End"
+        AdornmentIcon="@Icons.Material.Filled.Search"
+        Class="my-3" />
 
         <MudAutocomplete T="Participant"
-                         @ref="_participantSelector"
-                         @bind-Value="_selectedParticipant"
-                         Disabled="@(_selectedTeam == null)"
-                         SearchFunc="@SearchParticipant"
-                         Required="true"
-                         ResetValueOnEmptyText="true"
-                         Label="Выбери себя"
-                         RequiredError="Выбор участника обязателен"
-                         Variant="Variant.Outlined"
-                         Adornment="Adornment.End"
-                         AdornmentIcon="@Icons.Material.Filled.Search"
-                         Class="my-3" />
+        @ref="_participantSelector"
+        @bind-Value="_selectedParticipant"
+        Disabled="@(_selectedTeam == null)"
+        SearchFunc="@SearchParticipant"
+        Required="true"
+        ResetValueOnEmptyText="true"
+        Label="Выбери себя"
+        RequiredError="Выбор участника обязателен"
+        Variant="Variant.Outlined"
+        Adornment="Adornment.End"
+        AdornmentIcon="@Icons.Material.Filled.Search"
+        Class="my-3" />
 
         @foreach (var criterion in _eventDetails.Criterions)
         {
@@ -94,31 +94,31 @@
                 <MudText Typo="Typo.subtitle1">@criterion.Name</MudText>
                 <MudText Typo="Typo.subtitle2">@criterion.Description</MudText>
                 <MudSlider @bind-Value="@_selectedGrades[criterion.Identifier]"
-                           Min="@criterion.MinimalGrade"
-                           Max="@criterion.MaximalGrade"
-                           TickMarks="true"
-                           TickMarkLabels="@GetSliderLabels(criterion)"
-                           ValueLabel="true"
-                           Variant="Variant.Outlined"
-                           Class="mt-3 mb-5" />
+                Min="@criterion.MinimalGrade"
+                Max="@criterion.MaximalGrade"
+                TickMarks="true"
+                TickMarkLabels="@GetSliderLabels(criterion)"
+                ValueLabel="true"
+                Variant="Variant.Outlined"
+                Class="mt-3 mb-5" />
             </MudPaper>
         }
 
         <MudTextField T="string"
         @bind-Value="_enteredNote"
-                      Label="Оставь любой дополнительный комментарий"
-                      Variant="Variant.Outlined"
-                      Lines="3"
-                      Class="my-3" />
+        Label="Оставь любой дополнительный комментарий"
+        Variant="Variant.Outlined"
+        Lines="3"
+        Class="my-3" />
 
         <MudDivider />
         <MudButton OnClick="ProcessForm"
-                   Disabled="@(!_isFormValid)"
-                   Variant="Variant.Outlined"
-                   Size="Size.Large"
-                   Color="Color.Primary"
-                   StartIcon="@Icons.Material.Filled.Send"
-                   Class="mt-3">
+        Disabled="@(!_isFormValid)"
+        Variant="Variant.Outlined"
+        Size="Size.Large"
+        Color="Color.Primary"
+        StartIcon="@Icons.Material.Filled.Send"
+        Class="mt-3">
             Проголосовать
         </MudButton>
     </MudForm>
@@ -215,7 +215,7 @@
         NavigationManager.NavigateTo($"/forms/participant-feedback/{EventId}", true);
     }
 
-    private Task<IEnumerable<Team>> SearchTeam(string value)
+    private Task<IEnumerable<Team>> SearchTeam(string value, CancellationToken token)
     {
         if (string.IsNullOrEmpty(value))
         {
@@ -240,7 +240,7 @@
             .ToList());
     }
 
-    private Task<IEnumerable<Participant>> SearchParticipant(string value)
+    private Task<IEnumerable<Participant>> SearchParticipant(string value, CancellationToken token)
     {
         if (string.IsNullOrEmpty(value))
         {
@@ -268,10 +268,9 @@
             .ToList());
     }
 
-    private void OnSelectedTeamChange()
+    private async Task OnSelectedTeamChange()
     {
-        _participantSelector?.Clear();
-        _participantSelector?.ResetValidation();
+        await _participantSelector!.ResetAsync();
     }
 
     private string[] GetSliderLabels(GradeCriterion criterion) => Enumerable
