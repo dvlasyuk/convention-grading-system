@@ -370,7 +370,9 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         failureMessages.AddRange(voting.Candidates.SelectMany(item => ValidateCandidate(
             candidate: item,
             brigades: brigades,
-            friendlyVoting: voting.FriendlyVoting)));
+            teams: teams,
+            brigadeFriendlyVoting: voting.BrigadeFriendlyVoting,
+            teamFriendlyVoting: voting.TeamFriendlyVoting)));
 
         return failureMessages;
     }
@@ -378,7 +380,9 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
     private static List<string> ValidateCandidate(
         Candidate candidate,
         ICollection<Brigade> brigades,
-        bool friendlyVoting)
+        ICollection<Team> teams,
+        bool brigadeFriendlyVoting,
+        bool teamFriendlyVoting)
     {
         var failureMessages = new List<string>();
 
@@ -397,7 +401,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано название/имя, превышающее 100 символов");
         }
 
-        if (!friendlyVoting)
+        if (!brigadeFriendlyVoting)
         {
             if (candidate.Brigades.Count == 0)
             {
@@ -423,6 +427,34 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.AddRange(ValidateIdentifierUniqueness(
                 name: $"Идентификатор связанного отряда для кандидата голосования {candidate.Identifier}",
                 values: candidate.Brigades));
+        }
+
+        if (!teamFriendlyVoting)
+        {
+            if (candidate.Teams.Count == 0)
+            {
+                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} не задано ни одной связанной команды");
+            }
+            if (candidate.Teams.Count > 10)
+            {
+                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано более 10 связанных команд");
+            }
+
+            foreach (var team in candidate.Teams)
+            {
+                if (!IsValidIdentifier(team))
+                {
+                    failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задан пустой или слишком длинный идентификатор связанной команды");
+                }
+                if (!teams.Any(item => item.Identifier == team))
+                {
+                    failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задан несуществующий идентификатор связанной команды");
+                }
+            }
+
+            failureMessages.AddRange(ValidateIdentifierUniqueness(
+                name: $"Идентификатор связанной команды для кандидата голосования {candidate.Identifier}",
+                values: candidate.Teams));
         }
 
         return failureMessages;

@@ -154,14 +154,16 @@
 
         _votingDetails = new VotingDetails(
             Name: voting.Name,
-            FriendlyVoting: voting.FriendlyVoting,
+            BrigadeFriendlyVoting: voting.BrigadeFriendlyVoting,
+            TeamFriendlyVoting: voting.TeamFriendlyVoting,
             VotesQuantity: voting.VotesQuantity,
             BannedTeams: voting.BannedTeams.ToList(),
             Candidates: voting.Candidates
                 .Select(candidate => new Candidate(
                     Identifer: candidate.Identifier,
                     Name: candidate.Name,
-                    Brigades: candidate.Brigades.ToList()))
+                    Brigades: candidate.Brigades.ToList(),
+                    Teams: candidate.Teams.ToList()))
                 .ToList());
 
         _selectedCandidates = new Candidate?[_votingDetails.VotesQuantity];
@@ -223,7 +225,8 @@
             .Select(participant => new Participant(
                 Identifier: participant.Identifier,
                 Name: participant.Name,
-                Brigade: participant.Brigade))
+                Brigade: participant.Brigade,
+                Team: participant.Team))
             .ToList());
     }
 
@@ -233,9 +236,13 @@
         {
             return null;
         }
-        if (!_votingDetails!.FriendlyVoting && value.Brigades.Contains(_selectedParticipant!.Brigade))
+        if (!_votingDetails!.BrigadeFriendlyVoting && value.Brigades.Contains(_selectedParticipant!.Brigade))
         {
             return "Нельзя голосовать за кандидата, связанного с твоим отрядом";
+        }
+        if (!_votingDetails!.TeamFriendlyVoting && value.Teams.Contains(_selectedParticipant!.Team))
+        {
+            return "Нельзя голосовать за кандидата, связанного с твоей командой";
         }
         if (index > 0 && _selectedCandidates.Take(index).Contains(value))
         {
@@ -284,7 +291,8 @@
 
     private record VotingDetails(
         string Name,
-        bool FriendlyVoting,
+        bool BrigadeFriendlyVoting,
+        bool TeamFriendlyVoting,
         int VotesQuantity,
         IReadOnlyCollection<string> BannedTeams,
         IReadOnlyCollection<Candidate> Candidates);
@@ -297,7 +305,8 @@
     private record Participant(
         string Identifier,
         string Name,
-        string Brigade)
+        string Brigade,
+        string Team)
     {
         public override string ToString() => Name;
     }
@@ -305,7 +314,8 @@
     private record Candidate(
         string Identifer,
         string Name,
-        IReadOnlyCollection<string> Brigades)
+        IReadOnlyCollection<string> Brigades,
+        IReadOnlyCollection<string> Teams)
     {
         public override string ToString() => Name;
     }

@@ -34,7 +34,8 @@
             </div>
         </TitleContent>
         <ChildContent>
-            <MudText>Допустимо ли голосование за свой отряд: <strong>@(_audienceVoting.FriendlyVoting ? "Да" : "Нет")</strong></MudText>
+            <MudText>Допустимо ли голосование за свой отряд: <strong>@(_audienceVoting.BrigadeFriendlyVoting ? "Да" : "Нет")</strong></MudText>
+            <MudText>Допустимо ли голосование за свою команду: <strong>@(_audienceVoting.TeamFriendlyVoting ? "Да" : "Нет")</strong></MudText>
             <MudText>Количество голосов от одного зрителя: <strong>@_audienceVoting.VotesQuantity</strong></MudText>
             <MudText>Общее число кандидатов в голосовании <strong>@_audienceVoting.CandidatesQuantity</strong></MudText>
             <MudText>Общее число голосов, отданных зрителями: <strong>@_audienceVoting.TotalVotesQuantity</strong></MudText>
@@ -70,6 +71,7 @@
         <MudTh>#</MudTh>
         <MudTh><MudTableSortLabel T="VotingCandidate" SortBy="SelectNameField">Название/имя участника</MudTableSortLabel></MudTh>
         <MudTh>Связанные отряды</MudTh>
+        <MudTh>Связанные команды</MudTh>
         <MudTh><MudTableSortLabel T="VotingCandidate" SortBy="SelectQuantityField">Количество голосов</MudTableSortLabel></MudTh>
         <MudTh>Действия</MudTh>
     </HeaderContent>
@@ -79,6 +81,13 @@
         <MudTd>@context.Name</MudTd>
         <MudTd>
             @foreach (var item in @context.Brigades)
+            {
+                @item
+                <br />
+            }
+        </MudTd>
+        <MudTd>
+            @foreach (var item in @context.Teams)
             {
                 @item
                 <br />
@@ -126,12 +135,15 @@
 
         _audienceVoting = new AudienceVoting(
             Name: voting.Name,
-            FriendlyVoting: voting.FriendlyVoting,
+            BrigadeFriendlyVoting: voting.BrigadeFriendlyVoting,
+            TeamFriendlyVoting: voting.TeamFriendlyVoting,
             VotesQuantity: voting.VotesQuantity,
             CandidatesQuantity: voting.Candidates.Count,
             TotalVotesQuantity: savedVotes.Count);
 
         var brigades = Configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
+        var teams = Configuration.Value.Teams.ToDictionary(team => team.Identifier);
+
         _votingCandidates = voting.Candidates
             .OrderBy(candidate => candidate.Identifier)
             .Select((candidate, index) => new VotingCandidate(
@@ -141,6 +153,10 @@
                 Brigades: candidate.Brigades
                     .Select(identifier => brigades[identifier])
                     .Select(brigade => brigade.Name)
+                    .ToList(),
+                Teams: candidate.Teams
+                    .Select(identifier => teams[identifier])
+                    .Select(team => team.Name)
                     .ToList(),
                 VotesQuantity: savedVotes
                     .Count(vote => vote.CandidateId == candidate.Identifier),
@@ -161,7 +177,8 @@
 
     private record AudienceVoting(
         string Name,
-        bool FriendlyVoting,
+        bool BrigadeFriendlyVoting,
+        bool TeamFriendlyVoting,
         int VotesQuantity,
         int CandidatesQuantity,
         int TotalVotesQuantity);
@@ -171,6 +188,7 @@
         string Identifier,
         string Name,
         IReadOnlyCollection<string> Brigades,
+        IReadOnlyCollection<string> Teams,
         int VotesQuantity,
         string VotesLink);
 }

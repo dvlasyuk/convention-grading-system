@@ -22,7 +22,13 @@ public class Voting
     /// Признак, допустимо ли зрителям отдавать голоса за кандидатов, имеющих прямое отношение к тому
     /// же отряду, что и сами зрители.
     /// </summary>
-    public bool FriendlyVoting { get; set; } = true;
+    public bool BrigadeFriendlyVoting { get; set; } = true;
+
+    /// <summary>
+    /// Признак, допустимо ли зрителям отдавать голоса за кандидатов, имеющих прямое отношение к той
+    /// же команде, что и сами зрители.
+    /// </summary>
+    public bool TeamFriendlyVoting { get; set; } = true;
 
     /// <summary>
     /// Количество голосов, которые может отдать каждый зритель.
