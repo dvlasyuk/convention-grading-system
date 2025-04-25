@@ -245,33 +245,30 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано название, превышающее 100 символов");
         }
 
-        if (!friendlyGrading)
+        if (!friendlyGrading && contestEvent.Brigades.Count == 0)
         {
-            if (contestEvent.Brigades.Count == 0)
-            {
-                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} не задано ни одного связанного отряда");
-            }
-            if (contestEvent.Brigades.Count > 10)
-            {
-                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано более 10 связанных отрядов");
-            }
-
-            foreach (var brigade in contestEvent.Brigades)
-            {
-                if (!IsValidIdentifier(brigade))
-                {
-                    failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан пустой или слишком длинный идентификатор связанного отряда");
-                }
-                if (!brigades.Any(item => item.Identifier == brigade))
-                {
-                    failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан несуществующий идентификатор связанного отряда");
-                }
-            }
-
-            failureMessages.AddRange(ValidateIdentifierUniqueness(
-                name: $"Идентификатор связанного отряда для мероприятия {contestEvent.Identifier}",
-                values: contestEvent.Brigades));
+            failureMessages.Add($"Для мероприятия {contestEvent.Identifier} не задано ни одного связанного отряда");
         }
+        if (contestEvent.Brigades.Count > 10)
+        {
+            failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано более 10 связанных отрядов");
+        }
+
+        foreach (var brigade in contestEvent.Brigades)
+        {
+            if (!IsValidIdentifier(brigade))
+            {
+                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан пустой или слишком длинный идентификатор связанного отряда");
+            }
+            if (!brigades.Any(item => item.Identifier == brigade))
+            {
+                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан несуществующий идентификатор связанного отряда");
+            }
+        }
+
+        failureMessages.AddRange(ValidateIdentifierUniqueness(
+            name: $"Идентификатор связанного отряда для мероприятия {contestEvent.Identifier}",
+            values: contestEvent.Brigades));
 
         if (registeredGrading || attendanceControl)
         {
@@ -279,28 +276,29 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             {
                 failureMessages.Add($"Для мероприятия {contestEvent.Identifier} не задано ни одного участника");
             }
-            if (contestEvent.Participants.Count > 100)
-            {
-                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано более 100 участников");
-            }
-
-            foreach (var participant in contestEvent.Participants)
-            {
-                if (!IsValidIdentifier(participant))
-                {
-                    failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан пустой или слишком длинный идентификатор участника");
-                    continue;
-                }
-                if (!participants.Any(item => item.Identifier == participant))
-                {
-                    failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан несуществующий идентификатор участника");
-                }
-            }
-
-            failureMessages.AddRange(ValidateIdentifierUniqueness(
-                name: $"Идентификатор участника для мероприятия {contestEvent.Identifier}",
-                values: contestEvent.Participants));
         }
+
+        if (contestEvent.Participants.Count > 100)
+        {
+            failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задано более 100 участников");
+        }
+
+        foreach (var participant in contestEvent.Participants)
+        {
+            if (!IsValidIdentifier(participant))
+            {
+                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан пустой или слишком длинный идентификатор участника");
+                continue;
+            }
+            if (!participants.Any(item => item.Identifier == participant))
+            {
+                failureMessages.Add($"Для мероприятия {contestEvent.Identifier} задан несуществующий идентификатор участника");
+            }
+        }
+
+        failureMessages.AddRange(ValidateIdentifierUniqueness(
+            name: $"Идентификатор участника для мероприятия {contestEvent.Identifier}",
+            values: contestEvent.Participants));
 
         return failureMessages;
     }
@@ -401,61 +399,55 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано название/имя, превышающее 100 символов");
         }
 
-        if (!brigadeFriendlyVoting)
+        if (!brigadeFriendlyVoting && candidate.Brigades.Count == 0)
         {
-            if (candidate.Brigades.Count == 0)
-            {
-                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} не задано ни одного связанного отряда");
-            }
-            if (candidate.Brigades.Count > 10)
-            {
-                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано более 10 связанных отрядов");
-            }
-
-            foreach (var brigade in candidate.Brigades)
-            {
-                if (!IsValidIdentifier(brigade))
-                {
-                    failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задан пустой или слишком длинный идентификатор связанного отряда");
-                }
-                if (!brigades.Any(item => item.Identifier == brigade))
-                {
-                    failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задан несуществующий идентификатор связанного отряда");
-                }
-            }
-
-            failureMessages.AddRange(ValidateIdentifierUniqueness(
-                name: $"Идентификатор связанного отряда для кандидата голосования {candidate.Identifier}",
-                values: candidate.Brigades));
+            failureMessages.Add($"Для кандидата голосования {candidate.Identifier} не задано ни одного связанного отряда");
+        }
+        if (candidate.Brigades.Count > 10)
+        {
+            failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано более 10 связанных отрядов");
         }
 
-        if (!teamFriendlyVoting)
+        foreach (var brigade in candidate.Brigades)
         {
-            if (candidate.Teams.Count == 0)
+            if (!IsValidIdentifier(brigade))
             {
-                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} не задано ни одной связанной команды");
+                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задан пустой или слишком длинный идентификатор связанного отряда");
             }
-            if (candidate.Teams.Count > 10)
+            if (!brigades.Any(item => item.Identifier == brigade))
             {
-                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано более 10 связанных команд");
+                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задан несуществующий идентификатор связанного отряда");
             }
-
-            foreach (var team in candidate.Teams)
-            {
-                if (!IsValidIdentifier(team))
-                {
-                    failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задан пустой или слишком длинный идентификатор связанной команды");
-                }
-                if (!teams.Any(item => item.Identifier == team))
-                {
-                    failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задан несуществующий идентификатор связанной команды");
-                }
-            }
-
-            failureMessages.AddRange(ValidateIdentifierUniqueness(
-                name: $"Идентификатор связанной команды для кандидата голосования {candidate.Identifier}",
-                values: candidate.Teams));
         }
+
+        failureMessages.AddRange(ValidateIdentifierUniqueness(
+            name: $"Идентификатор связанного отряда для кандидата голосования {candidate.Identifier}",
+            values: candidate.Brigades));
+
+        if (!teamFriendlyVoting && candidate.Teams.Count == 0)
+        {
+            failureMessages.Add($"Для кандидата голосования {candidate.Identifier} не задано ни одной связанной команды");
+        }
+        if (candidate.Teams.Count > 10)
+        {
+            failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задано более 10 связанных команд");
+        }
+
+        foreach (var team in candidate.Teams)
+        {
+            if (!IsValidIdentifier(team))
+            {
+                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задан пустой или слишком длинный идентификатор связанной команды");
+            }
+            if (!teams.Any(item => item.Identifier == team))
+            {
+                failureMessages.Add($"Для кандидата голосования {candidate.Identifier} задан несуществующий идентификатор связанной команды");
+            }
+        }
+
+        failureMessages.AddRange(ValidateIdentifierUniqueness(
+            name: $"Идентификатор связанной команды для кандидата голосования {candidate.Identifier}",
+            values: candidate.Teams));
 
         return failureMessages;
     }
