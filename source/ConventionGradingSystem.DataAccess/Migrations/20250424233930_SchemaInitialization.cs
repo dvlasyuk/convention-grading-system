@@ -2,17 +2,14 @@ using System.Diagnostics.CodeAnalysis;
 
 using Microsoft.EntityFrameworkCore.Migrations;
 
+#nullable disable
+
 namespace ConventionGradingSystem.DataAccess.Migrations;
 
-/// <summary>
-/// Миграция базы данных, инициализирующая схему.
-/// </summary>
+/// <inheritdoc />
 public partial class SchemaInitialization : Migration
 {
-    /// <summary>
-    /// Применяет миграцию к базе данных.
-    /// </summary>
-    /// <param name="migrationBuilder">Конструктор для конфигурирования миграции.</param>
+    /// <inheritdoc />
     protected override void Up([NotNull] MigrationBuilder migrationBuilder)
     {
         migrationBuilder.CreateTable(
@@ -35,7 +32,8 @@ public partial class SchemaInitialization : Migration
                 Identifier = table.Column<Guid>(type: "TEXT", nullable: false),
                 EventId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                 ExpertId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                Note = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true)
+                Note = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true),
+                ReceivedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
             },
             constraints: table =>
             {
@@ -49,7 +47,8 @@ public partial class SchemaInitialization : Migration
                 Identifier = table.Column<Guid>(type: "TEXT", nullable: false),
                 EventId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                 ParticipantId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                Note = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true)
+                Note = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true),
+                ReceivedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
             },
             constraints: table =>
             {
@@ -63,7 +62,8 @@ public partial class SchemaInitialization : Migration
                 Identifier = table.Column<Guid>(type: "TEXT", nullable: false),
                 ParticipantId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
                 CandidateId = table.Column<string>(type: "TEXT", maxLength: 50, nullable: false),
-                Note = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true)
+                Note = table.Column<string>(type: "TEXT", maxLength: 1000, nullable: true),
+                ReceivedAt = table.Column<DateTimeOffset>(type: "TEXT", nullable: false)
             },
             constraints: table =>
             {
@@ -109,10 +109,7 @@ public partial class SchemaInitialization : Migration
             });
     }
 
-    /// <summary>
-    /// Откатывает ранее применённую к базе данных миграцию.
-    /// </summary>
-    /// <param name="migrationBuilder">Конструктор для конфигурирования миграции.</param>
+    /// <inheritdoc />
     protected override void Down([NotNull] MigrationBuilder migrationBuilder)
     {
         migrationBuilder.DropTable(

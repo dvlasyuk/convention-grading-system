@@ -26,7 +26,12 @@ public class ParticipantFeedback
     public required string? Note { get; set; }
 
     /// <summary>
+    /// Время получения отзыва системой.
+    /// </summary>
+    public required DateTimeOffset ReceivedAt { get; set; }
+
+    /// <summary>
     /// Оценки, выставленные мероприятию участником.
     /// </summary>
-    public ICollection<ParticipantGrade> Grades { get; } = new List<ParticipantGrade>();
+    public ICollection<ParticipantGrade> Grades { get; } = [];
 }

@@ -181,7 +181,8 @@
         {
             ParticipantId = _selectedParticipant!.Identifier,
             CandidateId = candidate!.Identifer,
-            Note = _enteredNote
+            Note = _enteredNote,
+            ReceivedAt = DateTimeOffset.Now
         }));
 
         await DatabaseContext.SaveChangesAsync();

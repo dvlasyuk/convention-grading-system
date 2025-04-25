@@ -195,7 +195,8 @@
         {
             EventId = EventId!,
             ParticipantId = _selectedParticipant!.Identifier,
-            Note = _enteredNote
+            Note = _enteredNote,
+            ReceivedAt = DateTimeOffset.Now
         };
 
         foreach (var criterionId in _selectedGrades.Keys)

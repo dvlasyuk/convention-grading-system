@@ -182,7 +182,8 @@
         {
             EventId = EventId!,
             ExpertId = _selectedExpert!.Identifier,
-            Note = _enteredNote
+            Note = _enteredNote,
+            ReceivedAt = DateTimeOffset.Now
         };
 
         foreach (var criterionId in _selectedGrades.Keys)

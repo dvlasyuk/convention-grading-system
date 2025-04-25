@@ -6,6 +6,7 @@
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Extensions.Options
 @using MudBlazor
+@using System.Globalization
 
 @inject IOptions<ApplicationConfiguration> Configuration
 @inject DatabaseContext DatabaseContext
@@ -104,6 +105,7 @@
         }
 
         <MudTh>Дополнительный комментарий</MudTh>
+        <MudTh>Время получения</MudTh>
     </HeaderContent>
 
     <RowTemplate>
@@ -118,6 +120,7 @@
         }
 
         <MudTd>@context.Note</MudTd>
+        <MudTd>@context.ReceivedAt</MudTd>
     </RowTemplate>
 
     <NoRecordsContent>
@@ -189,7 +192,8 @@
                 Grades: feedback.Grades.ToDictionary(
                     grade => grade.CriterionId,
                     grade => grade.GradeValue),
-                Note: feedback.Note))
+                Note: feedback.Note,
+                ReceivedAt: feedback.ReceivedAt.ToString(new CultureInfo("ru-RU"))))
             .ToList();
     }
 
@@ -224,5 +228,6 @@
         string ParticipantName,
         string ParticipantBrigade,
         IReadOnlyDictionary<string, int> Grades,
-        string? Note);
+        string? Note,
+        string ReceivedAt);
 }

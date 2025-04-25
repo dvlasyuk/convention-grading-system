@@ -26,7 +26,12 @@ public class ExpertFeedback
     public required string? Note { get; set; }
 
     /// <summary>
+    /// Время получения отзыва системой.
+    /// </summary>
+    public required DateTimeOffset ReceivedAt { get; set; }
+
+    /// <summary>
     /// Оценки, выставленные мероприятию экспертом.
     /// </summary>
-    public ICollection<ExpertGrade> Grades { get; } = new List<ExpertGrade>();
+    public ICollection<ExpertGrade> Grades { get; } = [];
 }

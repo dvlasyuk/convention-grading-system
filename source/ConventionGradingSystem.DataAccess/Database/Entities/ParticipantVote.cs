@@ -24,4 +24,9 @@ public class ParticipantVote
     /// Дополнительный комментарий, оставленный участником.
     /// </summary>
     public required string? Note { get; set; }
+
+    /// <summary>
+    /// Время получения голоса системой.
+    /// </summary>
+    public required DateTimeOffset ReceivedAt { get; set; }
 }

@@ -1,11 +1,12 @@
 @page "/candidates/{candidateId}/votes"
 
-@using ConventionGradingSystem.DataAccess.Configuration;
-@using ConventionGradingSystem.DataAccess.Database;
+@using ConventionGradingSystem.DataAccess.Configuration
+@using ConventionGradingSystem.DataAccess.Database
 @using Microsoft.AspNetCore.Components.Web
-@using Microsoft.EntityFrameworkCore;
-@using Microsoft.Extensions.Options;
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.Extensions.Options
 @using MudBlazor
+@using System.Globalization
 
 @inject IOptions<ApplicationConfiguration> Configuration
 @inject DatabaseContext DatabaseContext
@@ -62,6 +63,7 @@
         <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectNameField">Имя участника</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectBrigaseField">Отряд участника</MudTableSortLabel></MudTh>
         <MudTh>Дополнительный комментарий</MudTh>
+        <MudTh>Время получения</MudTh>
     </HeaderContent>
 
     <RowTemplate>
@@ -69,6 +71,7 @@
         <MudTd>@context.ParticipantName</MudTd>
         <MudTd>@context.ParticipantBrigade</MudTd>
         <MudTd>@context.Note</MudTd>
+        <MudTd>@context.ReceivedAt</MudTd>
     </RowTemplate>
 
     <NoRecordsContent>
@@ -124,7 +127,8 @@
                 Number: index + 1,
                 ParticipantName: participants[vote.ParticipantId].Name,
                 ParticipantBrigade: brigades[participants[vote.ParticipantId].Brigade].Name,
-                Note: vote.Note))
+                Note: vote.Note,
+                ReceivedAt: vote.ReceivedAt.ToString(new CultureInfo("ru-RU"))))
             .ToList();
     }
 
@@ -149,5 +153,6 @@
         int Number,
         string ParticipantName,
         string ParticipantBrigade,
-        string? Note);
+        string? Note,
+        string ReceivedAt);
 }

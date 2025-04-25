@@ -15,7 +15,7 @@ namespace ConventionGradingSystem.DataAccess.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "7.0.12");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
 
             modelBuilder.Entity("ConventionGradingSystem.DataAccess.Database.Entities.AttendanceMark", b =>
                 {
@@ -53,6 +53,9 @@ namespace ConventionGradingSystem.DataAccess.Migrations
 
                     b.Property<string>("Note")
                         .HasMaxLength(1000)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("ReceivedAt")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Identifier");
@@ -97,6 +100,9 @@ namespace ConventionGradingSystem.DataAccess.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTimeOffset>("ReceivedAt")
+                        .HasColumnType("TEXT");
+
                     b.HasKey("Identifier");
 
                     b.ToTable("ParticipantFeedbacks");
@@ -137,6 +143,9 @@ namespace ConventionGradingSystem.DataAccess.Migrations
                     b.Property<string>("ParticipantId")
                         .IsRequired()
                         .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTimeOffset>("ReceivedAt")
                         .HasColumnType("TEXT");
 
                     b.HasKey("Identifier");
