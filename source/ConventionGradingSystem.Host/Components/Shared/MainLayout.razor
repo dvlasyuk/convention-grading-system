@@ -1,11 +1,14 @@
 @inherits LayoutComponentBase
 
+@using ConventionGradingSystem.DataAccess.Configuration
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
+@using Microsoft.Extensions.Options
 @using MudBlazor
 
 @inject AuthenticationProvider AuthenticationProvider
+@inject IOptions<ApplicationConfiguration> Configuration
 @inject NavigationManager NavigationManager
 
 <AuthorizeView Roles="Administrator">
@@ -26,7 +29,7 @@
                     OnClick="ToogleDrawer" />
 
                 <MudImage Src="favicon-32.png" Class="ml-5" />
-                <MudText Typo="Typo.h6" Class="ml-2">Система оценивания Слёта СПбСО</MudText>
+                <MudText Typo="Typo.h6" Class="ml-2">Система оценивания слёта <strong>@_conventionName</strong></MudText>
 
                 <MudSpacer />
                 <MudIconButton
@@ -68,7 +71,13 @@
 
 @code {
 
-    bool _isDrawerOpen = false;
+    private string _conventionName = string.Empty;
+    private bool _isDrawerOpen = false;
+
+    protected override void OnInitialized()
+    {
+        _conventionName = Configuration.Value.ConventionName;
+    }
 
     private void ToogleDrawer() => _isDrawerOpen = !_isDrawerOpen;
     private async Task OnSignOutFromSystem()

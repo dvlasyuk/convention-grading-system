@@ -8,6 +8,12 @@ namespace ConventionGradingSystem.DataAccess.Configuration;
 public class ApplicationConfiguration
 {
     /// <summary>
+    /// Название слёта, для которого работает система.
+    /// </summary>
+    /// <remarks>Значение не должно быть пустым и его длина не должна превышать 100 символов.</remarks>
+    public string ConventionName { get; set; } = "Неизвестный слёт";
+
+    /// <summary>
     /// Конфигурация конкурсов мероприятий.
     /// </summary>
     public ICollection<Contest> Contests { get; } = [];

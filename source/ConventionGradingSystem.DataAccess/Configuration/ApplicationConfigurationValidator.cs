@@ -21,6 +21,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
     {
         var failureMessages = new List<string>();
 
+        failureMessages.AddRange(ValidateConventionName(options));
         failureMessages.AddRange(ValidateIdentifiersUniqueness(options));
         failureMessages.AddRange(options.Contests.SelectMany(item => ValidateContest(item, options.Teams, options.Brigades, options.Participants)));
         failureMessages.AddRange(options.Votings.SelectMany(item => ValidateVoting(item, options.Brigades, options.Teams)));
@@ -32,6 +33,21 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         return failureMessages.Count > 0
             ? ValidateOptionsResult.Fail(failureMessages)
             : ValidateOptionsResult.Success;
+    }
+
+    private static List<string> ValidateConventionName(ApplicationConfiguration options)
+    {
+        var failureMessages = new List<string>();
+        if (string.IsNullOrWhiteSpace(options.ConventionName))
+        {
+            failureMessages.Add($"Задано пустое название слёта, для которого работает система");
+        }
+        else if (options.ConventionName.Length > 100)
+        {
+            failureMessages.Add($"Задано название слёта, для которого работает система, превышающее 100 символов");
+        }
+
+        return failureMessages;
     }
 
     private static List<string> ValidateIdentifiersUniqueness(ApplicationConfiguration options)

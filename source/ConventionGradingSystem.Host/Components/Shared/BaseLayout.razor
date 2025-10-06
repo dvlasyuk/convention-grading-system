@@ -1,5 +1,10 @@
 @inherits LayoutComponentBase
+
+@using ConventionGradingSystem.DataAccess.Configuration
+@using Microsoft.Extensions.Options
 @using MudBlazor
+
+@inject IOptions<ApplicationConfiguration> Configuration
 
 <MudThemeProvider IsDarkMode="true" />
 <MudPopoverProvider />
@@ -8,7 +13,7 @@
 
     <MudAppBar>
         <MudImage Src="favicon-32.png" />
-        <MudText Typo="Typo.h6" Class="ml-2">Система оценивания Слёта СПбСО</MudText>
+        <MudText Typo="Typo.h6" Class="ml-2">Система оценивания слёта <strong>@_conventionName</strong></MudText>
     </MudAppBar>
 
     <MudMainContent>
@@ -18,3 +23,13 @@
     </MudMainContent>
 
 </MudLayout>
+
+@code {
+
+    private string _conventionName = string.Empty;
+
+    protected override void OnInitialized()
+    {
+        _conventionName = Configuration.Value.ConventionName;
+    }
+}
