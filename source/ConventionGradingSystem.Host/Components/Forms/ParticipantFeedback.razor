@@ -237,6 +237,7 @@
                     _eventDetails!.Participants.Contains(participant.Identifier))
                 .Where(participant =>
                     _eventDetails!.FriendlyGrading ||
+                    string.IsNullOrWhiteSpace(participant.Brigade) ||
                     !_eventDetails!.Brigades.Contains(participant.Brigade))
                 .Any())
             .Where(team => team.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
@@ -266,6 +267,7 @@
                 _eventDetails!.Participants.Contains(participant.Identifier))
             .Where(participant =>
                 _eventDetails!.FriendlyGrading ||
+                string.IsNullOrWhiteSpace(participant.Brigade) ||
                 !_eventDetails!.Brigades.Contains(participant.Brigade))
             .Where(participant => participant.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
             .Select(participant => new Participant(

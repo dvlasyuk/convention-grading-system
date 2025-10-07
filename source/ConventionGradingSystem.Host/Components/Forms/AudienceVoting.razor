@@ -242,7 +242,12 @@
         {
             return null;
         }
-        if (!_votingDetails!.BrigadeFriendlyVoting && value.Brigades.Contains(_selectedParticipant!.Brigade))
+
+        var friendlyBrigadeSelected =
+            !string.IsNullOrWhiteSpace(_selectedParticipant!.Brigade) &&
+            value.Brigades.Contains(_selectedParticipant!.Brigade);
+
+        if (!_votingDetails!.BrigadeFriendlyVoting && friendlyBrigadeSelected)
         {
             return "Нельзя голосовать за кандидата, связанного с твоим отрядом";
         }
@@ -311,7 +316,7 @@
     private record Participant(
         string Identifier,
         string Name,
-        string Brigade,
+        string? Brigade,
         string Team)
     {
         public override string ToString() => Name;

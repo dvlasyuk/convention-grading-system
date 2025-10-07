@@ -556,13 +556,16 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
             failureMessages.Add($"Для участника {participant.Identifier} задано имя, превышающее 100 символов");
         }
 
-        if (!IsValidIdentifier(participant.Brigade))
+        if (!string.IsNullOrWhiteSpace(participant.Brigade))
         {
-            failureMessages.Add($"Для участника {participant.Identifier} задан пустой или слишком длинный идентификатор отряда");
-        }
-        if (!brigades.Any(item => item.Identifier == participant.Brigade))
-        {
-            failureMessages.Add($"Для участника {participant.Identifier} задан несуществующий идентификатор отряда");
+            if (!IsValidIdentifier(participant.Brigade))
+            {
+                failureMessages.Add($"Для участника {participant.Identifier} задан пустой или слишком длинный идентификатор отряда");
+            }
+            if (!brigades.Any(item => item.Identifier == participant.Brigade))
+            {
+                failureMessages.Add($"Для участника {participant.Identifier} задан несуществующий идентификатор отряда");
+            }
         }
 
         if (!IsValidIdentifier(participant.Team))

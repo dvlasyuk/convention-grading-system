@@ -91,6 +91,7 @@
             <MudTh>#</MudTh>
             <MudTh><MudTableSortLabel T="Feedback" SortBy="SelectNameField">Имя участника</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel T="Feedback" SortBy="SelectBrigadeField">Отряд участника</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="Feedback" SortBy="SelectTeamField">Команда участника</MudTableSortLabel></MudTh>
 
             @for (var number = 0; number < _contestEvent.GradeCriterions.Count; number++)
             {
@@ -115,6 +116,7 @@
             <MudTd>@context.Number</MudTd>
             <MudTd>@context.ParticipantName</MudTd>
             <MudTd>@context.ParticipantBrigade</MudTd>
+            <MudTd>@context.ParticipantTeam</MudTd>
 
             @for (var number = 0; number < _contestEvent.GradeCriterions.Count; number++)
             {
@@ -165,6 +167,7 @@
 
         var contest = Configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
         var brigades = Configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
+        var teams = Configuration.Value.Teams.ToDictionary(team => team.Identifier);
 
         _contestEvent = new ContestEvent(
             EventName: contestEvent.Name,
@@ -193,7 +196,10 @@
             .Select((feedback, index) => new Feedback(
                 Number: index + 1,
                 ParticipantName: participants[feedback.ParticipantId].Name,
-                ParticipantBrigade: brigades[participants[feedback.ParticipantId].Brigade].Name,
+                ParticipantBrigade: !string.IsNullOrWhiteSpace(participants[feedback.ParticipantId].Brigade)
+                    ? brigades[participants[feedback.ParticipantId].Brigade!].Name
+                    : null,
+                ParticipantTeam: teams[participants[feedback.ParticipantId].Team].Name,
                 Grades: feedback.Grades.ToDictionary(
                     grade => grade.CriterionId,
                     grade => grade.GradeValue),
@@ -206,12 +212,14 @@
     {
         return string.IsNullOrWhiteSpace(_searchFilter) ||
             feedback.ParticipantName.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            feedback.ParticipantBrigade.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            feedback.ParticipantTeam.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            (feedback.ParticipantBrigade?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
             (feedback.Note?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 
     private object SelectNameField(Feedback feedback) => feedback.ParticipantName;
-    private object SelectBrigadeField(Feedback feedback) => feedback.ParticipantBrigade;
+    private object SelectBrigadeField(Feedback feedback) => feedback.ParticipantBrigade ?? string.Empty;
+    private object SelectTeamField(Feedback feedback) => feedback.ParticipantTeam;
 
     private object SelectGradeField(Feedback feedback, string gradeId) => feedback.Grades[gradeId];
 
@@ -231,7 +239,8 @@
     private record Feedback(
         int Number,
         string ParticipantName,
-        string ParticipantBrigade,
+        string? ParticipantBrigade,
+        string ParticipantTeam,
         IReadOnlyDictionary<string, int> Grades,
         string? Note,
         string ReceivedAt);

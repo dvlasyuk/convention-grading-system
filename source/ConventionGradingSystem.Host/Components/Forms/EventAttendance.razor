@@ -79,6 +79,7 @@
                 <HeaderContent>
                     <MudTh><MudTableSortLabel T="Participant" SortBy="SelectNameField">Имя участника</MudTableSortLabel></MudTh>
                     <MudTh><MudTableSortLabel T="Participant" SortBy="SelectBrigadeField">Отряд</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel T="Participant" SortBy="SelectTeamField">Команда</MudTableSortLabel></MudTh>
                     <MudTh>Отметка о посещении</MudTh>
                     <MudTh>Особая отметка</MudTh>
                 </HeaderContent>
@@ -86,6 +87,7 @@
                 <RowTemplate Context="rowContext">
                     <MudTd>@rowContext.Name</MudTd>
                     <MudTd>@rowContext.Brigade</MudTd>
+                    <MudTd>@rowContext.Team</MudTd>
                     <MudTd>
                         <MudCheckBox @bind-Value="@_attendanceMarks[rowContext.Identifier]"
                                      Label="Посещение"
@@ -147,6 +149,7 @@
         var contest = Configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
         var participants = Configuration.Value.Participants.ToDictionary(item => item.Identifier);
         var brigades = Configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
+        var teams = Configuration.Value.Teams.ToDictionary(team => team.Identifier);
 
         _eventDetails = new EventDetails(
             EventName: contestEvent.Name,
@@ -157,7 +160,10 @@
                 .Select(participant => new Participant(
                     Identifier: participant.Identifier,
                     Name: participant.Name,
-                    Brigade: brigades[participant.Brigade].Name))
+                    Brigade: !string.IsNullOrWhiteSpace(participant.Brigade)
+                        ? brigades[participant.Brigade].Name
+                        : null,
+                    Team: teams[participant.Team].Name))
                 .ToList());
 
         var savedAttendanceMarks = await DatabaseContext.AttendanceMarks
@@ -214,12 +220,13 @@
     {
         return string.IsNullOrWhiteSpace(_searchFilter) ||
             participant.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            participant.Brigade.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            participant.Identifier.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase);
+            participant.Team.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            (participant.Brigade?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 
     private object SelectNameField(Participant participant) => participant.Name;
-    private object SelectBrigadeField(Participant participant) => participant.Brigade;
+    private object SelectBrigadeField(Participant participant) => participant.Brigade ?? string.Empty;
+    private object SelectTeamField(Participant participant) => participant.Team;
 
     private record EventDetails(
         string EventName,
@@ -230,5 +237,6 @@
     private record Participant(
         string Identifier,
         string Name,
-        string Brigade);
+        string? Brigade,
+        string Team);
 }

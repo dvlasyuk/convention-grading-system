@@ -64,7 +64,8 @@
         <HeaderContent>
             <MudTh>#</MudTh>
             <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectNameField">Имя участника</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectBrigaseField">Отряд участника</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectBrigadeField">Отряд участника</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectTeamField">Команда участника</MudTableSortLabel></MudTh>
             <MudTh>Дополнительный комментарий</MudTh>
             <MudTh>Время получения</MudTh>
         </HeaderContent>
@@ -73,6 +74,7 @@
             <MudTd>@context.Number</MudTd>
             <MudTd>@context.ParticipantName</MudTd>
             <MudTd>@context.ParticipantBrigade</MudTd>
+            <MudTd>@context.ParticipantTeam</MudTd>
             <MudTd>@context.Note</MudTd>
             <MudTd>@context.ReceivedAt</MudTd>
         </RowTemplate>
@@ -115,6 +117,7 @@
 
         var voting = Configuration.Value.Votings.First(item => item.Candidates.Contains(candidate));
         var brigades = Configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
+        var teams = Configuration.Value.Teams.ToDictionary(team => team.Identifier);
 
         _votingCandidate = new VotingCandidate(
             CandidateName: candidate.Name,
@@ -131,7 +134,10 @@
             .Select((vote, index) => new ParticipantVote(
                 Number: index + 1,
                 ParticipantName: participants[vote.ParticipantId].Name,
-                ParticipantBrigade: brigades[participants[vote.ParticipantId].Brigade].Name,
+                ParticipantBrigade: !string.IsNullOrWhiteSpace(participants[vote.ParticipantId].Brigade)
+                    ? brigades[participants[vote.ParticipantId].Brigade!].Name
+                    : null,
+                ParticipantTeam: teams[participants[vote.ParticipantId].Team].Name,
                 Note: vote.Note,
                 ReceivedAt: vote.ReceivedAt.ToString(new CultureInfo("ru-RU"))))
             .ToList();
@@ -141,12 +147,14 @@
     {
         return string.IsNullOrWhiteSpace(_searchFilter) ||
             vote.ParticipantName.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            vote.ParticipantBrigade.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            vote.ParticipantTeam.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
+            (vote.ParticipantBrigade?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
             (vote.Note?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 
     private object SelectNameField(ParticipantVote vote) => vote.ParticipantName;
-    private object SelectBrigaseField(ParticipantVote vote) => vote.ParticipantBrigade;
+    private object SelectBrigadeField(ParticipantVote vote) => vote.ParticipantBrigade ?? string.Empty;
+    private object SelectTeamField(ParticipantVote vote) => vote.ParticipantTeam;
 
     private record VotingCandidate(
         string CandidateName,
@@ -157,7 +165,8 @@
     private record ParticipantVote(
         int Number,
         string ParticipantName,
-        string ParticipantBrigade,
+        string? ParticipantBrigade,
+        string ParticipantTeam,
         string? Note,
         string ReceivedAt);
 }
