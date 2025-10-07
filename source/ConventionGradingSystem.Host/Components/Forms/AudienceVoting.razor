@@ -1,10 +1,11 @@
 @page "/forms/audience-voting/{votingId}"
 @layout BaseLayout
 
-@using ConventionGradingSystem.Host.Components.Shared
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
 @using ConventionGradingSystem.DataAccess.Database.Entities
+@using ConventionGradingSystem.Host.Components.Shared
+@using ConventionGradingSystem.Host.Components.Shared.Sections
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.Extensions.Options
@@ -15,109 +16,113 @@
 @inject NavigationManager NavigationManager
 @inject ProtectedLocalStorage LocalStorage
 
-@if (_votingDetails == null)
-{
-    <PageTitle>Форма неизвестного зрительского голосования</PageTitle>
-    <MudAlert Severity="Severity.Warning">
-        Зрительское голосование с идентификатором <em>@VotingId</em> <strong>не найдено</strong>. Если ты
-        вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
-        проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
-        корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
-        с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
-    </MudAlert>
-    return;
-}
+<LayoutView Layout="@typeof(VotingsLayout)">
 
-<PageTitle>Форма зрительского голосования @_votingDetails.Name</PageTitle>
+    @if (_votingDetails == null)
+    {
+        <PageTitle>Форма неизвестного зрительского голосования</PageTitle>
+        <MudAlert Severity="Severity.Warning">
+            Зрительское голосование с идентификатором <em>@VotingId</em> <strong>не найдено</strong>. Если ты
+            вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
+            проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
+            корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
+            с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
+        </MudAlert>
+        return;
+    }
 
-@if (_isFormDisabled)
-{
+    <PageTitle>Форма зрительского голосования @_votingDetails.Name</PageTitle>
+
+    @if (_isFormDisabled)
+    {
+        <MudAlert Severity="Severity.Info">
+            Твой голос в голосовании <strong>@_votingDetails.Name</strong> принят. Спасибо большое за участие!
+        </MudAlert>
+        return;
+    }
+
     <MudAlert Severity="Severity.Info">
-        Твой голос в голосовании <strong>@_votingDetails.Name</strong> принят. Спасибо большое за участие!
+        Приветствуем тебя! Ты можешь принять участние в голосовании <strong>@_votingDetails.Name</strong>.
+        Выбери, пожалуйста, @(_votingDetails.VotesQuantity > 1 ? "кандидатов" : "кандидата"),
+        @(_votingDetails.VotesQuantity > 1 ? "которые понравились" : "который понравился") тебе больше остальных,
+        оставь дополнительный комментарий, если хочешь, и нажми кнопку <em>Проголосовать</em>
     </MudAlert>
-    return;
-}
 
-<MudAlert Severity="Severity.Info">
-    Приветствуем тебя! Ты можешь принять участние в голосовании <strong>@_votingDetails.Name</strong>.
-    Выбери, пожалуйста, @(_votingDetails.VotesQuantity > 1 ? "кандидатов" : "кандидата"),
-    @(_votingDetails.VotesQuantity > 1 ? "которые понравились" : "который понравился") тебе больше остальных,
-    оставь дополнительный комментарий, если хочешь, и нажми кнопку <em>Проголосовать</em>
-</MudAlert>
+    <MudPaper Class="mt-3 pa-3">
+        <MudForm @ref="_formSelector" @bind-IsValid="@_isFormValid">
+            <MudAutocomplete T="Team"
+                             @bind-Value="_selectedTeam"
+                             @bind-Value:after="OnSelectedTeamChange"
+                             SearchFunc="@SearchTeam"
+                             Required="true"
+                             ResetValueOnEmptyText="true"
+                             Label="Выбери свою команду"
+                             RequiredError="Выбор команды обязателен"
+                             Variant="Variant.Outlined"
+                             Adornment="Adornment.End"
+                             AdornmentIcon="@Icons.Material.Filled.Search"
+                             Class="my-3"/>
 
-<MudPaper Class="mt-3 pa-3">
-    <MudForm @ref="_formSelector" @bind-IsValid="@_isFormValid">
-        <MudAutocomplete T="Team"
-                         @bind-Value="_selectedTeam"
-                         @bind-Value:after="OnSelectedTeamChange"
-                         SearchFunc="@SearchTeam"
-                         Required="true"
-                         ResetValueOnEmptyText="true"
-                         Label="Выбери свою команду"
-                         RequiredError="Выбор команды обязателен"
-                         Variant="Variant.Outlined"
-                         Adornment="Adornment.End"
-                         AdornmentIcon="@Icons.Material.Filled.Search"
-                         Class="my-3"/>
+            <MudAutocomplete T="Participant"
+                             @ref="_participantSelector"
+                             @bind-Value="_selectedParticipant"
+                             @bind-Value:after="OnSelectedParticipantChange"
+                             Disabled="@(_selectedTeam == null)"
+                             SearchFunc="@SearchParticipant"
+                             Required="true"
+                             ResetValueOnEmptyText="true"
+                             Label="Выбери себя"
+                             RequiredError="Выбор участника обязателен"
+                             Variant="Variant.Outlined"
+                             Adornment="Adornment.End"
+                             AdornmentIcon="@Icons.Material.Filled.Search"
+                             Class="my-3" />
 
-        <MudAutocomplete T="Participant"
-                         @ref="_participantSelector"
-                         @bind-Value="_selectedParticipant"
-                         @bind-Value:after="OnSelectedParticipantChange"
-                         Disabled="@(_selectedTeam == null)"
-                         SearchFunc="@SearchParticipant"
-                         Required="true"
-                         ResetValueOnEmptyText="true"
-                         Label="Выбери себя"
-                         RequiredError="Выбор участника обязателен"
-                         Variant="Variant.Outlined"
-                         Adornment="Adornment.End"
-                         AdornmentIcon="@Icons.Material.Filled.Search"
-                         Class="my-3" />
+            @for (var number = 0; number < _votingDetails.VotesQuantity; number++)
+            {
+                var index = number;
+                <MudSelect T="Candidate"
+                           @ref="CandidateSelector"
+                           @bind-Value="_selectedCandidates[index]"
+                           @bind-Value:after="@(() => OnSelectedCandidateChange(index))"
+                           Disabled="@(DisableCandidateSelector(index))"
+                           Validation="@(new Func<Candidate, string?>((value) => ValidateSelectedCandidate(index, value)))"
+                           Required="true"
+                           Label="Выбери понравившегося кандидата"
+                           RequiredError="Выбор кандидата обязателен"
+                           Variant="Variant.Outlined"
+                           Adornment="Adornment.Start"
+                           AdornmentIcon="@Icons.Material.Filled.HowToVote"
+                           Class="my-3">
 
-        @for (var number = 0; number < _votingDetails.VotesQuantity; number++)
-        {
-            var index = number;
-            <MudSelect T="Candidate"
-                       @ref="CandidateSelector"
-                       @bind-Value="_selectedCandidates[index]"
-                       @bind-Value:after="@(() => OnSelectedCandidateChange(index))"
-                       Disabled="@(DisableCandidateSelector(index))"
-                       Validation="@(new Func<Candidate, string?>((value) => ValidateSelectedCandidate(index, value)))"
-                       Required="true"
-                       Label="Выбери понравившегося кандидата"
-                       RequiredError="Выбор кандидата обязателен"
+                    @foreach (var candidate in _votingDetails.Candidates)
+                    {
+                        <MudSelectItem Value="candidate" />
+                    }
+                </MudSelect>
+            }
+
+            <MudTextField T="string"
+                          @bind-Value="_enteredNote"
+                          Label="Оставь любой дополнительный комментарий"
+                          Variant="Variant.Outlined"
+                          Lines="3"
+                          Class="my-3" />
+
+            <MudDivider />
+            <MudButton OnClick="ProcessForm"
+                       Disabled="@(!_isFormValid)"
                        Variant="Variant.Outlined"
-                       Adornment="Adornment.Start"
-                       AdornmentIcon="@Icons.Material.Filled.HowToVote"
-                       Class="my-3">
+                       Size="Size.Large"
+                       Color="Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Send"
+                       Class="mt-3">
+                Проголосовать
+            </MudButton>
+        </MudForm>
+    </MudPaper>
 
-                @foreach (var candidate in _votingDetails.Candidates)
-                {
-                    <MudSelectItem Value="candidate" />
-                }
-            </MudSelect>
-        }
-
-        <MudTextField T="string"
-                      @bind-Value="_enteredNote"
-                      Label="Оставь любой дополнительный комментарий"
-                      Variant="Variant.Outlined"
-                      Lines="3"
-                      Class="my-3" />
-
-        <MudDivider />
-        <MudButton OnClick="ProcessForm"
-                   Disabled="@(!_isFormValid)"
-                   Variant="Variant.Outlined"
-                   Size="Size.Large"
-                   Color="Color.Primary"
-                   StartIcon="@Icons.Material.Filled.Send"
-                   Class="mt-3">
-            Проголосовать
-        </MudButton>
-    </MudForm>
-</MudPaper>
+</LayoutView>
 
 @code {
 

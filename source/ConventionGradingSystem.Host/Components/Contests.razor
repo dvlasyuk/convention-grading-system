@@ -2,6 +2,7 @@
 
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
+@using ConventionGradingSystem.Host.Components.Shared.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Extensions.Options
@@ -10,51 +11,56 @@
 @inject IOptions<ApplicationConfiguration> Configuration
 @inject DatabaseContext DatabaseContext
 
-<PageTitle>Конкурсы мероприятий</PageTitle>
+<LayoutView Layout="@typeof(ContestsLayout)">
 
-<MudTable Items="@_contests"
-          Filter="FilterRecords"
-          Breakpoint="Breakpoint.None"
-          Hover="true">
+    <PageTitle>Конкурсы мероприятий</PageTitle>
 
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Конкурсы мероприятий</MudText>
-        <MudSpacer />
-        <MudTextField @bind-Value="_searchFilter"
-                      MaxLength="50"
-                      Clearable="true"
-                      Placeholder="Поиск"
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" />
-    </ToolBarContent>
+    <MudTable Items="@_contests"
+              Filter="FilterRecords"
+              Breakpoint="Breakpoint.None"
+              Hover="true">
 
-    <HeaderContent>
-        <MudTh>#</MudTh>
-        <MudTh><MudTableSortLabel T="Contest" SortBy="SelectNameField">Название конкурса</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel T="Contest" SortBy="SelectEventsField">Количество мероприятий</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel T="Contest" SortBy="SelectExpertField">Количество отзывов экспертов</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel T="Contest" SortBy="SelectParticipantField">Количество отзывов участников</MudTableSortLabel></MudTh>
-        <MudTh>Действия</MudTh>
-    </HeaderContent>
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Конкурсы мероприятий</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchFilter"
+                          MaxLength="50"
+                          Clearable="true"
+                          Placeholder="Поиск"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" />
+        </ToolBarContent>
 
-    <RowTemplate>
-        <MudTd>@context.Number</MudTd>
-        <MudTd>@context.Name</MudTd>
-        <MudTd>@context.EventsQuantity</MudTd>
-        <MudTd>@context.ExpertFeedbaksQuantity</MudTd>
-        <MudTd>@context.ParticiapntFeedbaksQuantity</MudTd>
-        <MudTd>
-            <MudButton Href="@context.DetailsLink"
-                       Variant="Variant.Outlined"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.Info">
-                Детали
-            </MudButton>
-        </MudTd>
-    </RowTemplate>
-</MudTable>
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh><MudTableSortLabel T="Contest" SortBy="SelectNameField">Название конкурса</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="Contest" SortBy="SelectEventsField">Количество мероприятий</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="Contest" SortBy="SelectExpertField">Количество отзывов экспертов</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="Contest" SortBy="SelectParticipantField">Количество отзывов участников</MudTableSortLabel></MudTh>
+            <MudTh>Действия</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd>@context.Number</MudTd>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.EventsQuantity</MudTd>
+            <MudTd>@context.ExpertFeedbaksQuantity</MudTd>
+            <MudTd>@context.ParticiapntFeedbaksQuantity</MudTd>
+            <MudTd>
+                <MudButton Href="@context.DetailsLink"
+                           Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Info">
+                    Детали
+                </MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+
+</LayoutView>
 
 @code {
+
     private IEnumerable<Contest> _contests = new List<Contest>();
     private string? _searchFilter;
 

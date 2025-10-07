@@ -2,6 +2,7 @@
 
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
+@using ConventionGradingSystem.Host.Components.Shared.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Extensions.Options
@@ -11,75 +12,79 @@
 @inject IOptions<ApplicationConfiguration> Configuration
 @inject DatabaseContext DatabaseContext
 
-@if (_votingCandidate == null)
-{
-    <PageTitle>Голоса за неизвестного кандидата</PageTitle>
-    <MudAlert Severity="Severity.Warning">
-        Кандидат зрительского голосования с идентификатором <em>@CandidateId</em> <strong>не найден</strong>.
-        Если ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
-        проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
-        корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
-        с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
-    </MudAlert>
-    return;
-}
+<LayoutView Layout="@typeof(VotingsLayout)">
 
-<PageTitle>Голоса за кандидата @_votingCandidate.CandidateName</PageTitle>
-
-<MudExpansionPanels Class="mb-3">
-    <MudExpansionPanel>
-        <TitleContent>
-            <div class="d-flex">
-                <MudIcon Color="Color.Primary" Icon="@Icons.Material.Filled.Info" />
-                <MudText Color="Color.Primary" Class="ml-3">Кандидат голосования <strong>@_votingCandidate.CandidateName</strong></MudText>
-            </div>
-        </TitleContent>
-        <ChildContent>
-            <MudText>Название зрительского голосования: <strong>@_votingCandidate.VotingName</strong></MudText>
-            <MudText>Связанные с кандидатом отряды: <strong>@(string.Join(", ", _votingCandidate.Brigades))</strong></MudText>
-            <MudText>Число голосов, отданных зрителями: <strong>@_votingCandidate.VotesQuantity</strong></MudText>
-        </ChildContent>
-    </MudExpansionPanel>
-</MudExpansionPanels>
-
-<MudTable Items="@_participantVotes"
-          Filter="FilterRecords"
-          Breakpoint="Breakpoint.None"
-          Hover="true">
-
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Голоса за кандидата</MudText>
-        <MudSpacer />
-        <MudTextField @bind-Value="_searchFilter"
-                      MaxLength="50"
-                      Clearable="true"
-                      Placeholder="Поиск"
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" />
-    </ToolBarContent>
-
-    <HeaderContent>
-        <MudTh>#</MudTh>
-        <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectNameField">Имя участника</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectBrigaseField">Отряд участника</MudTableSortLabel></MudTh>
-        <MudTh>Дополнительный комментарий</MudTh>
-        <MudTh>Время получения</MudTh>
-    </HeaderContent>
-
-    <RowTemplate>
-        <MudTd>@context.Number</MudTd>
-        <MudTd>@context.ParticipantName</MudTd>
-        <MudTd>@context.ParticipantBrigade</MudTd>
-        <MudTd>@context.Note</MudTd>
-        <MudTd>@context.ReceivedAt</MudTd>
-    </RowTemplate>
-
-    <NoRecordsContent>
-        <MudAlert Severity="Severity.Info">
-            За кандидата голосования <strong>@_votingCandidate.CandidateName</strong> не было отдано ни одного голоса
+    @if (_votingCandidate == null)
+    {
+        <PageTitle>Голоса за неизвестного кандидата</PageTitle>
+        <MudAlert Severity="Severity.Warning">
+            Кандидат зрительского голосования с идентификатором <em>@CandidateId</em> <strong>не найден</strong>.
+            Если ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
+            проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
+            корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
+            с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
         </MudAlert>
-    </NoRecordsContent>
-</MudTable>
+        return;
+    }
+
+    <PageTitle>Голоса за кандидата @_votingCandidate.CandidateName</PageTitle>
+
+    <MudExpansionPanels Class="mb-3">
+        <MudExpansionPanel>
+            <TitleContent>
+                <div class="d-flex">
+                    <MudIcon Color="Color.Primary" Icon="@Icons.Material.Filled.Info" />
+                    <MudText Color="Color.Primary" Class="ml-3">Кандидат голосования <strong>@_votingCandidate.CandidateName</strong></MudText>
+                </div>
+            </TitleContent>
+            <ChildContent>
+                <MudText>Название зрительского голосования: <strong>@_votingCandidate.VotingName</strong></MudText>
+                <MudText>Связанные с кандидатом отряды: <strong>@(string.Join(", ", _votingCandidate.Brigades))</strong></MudText>
+                <MudText>Число голосов, отданных зрителями: <strong>@_votingCandidate.VotesQuantity</strong></MudText>
+            </ChildContent>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+
+    <MudTable Items="@_participantVotes"
+              Filter="FilterRecords"
+              Breakpoint="Breakpoint.None"
+              Hover="true">
+
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Голоса за кандидата</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchFilter"
+                          MaxLength="50"
+                          Clearable="true"
+                          Placeholder="Поиск"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" />
+        </ToolBarContent>
+
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectNameField">Имя участника</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectBrigaseField">Отряд участника</MudTableSortLabel></MudTh>
+            <MudTh>Дополнительный комментарий</MudTh>
+            <MudTh>Время получения</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd>@context.Number</MudTd>
+            <MudTd>@context.ParticipantName</MudTd>
+            <MudTd>@context.ParticipantBrigade</MudTd>
+            <MudTd>@context.Note</MudTd>
+            <MudTd>@context.ReceivedAt</MudTd>
+        </RowTemplate>
+
+        <NoRecordsContent>
+            <MudAlert Severity="Severity.Info">
+                За кандидата голосования <strong>@_votingCandidate.CandidateName</strong> не было отдано ни одного голоса
+            </MudAlert>
+        </NoRecordsContent>
+    </MudTable>
+
+</LayoutView>
 
 @code {
 

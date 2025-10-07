@@ -2,6 +2,7 @@
 
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
+@using ConventionGradingSystem.Host.Components.Shared.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Extensions.Options
@@ -10,100 +11,104 @@
 @inject IOptions<ApplicationConfiguration> Configuration
 @inject DatabaseContext DatabaseContext
 
-@if (_audienceVoting == null)
-{
-    <PageTitle>Неизвестное зрительское голосование</PageTitle>
-    <MudAlert Severity="Severity.Warning">
-        Зрительское голосование с идентификатором <em>@VotingId</em> <strong>не найдено</strong>. Если ты
-        вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
-        проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
-        корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
-        с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
-    </MudAlert>
-    return;
-}
+<LayoutView Layout="@typeof(VotingsLayout)">
 
-<PageTitle>Зрительское голосование @_audienceVoting.Name</PageTitle>
+    @if (_audienceVoting == null)
+    {
+        <PageTitle>Неизвестное зрительское голосование</PageTitle>
+        <MudAlert Severity="Severity.Warning">
+            Зрительское голосование с идентификатором <em>@VotingId</em> <strong>не найдено</strong>. Если ты
+            вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
+            проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
+            корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
+            с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
+        </MudAlert>
+        return;
+    }
 
-<MudExpansionPanels Class="mb-3">
-    <MudExpansionPanel>
-        <TitleContent>
-            <div class="d-flex">
-                <MudIcon Color="Color.Primary" Icon="@Icons.Material.Filled.Info" />
-                <MudText Color="Color.Primary" Class="ml-3">Зрительское голосование <strong>@_audienceVoting.Name</strong></MudText>
-            </div>
-        </TitleContent>
-        <ChildContent>
-            <MudText>Допустимо ли голосование за свой отряд: <strong>@(_audienceVoting.BrigadeFriendlyVoting ? "Да" : "Нет")</strong></MudText>
-            <MudText>Допустимо ли голосование за свою команду: <strong>@(_audienceVoting.TeamFriendlyVoting ? "Да" : "Нет")</strong></MudText>
-            <MudText>Количество голосов от одного зрителя: <strong>@_audienceVoting.VotesQuantity</strong></MudText>
-            <MudText>Общее число кандидатов в голосовании <strong>@_audienceVoting.CandidatesQuantity</strong></MudText>
-            <MudText>Общее число голосов, отданных зрителями: <strong>@_audienceVoting.TotalVotesQuantity</strong></MudText>
-            <MudDivider Class="mt-3" />
-            <MudButton Href="@($"/forms/audience-voting/{VotingId}")"
-                        Variant="Variant.Outlined"
-                        Color="Color.Secondary"
-                        StartIcon="@Icons.Material.Filled.QrCode"
-                        Class="mt-3">
-                Форма голосования
-            </MudButton>
-        </ChildContent>
-    </MudExpansionPanel>
-</MudExpansionPanels>
+    <PageTitle>Зрительское голосование @_audienceVoting.Name</PageTitle>
 
-<MudTable Items="@_votingCandidates"
-          Filter="FilterRecords"
-          Breakpoint="Breakpoint.None"
-          Hover="true">
+    <MudExpansionPanels Class="mb-3">
+        <MudExpansionPanel>
+            <TitleContent>
+                <div class="d-flex">
+                    <MudIcon Color="Color.Primary" Icon="@Icons.Material.Filled.Info" />
+                    <MudText Color="Color.Primary" Class="ml-3">Зрительское голосование <strong>@_audienceVoting.Name</strong></MudText>
+                </div>
+            </TitleContent>
+            <ChildContent>
+                <MudText>Допустимо ли голосование за свой отряд: <strong>@(_audienceVoting.BrigadeFriendlyVoting ? "Да" : "Нет")</strong></MudText>
+                <MudText>Допустимо ли голосование за свою команду: <strong>@(_audienceVoting.TeamFriendlyVoting ? "Да" : "Нет")</strong></MudText>
+                <MudText>Количество голосов от одного зрителя: <strong>@_audienceVoting.VotesQuantity</strong></MudText>
+                <MudText>Общее число кандидатов в голосовании <strong>@_audienceVoting.CandidatesQuantity</strong></MudText>
+                <MudText>Общее число голосов, отданных зрителями: <strong>@_audienceVoting.TotalVotesQuantity</strong></MudText>
+                <MudDivider Class="mt-3" />
+                <MudButton Href="@($"/forms/audience-voting/{VotingId}")"
+                            Variant="Variant.Outlined"
+                            Color="Color.Secondary"
+                            StartIcon="@Icons.Material.Filled.QrCode"
+                            Class="mt-3">
+                    Форма голосования
+                </MudButton>
+            </ChildContent>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
 
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Кандидаты голосования</MudText>
-        <MudSpacer />
-        <MudTextField @bind-Value="_searchFilter"
-                      MaxLength="50"
-                      Clearable="true"
-                      Placeholder="Поиск"
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" />
-    </ToolBarContent>
+    <MudTable Items="@_votingCandidates"
+              Filter="FilterRecords"
+              Breakpoint="Breakpoint.None"
+              Hover="true">
 
-    <HeaderContent>
-        <MudTh>#</MudTh>
-        <MudTh><MudTableSortLabel T="VotingCandidate" SortBy="SelectNameField">Название/имя участника</MudTableSortLabel></MudTh>
-        <MudTh>Связанные отряды</MudTh>
-        <MudTh>Связанные команды</MudTh>
-        <MudTh><MudTableSortLabel T="VotingCandidate" SortBy="SelectQuantityField">Количество голосов</MudTableSortLabel></MudTh>
-        <MudTh>Действия</MudTh>
-    </HeaderContent>
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Кандидаты голосования</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchFilter"
+                          MaxLength="50"
+                          Clearable="true"
+                          Placeholder="Поиск"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" />
+        </ToolBarContent>
 
-    <RowTemplate>
-        <MudTd>@context.Number</MudTd>
-        <MudTd>@context.Name</MudTd>
-        <MudTd>
-            @foreach (var item in @context.Brigades)
-            {
-                @item
-                <br />
-            }
-        </MudTd>
-        <MudTd>
-            @foreach (var item in @context.Teams)
-            {
-                @item
-                <br />
-            }
-        </MudTd>
-        <MudTd>@context.VotesQuantity</MudTd>
-        <MudTd>
-            <MudButton Href="@context.VotesLink"
-                       Variant="Variant.Outlined"
-                       Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.Info">
-                Список голосов
-            </MudButton>
-        </MudTd>
-    </RowTemplate>
-</MudTable>
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh><MudTableSortLabel T="VotingCandidate" SortBy="SelectNameField">Название/имя участника</MudTableSortLabel></MudTh>
+            <MudTh>Связанные отряды</MudTh>
+            <MudTh>Связанные команды</MudTh>
+            <MudTh><MudTableSortLabel T="VotingCandidate" SortBy="SelectQuantityField">Количество голосов</MudTableSortLabel></MudTh>
+            <MudTh>Действия</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd>@context.Number</MudTd>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>
+                @foreach (var item in @context.Brigades)
+                {
+                    @item
+                    <br />
+                }
+            </MudTd>
+            <MudTd>
+                @foreach (var item in @context.Teams)
+                {
+                    @item
+                    <br />
+                }
+            </MudTd>
+            <MudTd>@context.VotesQuantity</MudTd>
+            <MudTd>
+                <MudButton Href="@context.VotesLink"
+                           Variant="Variant.Outlined"
+                           Color="Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Info">
+                    Список голосов
+                </MudButton>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+
+</LayoutView>
 
 @code {
 

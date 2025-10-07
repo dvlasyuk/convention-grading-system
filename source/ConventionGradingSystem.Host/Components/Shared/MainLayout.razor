@@ -44,10 +44,22 @@
                     <MudText Typo="Typo.subtitle1">Главное меню</MudText>
                 </MudDrawerHeader>
                 <MudNavMenu Bordered="true">
+
                     <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">Главная страница</MudNavLink>
-                    <MudNavLink Href="/contests" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Star">Конкурсы мероприятий</MudNavLink>
-                    <MudNavLink Href="/votings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToVote">Зрительские голосования</MudNavLink>
-                    <MudNavLink Href="/teams" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Groups">Команды участников</MudNavLink>
+
+                    @if (_contestsSectionAvailable)
+                    {
+                        <MudNavLink Href="/contests" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Star">Конкурсы мероприятий</MudNavLink>
+                    }
+                    @if (_votingsSectionAvailable)
+                    {
+                        <MudNavLink Href="/votings" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.HowToVote">Зрительские голосования</MudNavLink>
+                    }
+                    @if (_teamsSectionAvailable)
+                    {
+                        <MudNavLink Href="/teams" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.Groups">Команды участников</MudNavLink>
+                    }
+
                 </MudNavMenu>
             </MudDrawer>
 
@@ -72,11 +84,22 @@
 @code {
 
     private string _conventionName = string.Empty;
+
+    private bool _contestsSectionAvailable = false;
+    private bool _votingsSectionAvailable = false;
+    private bool _teamsSectionAvailable = false;
+
     private bool _isDrawerOpen = false;
 
     protected override void OnInitialized()
     {
         _conventionName = Configuration.Value.ConventionName;
+
+        _contestsSectionAvailable = Configuration.Value.Contests.Count > 0;
+        _votingsSectionAvailable = Configuration.Value.Votings.Count > 0;
+        _teamsSectionAvailable =
+            Configuration.Value.Teams.Count > 0 &&
+            Configuration.Value.Contests.Count > 0;
     }
 
     private void ToogleDrawer() => _isDrawerOpen = !_isDrawerOpen;

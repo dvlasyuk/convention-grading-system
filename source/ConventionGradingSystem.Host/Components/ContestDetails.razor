@@ -3,6 +3,7 @@
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Configuration.Models
 @using ConventionGradingSystem.DataAccess.Database
+@using ConventionGradingSystem.Host.Components.Shared.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Extensions.Options
@@ -11,190 +12,194 @@
 @inject IOptions<ApplicationConfiguration> Configuration
 @inject DatabaseContext DatabaseContext
 
-@if (_contest == null)
-{
-    <PageTitle>Неизвестный конкурс мероприятий</PageTitle>
-    <MudAlert Severity="Severity.Warning">
-        Конкурс мероприятий с идентификатором <em>@ContestId</em> <strong>не найден</strong>. Если ты
-        вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
-        проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
-        корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
-        с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
-    </MudAlert>
-    return;
-}
+<LayoutView Layout="@typeof(ContestsLayout)">
 
-<PageTitle>Конкурс мероприятий @_contest.Name</PageTitle>
+    @if (_contest == null)
+    {
+        <PageTitle>Неизвестный конкурс мероприятий</PageTitle>
+        <MudAlert Severity="Severity.Warning">
+            Конкурс мероприятий с идентификатором <em>@ContestId</em> <strong>не найден</strong>. Если ты
+            вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
+            проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
+            корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
+            с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
+        </MudAlert>
+        return;
+    }
 
-<MudExpansionPanels Class="mb-3">
-    <MudExpansionPanel>
-        <TitleContent>
-            <div class="d-flex">
-                <MudIcon Color="Color.Primary" Icon="@Icons.Material.Filled.Info" />
-                <MudText Color="Color.Primary" Class="ml-3">Конкурс мероприятий <strong>@_contest.Name</strong></MudText>
-            </div>
-        </TitleContent>
-        <ChildContent>
+    <PageTitle>Конкурс мероприятий @_contest.Name</PageTitle>
 
-            <MudText>Принимаются ли отзывы экспертов: <strong>@(_contest.ExpertCriterionsQuantity > 0 ? "Да" : "Нет")</strong></MudText>
-            <MudText>Принимаются ли отзывы участников: <strong>@(_contest.ParticipantCriterionsQuantity > 0 ? "Да" : "Нет")</strong></MudText>
+    <MudExpansionPanels Class="mb-3">
+        <MudExpansionPanel>
+            <TitleContent>
+                <div class="d-flex">
+                    <MudIcon Color="Color.Primary" Icon="@Icons.Material.Filled.Info" />
+                    <MudText Color="Color.Primary" Class="ml-3">Конкурс мероприятий <strong>@_contest.Name</strong></MudText>
+                </div>
+            </TitleContent>
+            <ChildContent>
 
-            @if (_contest.ParticipantCriterionsQuantity > 0)
-            {
-                <MudText>Принимаются ли отзывы от любых участников: <strong>@(!_contest.RegisteredGrading ? "Да" : "Нет")</strong></MudText>
-                <MudText>Принимаются ли отзывы участников на свой отряд: <strong>@(_contest.FriendlyGrading ? "Да" : "Нет")</strong></MudText>
-            }
+                <MudText>Принимаются ли отзывы экспертов: <strong>@(_contest.ExpertCriterionsQuantity > 0 ? "Да" : "Нет")</strong></MudText>
+                <MudText>Принимаются ли отзывы участников: <strong>@(_contest.ParticipantCriterionsQuantity > 0 ? "Да" : "Нет")</strong></MudText>
+
+                @if (_contest.ParticipantCriterionsQuantity > 0)
+                {
+                    <MudText>Принимаются ли отзывы от любых участников: <strong>@(!_contest.RegisteredGrading ? "Да" : "Нет")</strong></MudText>
+                    <MudText>Принимаются ли отзывы участников на свой отряд: <strong>@(_contest.FriendlyGrading ? "Да" : "Нет")</strong></MudText>
+                }
+
+                @if (_contest.ExpertCriterionsQuantity > 0)
+                {
+                    <MudText>Количество критериев оценивания экспертами: <strong>@_contest.ExpertCriterionsQuantity</strong></MudText>
+                }
+                @if (_contest.ParticipantCriterionsQuantity > 0)
+                {
+                    <MudText>Количество критериев оценивания участниками: <strong>@_contest.ParticipantCriterionsQuantity</strong></MudText>
+                }
+
+                <MudText>Контролируется ли посещаемость мероприятий: <strong>@(_contest.AttendanceControl ? "Да" : "Нет")</strong></MudText>
+                <MudText>Общее число мероприятий в конкурсе: <strong>@_contest.EventsQuantity</strong></MudText>
+
+                @if (_contest.ExpertCriterionsQuantity > 0)
+                {
+                    <MudText>Число отзывов, оставленных экспертами: <strong>@_contest.ExpertFeedbacksQuantity</strong></MudText>
+                }
+                @if (_contest.ParticipantCriterionsQuantity > 0)
+                {
+                    <MudText>Число отзывов, оставленных участниками: <strong>@_contest.ParticipantFeedbacksQuantity</strong></MudText>
+                }
+
+            </ChildContent>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+
+    <MudTable Items="@_contestEvents"
+              Filter="FilterRecords"
+              Breakpoint="Breakpoint.None"
+              Hover="true"
+              HorizontalScrollbar="true">
+
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Мероприятия конкурса</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchFilter"
+                          MaxLength="50"
+                          Clearable="true"
+                          Placeholder="Поиск"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" />
+        </ToolBarContent>
+
+        <HeaderContent>
+
+            <MudTh>#</MudTh>
+            <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectNameField">Название мероприятия</MudTableSortLabel></MudTh>
+            <MudTh>Связанные отряды</MudTh>
 
             @if (_contest.ExpertCriterionsQuantity > 0)
             {
-                <MudText>Количество критериев оценивания экспертами: <strong>@_contest.ExpertCriterionsQuantity</strong></MudText>
+                <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectExpertFeedbacksField">Отзывы экспертов</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectExpertGradeField">Оценка экспертов</MudTableSortLabel></MudTh>
             }
             @if (_contest.ParticipantCriterionsQuantity > 0)
             {
-                <MudText>Количество критериев оценивания участниками: <strong>@_contest.ParticipantCriterionsQuantity</strong></MudText>
+                <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectParticipantFeedbacksField">Отзывы участников</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectParticipantGradeField">Оценка участников</MudTableSortLabel></MudTh>
             }
 
-            <MudText>Контролируется ли посещаемость мероприятий: <strong>@(_contest.AttendanceControl ? "Да" : "Нет")</strong></MudText>
-            <MudText>Общее число мероприятий в конкурсе: <strong>@_contest.EventsQuantity</strong></MudText>
+            <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectTotalGradeField">Общая оценка</MudTableSortLabel></MudTh>
+            <MudTh>Действия</MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+
+            <MudTd>@context.Number</MudTd>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>
+                @foreach (var item in @context.Brigades)
+                {
+                    @item
+                    <br />
+                }
+            </MudTd>
 
             @if (_contest.ExpertCriterionsQuantity > 0)
             {
-                <MudText>Число отзывов, оставленных экспертами: <strong>@_contest.ExpertFeedbacksQuantity</strong></MudText>
+                <MudTd>@context.ExprertFeedbacksQuantity</MudTd>
+                <MudTd>@context.ExpertGrade.ToString("0.0")</MudTd>
             }
             @if (_contest.ParticipantCriterionsQuantity > 0)
             {
-                <MudText>Число отзывов, оставленных участниками: <strong>@_contest.ParticipantFeedbacksQuantity</strong></MudText>
+                <MudTd>@context.ParticipantFeedbacksQuantity</MudTd>
+                <MudTd>@context.ParticipantGrade.ToString("0.0")</MudTd>
             }
 
-        </ChildContent>
-    </MudExpansionPanel>
-</MudExpansionPanels>
+            <MudTd>@context.TotalGrade.ToString("0.0")</MudTd>
+            <MudTd>
 
-<MudTable Items="@_contestEvents"
-          Filter="FilterRecords"
-          Breakpoint="Breakpoint.None"
-          Hover="true"
-          HorizontalScrollbar="true">
+                @if (_contest.ExpertCriterionsQuantity > 0)
+                {
+                    <MudButton Href="@context.ExpertFeedbacksLink"
+                               Variant="Variant.Outlined"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Info"
+                               Class="mr-3 mb-3">
+                        Отзывы экспертов
+                    </MudButton>
+                }
+                @if (_contest.ParticipantCriterionsQuantity > 0)
+                {
+                    <MudButton Href="@context.ParticipantFeedbacksLink"
+                               Variant="Variant.Outlined"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Info"
+                               Class="mr-3 mb-3">
+                        Отзывы участников
+                    </MudButton>
+                }
 
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Мероприятия конкурса</MudText>
-        <MudSpacer />
-        <MudTextField @bind-Value="_searchFilter"
-                      MaxLength="50"
-                      Clearable="true"
-                      Placeholder="Поиск"
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" />
-    </ToolBarContent>
+                <br/>
 
-    <HeaderContent>
+                @if (_contest.ExpertCriterionsQuantity > 0)
+                {
+                    <MudButton Href="@context.ExpertFormLink"
+                               Variant="Variant.Outlined"
+                               Color="Color.Secondary"
+                               StartIcon="@Icons.Material.Filled.QrCode"
+                               Class="mr-3 mb-3">
+                        Форма эксперта
+                    </MudButton>
+                }
+                @if (_contest.ParticipantCriterionsQuantity > 0)
+                {
+                    <MudButton Href="@context.ParticipantFormLink"
+                               Variant="Variant.Outlined"
+                               Color="Color.Secondary"
+                               StartIcon="@Icons.Material.Filled.QrCode"
+                               Class="mr-3 mb-3">
+                        Форма участника
+                    </MudButton>
+                }
 
-        <MudTh>#</MudTh>
-        <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectNameField">Название мероприятия</MudTableSortLabel></MudTh>
-        <MudTh>Связанные отряды</MudTh>
-
-        @if (_contest.ExpertCriterionsQuantity > 0)
-        {
-            <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectExpertFeedbacksField">Отзывы экспертов</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectExpertGradeField">Оценка экспертов</MudTableSortLabel></MudTh>
-        }
-        @if (_contest.ParticipantCriterionsQuantity > 0)
-        {
-            <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectParticipantFeedbacksField">Отзывы участников</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectParticipantGradeField">Оценка участников</MudTableSortLabel></MudTh>
-        }
-
-        <MudTh><MudTableSortLabel T="ContestEvent" SortBy="SelectTotalGradeField">Общая оценка</MudTableSortLabel></MudTh>
-        <MudTh>Действия</MudTh>
-    </HeaderContent>
-
-    <RowTemplate>
-
-        <MudTd>@context.Number</MudTd>
-        <MudTd>@context.Name</MudTd>
-        <MudTd>
-            @foreach (var item in @context.Brigades)
-            {
-                @item
                 <br />
-            }
-        </MudTd>
 
-        @if (_contest.ExpertCriterionsQuantity > 0)
-        {
-            <MudTd>@context.ExprertFeedbacksQuantity</MudTd>
-            <MudTd>@context.ExpertGrade.ToString("0.0")</MudTd>
-        }
-        @if (_contest.ParticipantCriterionsQuantity > 0)
-        {
-            <MudTd>@context.ParticipantFeedbacksQuantity</MudTd>
-            <MudTd>@context.ParticipantGrade.ToString("0.0")</MudTd>
-        }
+                @if (_contest.AttendanceControl)
+                {
+                    <MudButton Href="@context.AttendanceFormLink"
+                        Variant="Variant.Outlined"
+                               Color="Color.Tertiary"
+                               StartIcon="@Icons.Material.Filled.QrCode"
+                               Class="mr-3 mb-3">
+                        Форма посещаемости
+                    </MudButton>
+                }
 
-        <MudTd>@context.TotalGrade.ToString("0.0")</MudTd>
-        <MudTd>
+            </MudTd>
 
-            @if (_contest.ExpertCriterionsQuantity > 0)
-            {
-                <MudButton Href="@context.ExpertFeedbacksLink"
-                           Variant="Variant.Outlined"
-                           Color="Color.Primary"
-                           StartIcon="@Icons.Material.Filled.Info"
-                           Class="mr-3 mb-3">
-                    Отзывы экспертов
-                </MudButton>
-            }
-            @if (_contest.ParticipantCriterionsQuantity > 0)
-            {
-                <MudButton Href="@context.ParticipantFeedbacksLink"
-                           Variant="Variant.Outlined"
-                           Color="Color.Primary"
-                           StartIcon="@Icons.Material.Filled.Info"
-                           Class="mr-3 mb-3">
-                    Отзывы участников
-                </MudButton>
-            }
+        </RowTemplate>
+    </MudTable>
 
-            <br/>
-
-            @if (_contest.ExpertCriterionsQuantity > 0)
-            {
-                <MudButton Href="@context.ExpertFormLink"
-                           Variant="Variant.Outlined"
-                           Color="Color.Secondary"
-                           StartIcon="@Icons.Material.Filled.QrCode"
-                           Class="mr-3 mb-3">
-                    Форма эксперта
-                </MudButton>
-            }
-            @if (_contest.ParticipantCriterionsQuantity > 0)
-            {
-                <MudButton Href="@context.ParticipantFormLink"
-                           Variant="Variant.Outlined"
-                           Color="Color.Secondary"
-                           StartIcon="@Icons.Material.Filled.QrCode"
-                           Class="mr-3 mb-3">
-                    Форма участника
-                </MudButton>
-            }
-
-            <br />
-
-            @if (_contest.AttendanceControl)
-            {
-                <MudButton Href="@context.AttendanceFormLink"
-                    Variant="Variant.Outlined"
-                           Color="Color.Tertiary"
-                           StartIcon="@Icons.Material.Filled.QrCode"
-                           Class="mr-3 mb-3">
-                    Форма посещаемости
-                </MudButton>
-            }
-
-        </MudTd>
-
-    </RowTemplate>
-</MudTable>
+</LayoutView>
 
 @code {
 

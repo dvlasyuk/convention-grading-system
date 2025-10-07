@@ -5,6 +5,7 @@
 @using ConventionGradingSystem.DataAccess.Configuration.Models
 @using ConventionGradingSystem.DataAccess.Database;
 @using ConventionGradingSystem.Host.Components.Shared
+@using ConventionGradingSystem.Host.Components.Shared.Sections
 @using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.Extensions.Options;
@@ -15,114 +16,118 @@
 @inject NavigationManager NavigationManager
 @inject ProtectedLocalStorage LocalStorage
 
-@if (_eventDetails == null)
-{
-    <PageTitle>Форма отзыва о неизвестном мероприятии</PageTitle>
-    <MudAlert Severity="Severity.Warning">
-        Мероприятие с идентификатором <em>@EventId</em> <strong>не найдено</strong>. Если ты вводил адрес
-        страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то проверь не ошибся
-        ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь корректность этой
-        ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы
-        системы, то это ошибка - обратись, пожалуйста, к разработчикам
-    </MudAlert>
-    return;
-}
+<LayoutView Layout="@typeof(ContestsLayout)">
 
-<PageTitle>Форма отзыва о мероприятии @_eventDetails.EventName</PageTitle>
+    @if (_eventDetails == null)
+    {
+        <PageTitle>Форма отзыва о неизвестном мероприятии</PageTitle>
+        <MudAlert Severity="Severity.Warning">
+            Мероприятие с идентификатором <em>@EventId</em> <strong>не найдено</strong>. Если ты вводил адрес
+            страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то проверь не ошибся
+            ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь корректность этой
+            ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы
+            системы, то это ошибка - обратись, пожалуйста, к разработчикам
+        </MudAlert>
+        return;
+    }
 
-@if (!_eventDetails.IsGraded)
-{
-    <MudAlert Severity="Severity.Warning">
-        Мероприятия конкурса <strong>@_eventDetails.ContestName</strong> не оцениваются участниками. Если
-        ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
-        проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
-        корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
-        с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
-    </MudAlert>
-    return;
-}
+    <PageTitle>Форма отзыва о мероприятии @_eventDetails.EventName</PageTitle>
 
-@if (_isFormDisabled)
-{
+    @if (!_eventDetails.IsGraded)
+    {
+        <MudAlert Severity="Severity.Warning">
+            Мероприятия конкурса <strong>@_eventDetails.ContestName</strong> не оцениваются участниками. Если
+            ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
+            проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
+            корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
+            с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
+        </MudAlert>
+        return;
+    }
+
+    @if (_isFormDisabled)
+    {
+        <MudAlert Severity="Severity.Info">
+            Твой отзыв о мероприятии <strong>@_eventDetails.EventName</strong> в рамка конкурса мероприятий
+            <strong>@_eventDetails.ContestName</strong> принят. Спасибо большое за участие!
+        </MudAlert>
+        return;
+    }
+
     <MudAlert Severity="Severity.Info">
-        Твой отзыв о мероприятии <strong>@_eventDetails.EventName</strong> в рамка конкурса мероприятий
-        <strong>@_eventDetails.ContestName</strong> принят. Спасибо большое за участие!
+        Приветствуем тебя, участник! Ты можешь свой отзыв о мероприятии <strong>@_eventDetails.EventName</strong>
+        в рамка конкурса мероприятий <strong>@_eventDetails.ContestName</strong>, в котором принял участие. Оцени
+        мероприятие по приведённым критериям, оставь дополнительный комментарий, если хочешь, и нажми кнопку
+        <em>Отправить</em>
     </MudAlert>
-    return;
-}
 
-<MudAlert Severity="Severity.Info">
-    Приветствуем тебя, участник! Ты можешь свой отзыв о мероприятии <strong>@_eventDetails.EventName</strong>
-    в рамка конкурса мероприятий <strong>@_eventDetails.ContestName</strong>, в котором принял участие. Оцени
-    мероприятие по приведённым критериям, оставь дополнительный комментарий, если хочешь, и нажми кнопку
-    <em>Отправить</em>
-</MudAlert>
+    <MudPaper Class="mt-3 pa-3">
+        <MudForm @ref="_formSelector" @bind-IsValid="@_isFormValid">
 
-<MudPaper Class="mt-3 pa-3">
-    <MudForm @ref="_formSelector" @bind-IsValid="@_isFormValid">
+            <MudAutocomplete T="Team"
+            @bind-Value="_selectedTeam"
+            @bind-Value:after="OnSelectedTeamChange"
+            SearchFunc="@SearchTeam"
+            Required="true"
+            ResetValueOnEmptyText="true"
+            Label="Выбери свою команду"
+            RequiredError="Выбор команды обязателен"
+            Variant="Variant.Outlined"
+            Adornment="Adornment.End"
+            AdornmentIcon="@Icons.Material.Filled.Search"
+            Class="my-3" />
 
-        <MudAutocomplete T="Team"
-        @bind-Value="_selectedTeam"
-        @bind-Value:after="OnSelectedTeamChange"
-        SearchFunc="@SearchTeam"
-        Required="true"
-        ResetValueOnEmptyText="true"
-        Label="Выбери свою команду"
-        RequiredError="Выбор команды обязателен"
-        Variant="Variant.Outlined"
-        Adornment="Adornment.End"
-        AdornmentIcon="@Icons.Material.Filled.Search"
-        Class="my-3" />
+            <MudAutocomplete T="Participant"
+            @ref="_participantSelector"
+            @bind-Value="_selectedParticipant"
+            Disabled="@(_selectedTeam == null)"
+            SearchFunc="@SearchParticipant"
+            Required="true"
+            ResetValueOnEmptyText="true"
+            Label="Выбери себя"
+            RequiredError="Выбор участника обязателен"
+            Variant="Variant.Outlined"
+            Adornment="Adornment.End"
+            AdornmentIcon="@Icons.Material.Filled.Search"
+            Class="my-3" />
 
-        <MudAutocomplete T="Participant"
-        @ref="_participantSelector"
-        @bind-Value="_selectedParticipant"
-        Disabled="@(_selectedTeam == null)"
-        SearchFunc="@SearchParticipant"
-        Required="true"
-        ResetValueOnEmptyText="true"
-        Label="Выбери себя"
-        RequiredError="Выбор участника обязателен"
-        Variant="Variant.Outlined"
-        Adornment="Adornment.End"
-        AdornmentIcon="@Icons.Material.Filled.Search"
-        Class="my-3" />
+            @foreach (var criterion in _eventDetails.Criterions)
+            {
+                <MudPaper Outlined="true" Class="mt-3 pa-3">
+                    <MudText Typo="Typo.subtitle1">@criterion.Name</MudText>
+                    <MudText Typo="Typo.subtitle2">@criterion.Description</MudText>
+                    <MudSlider @bind-Value="@_selectedGrades[criterion.Identifier]"
+                    Min="@criterion.MinimalGrade"
+                    Max="@criterion.MaximalGrade"
+                    TickMarks="true"
+                    TickMarkLabels="@GetSliderLabels(criterion)"
+                    ValueLabel="true"
+                    Variant="Variant.Outlined"
+                    Class="mt-3 mb-5" />
+                </MudPaper>
+            }
 
-        @foreach (var criterion in _eventDetails.Criterions)
-        {
-            <MudPaper Outlined="true" Class="mt-3 pa-3">
-                <MudText Typo="Typo.subtitle1">@criterion.Name</MudText>
-                <MudText Typo="Typo.subtitle2">@criterion.Description</MudText>
-                <MudSlider @bind-Value="@_selectedGrades[criterion.Identifier]"
-                Min="@criterion.MinimalGrade"
-                Max="@criterion.MaximalGrade"
-                TickMarks="true"
-                TickMarkLabels="@GetSliderLabels(criterion)"
-                ValueLabel="true"
-                Variant="Variant.Outlined"
-                Class="mt-3 mb-5" />
-            </MudPaper>
-        }
+            <MudTextField T="string"
+            @bind-Value="_enteredNote"
+            Label="Оставь любой дополнительный комментарий"
+            Variant="Variant.Outlined"
+            Lines="3"
+            Class="my-3" />
 
-        <MudTextField T="string"
-        @bind-Value="_enteredNote"
-        Label="Оставь любой дополнительный комментарий"
-        Variant="Variant.Outlined"
-        Lines="3"
-        Class="my-3" />
+            <MudDivider />
+            <MudButton OnClick="ProcessForm"
+            Disabled="@(!_isFormValid)"
+            Variant="Variant.Outlined"
+            Size="Size.Large"
+            Color="Color.Primary"
+            StartIcon="@Icons.Material.Filled.Send"
+            Class="mt-3">
+                Проголосовать
+            </MudButton>
+        </MudForm>
+    </MudPaper>
 
-        <MudDivider />
-        <MudButton OnClick="ProcessForm"
-        Disabled="@(!_isFormValid)"
-        Variant="Variant.Outlined"
-        Size="Size.Large"
-        Color="Color.Primary"
-        StartIcon="@Icons.Material.Filled.Send"
-        Class="mt-3">
-            Проголосовать
-        </MudButton>
-    </MudForm>
-</MudPaper>
+</LayoutView>
 
 @code {
 

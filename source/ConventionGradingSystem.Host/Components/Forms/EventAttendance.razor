@@ -1,10 +1,11 @@
 @page "/forms/event-attendance/{eventId}"
 @layout BaseLayout
 
-@using ConventionGradingSystem.Host.Components.Shared
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
 @using ConventionGradingSystem.DataAccess.Database.Entities
+@using ConventionGradingSystem.Host.Components.Shared
+@using ConventionGradingSystem.Host.Components.Shared.Sections
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.EntityFrameworkCore
@@ -15,104 +16,108 @@
 @inject DatabaseContext DatabaseContext
 @inject NavigationManager NavigationManager
 
-<AuthorizeView Roles="Administrator,Organizer">
-    <NotAuthorized>
-        <PageTitle>Вход в систему</PageTitle>
-        <SignInForm />
-    </NotAuthorized>
-    <Authorized>
+<LayoutView Layout="@typeof(ContestsLayout)">
 
-        @if (_eventDetails == null)
-        {
-            <PageTitle>Форма посещаемости неизвестного мероприятия</PageTitle>
-            <MudAlert Severity="Severity.Warning">
-                Мероприятие с идентификатором <em>@EventId</em> <strong>не найдено</strong>. Если ты вводил адрес
-                страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то проверь не ошибся
-                ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь корректность этой
-                ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы
-                системы, то это ошибка - обратись, пожалуйста, к разработчикам
+    <AuthorizeView Roles="Administrator,Organizer">
+        <NotAuthorized>
+            <PageTitle>Вход в систему</PageTitle>
+            <SignInForm />
+        </NotAuthorized>
+        <Authorized>
+
+            @if (_eventDetails == null)
+            {
+                <PageTitle>Форма посещаемости неизвестного мероприятия</PageTitle>
+                <MudAlert Severity="Severity.Warning">
+                    Мероприятие с идентификатором <em>@EventId</em> <strong>не найдено</strong>. Если ты вводил адрес
+                    страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то проверь не ошибся
+                    ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь корректность этой
+                    ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы
+                    системы, то это ошибка - обратись, пожалуйста, к разработчикам
+                </MudAlert>
+                return;
+            }
+
+            <PageTitle>Форма посещаемости мероприятия @_eventDetails.EventName</PageTitle>
+
+            @if (!_eventDetails.AttendanceControl)
+            {
+                <MudAlert Severity="Severity.Warning">
+                    Посещаемость мероприятий конкурса <strong>@_eventDetails.ContestName</strong> не контролируется. Если
+                    ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
+                    проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
+                    корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
+                    с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
+                </MudAlert>
+                return;
+            }
+
+            <MudAlert Severity="Severity.Info">
+                Приветствуем тебя, проводящий! Ты можешь отметить участников своего мероприятия <strong>@_eventDetails.EventName</strong>
+                в рамка конкурса мероприятий <strong>@_eventDetails.ContestName</strong>. Отметь участников, которые
+                посетили мероприятие, отметь особо хорошо себя показавших участников, если хочешь, и нажми кнопку
+                <em>Обновить данные</em>
             </MudAlert>
-            return;
-        }
 
-        <PageTitle>Форма посещаемости мероприятия @_eventDetails.EventName</PageTitle>
+            <MudTable Items="@_eventDetails.Participants"
+                      Filter="FilterRecords"
+                      Breakpoint="Breakpoint.None"
+                      Hover="true"
+                      Class="mt-3">
 
-        @if (!_eventDetails.AttendanceControl)
-        {
-            <MudAlert Severity="Severity.Warning">
-                Посещаемость мероприятий конкурса <strong>@_eventDetails.ContestName</strong> не контролируется. Если
-                ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
-                проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
-                корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
-                с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
-            </MudAlert>
-            return;
-        }
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">Участники мероприятия</MudText>
+                    <MudSpacer />
+                    <MudTextField @bind-Value="_searchFilter"
+                                  MaxLength="50"
+                                  Clearable="true"
+                                  Placeholder="Поиск"
+                                  Adornment="Adornment.Start"
+                                  AdornmentIcon="@Icons.Material.Filled.Search" />
+                </ToolBarContent>
 
-        <MudAlert Severity="Severity.Info">
-            Приветствуем тебя, проводящий! Ты можешь отметить участников своего мероприятия <strong>@_eventDetails.EventName</strong>
-            в рамка конкурса мероприятий <strong>@_eventDetails.ContestName</strong>. Отметь участников, которые
-            посетили мероприятие, отметь особо хорошо себя показавших участников, если хочешь, и нажми кнопку
-            <em>Обновить данные</em>
-        </MudAlert>
+                <HeaderContent>
+                    <MudTh><MudTableSortLabel T="Participant" SortBy="SelectNameField">Имя участника</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel T="Participant" SortBy="SelectBrigadeField">Отряд</MudTableSortLabel></MudTh>
+                    <MudTh>Отметка о посещении</MudTh>
+                    <MudTh>Особая отметка</MudTh>
+                </HeaderContent>
 
-        <MudTable Items="@_eventDetails.Participants"
-                  Filter="FilterRecords"
-                  Breakpoint="Breakpoint.None"
-                  Hover="true"
-                  Class="mt-3">
+                <RowTemplate Context="rowContext">
+                    <MudTd>@rowContext.Name</MudTd>
+                    <MudTd>@rowContext.Brigade</MudTd>
+                    <MudTd>
+                        <MudCheckBox @bind-Value="@_attendanceMarks[rowContext.Identifier]"
+                                     Label="Посещение"
+                                     Color="Color.Success"
+                                     UnCheckedColor="Color.Error" />
+                    </MudTd>
+                    <MudTd>
+                        <MudCheckBox @bind-Value="@_specialMarks[rowContext.Identifier]"
+                                     Label="Отличие"
+                                     Color="Color.Primary"
+                                     UnCheckedColor="Color.Default" />
+                    </MudTd>
+                </RowTemplate>
 
-            <ToolBarContent>
-                <MudText Typo="Typo.h6">Участники мероприятия</MudText>
-                <MudSpacer />
-                <MudTextField @bind-Value="_searchFilter"
-                              MaxLength="50"
-                              Clearable="true"
-                              Placeholder="Поиск"
-                              Adornment="Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Filled.Search" />
-            </ToolBarContent>
+            </MudTable>
 
-            <HeaderContent>
-                <MudTh><MudTableSortLabel T="Participant" SortBy="SelectNameField">Имя участника</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel T="Participant" SortBy="SelectBrigadeField">Отряд</MudTableSortLabel></MudTh>
-                <MudTh>Отметка о посещении</MudTh>
-                <MudTh>Особая отметка</MudTh>
-            </HeaderContent>
+            <MudPaper Class="mt-3 pa-3">
+                <MudForm>
+                    <MudButton OnClick="ProcessForm"
+                               Variant="Variant.Outlined"
+                               Size="Size.Large"
+                               Color="Color.Primary"
+                               StartIcon="@Icons.Material.Filled.Send">
+                        Обновить данные
+                    </MudButton>
+                </MudForm>
+            </MudPaper>
 
-            <RowTemplate Context="rowContext">
-                <MudTd>@rowContext.Name</MudTd>
-                <MudTd>@rowContext.Brigade</MudTd>
-                <MudTd>
-                    <MudCheckBox @bind-Value="@_attendanceMarks[rowContext.Identifier]"
-                                 Label="Посещение"
-                                 Color="Color.Success"
-                                 UnCheckedColor="Color.Error" />
-                </MudTd>
-                <MudTd>
-                    <MudCheckBox @bind-Value="@_specialMarks[rowContext.Identifier]"
-                                 Label="Отличие"
-                                 Color="Color.Primary"
-                                 UnCheckedColor="Color.Default" />
-                </MudTd>
-            </RowTemplate>
+        </Authorized>
+    </AuthorizeView>
 
-        </MudTable>
-
-        <MudPaper Class="mt-3 pa-3">
-            <MudForm>
-                <MudButton OnClick="ProcessForm"
-                           Variant="Variant.Outlined"
-                           Size="Size.Large"
-                           Color="Color.Primary"
-                           StartIcon="@Icons.Material.Filled.Send">
-                    Обновить данные
-                </MudButton>
-            </MudForm>
-        </MudPaper>
-
-    </Authorized>
-</AuthorizeView>
+</LayoutView>
 
 @code {
 

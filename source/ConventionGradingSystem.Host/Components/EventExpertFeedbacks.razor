@@ -2,6 +2,7 @@
 
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
+@using ConventionGradingSystem.Host.Components.Shared.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Extensions.Options
@@ -11,121 +12,125 @@
 @inject IOptions<ApplicationConfiguration> Configuration
 @inject DatabaseContext DatabaseContext
 
-@if (_contestEvent == null)
-{
-    <PageTitle>Отзывы экспертов о неизвестном мероприятии</PageTitle>
-    <MudAlert Severity="Severity.Warning">
-        Мероприятие с идентификатором <em>@EventId</em> <strong>не найдено</strong>. Если ты вводил адрес
-        страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то проверь не ошибся
-        ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь корректность этой
-        ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы
-        системы, то это ошибка - обратись, пожалуйста, к разработчикам
-    </MudAlert>
-    return;
-}
+<LayoutView Layout="@typeof(ContestsLayout)">
 
-<PageTitle>Отзывы экспертов о мероприятии @_contestEvent.EventName</PageTitle>
-@if (!_contestEvent.IsGraded)
-{
-    <MudAlert Severity="Severity.Warning">
-        Мероприятия конкурса <strong>@_contestEvent.ContestName</strong> не оцениваются экспертами. Если
-        ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
-        проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
-        корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
-        с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
-    </MudAlert>
-    return;
-}
+    @if (_contestEvent == null)
+    {
+        <PageTitle>Отзывы экспертов о неизвестном мероприятии</PageTitle>
+        <MudAlert Severity="Severity.Warning">
+            Мероприятие с идентификатором <em>@EventId</em> <strong>не найдено</strong>. Если ты вводил адрес
+            страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то проверь не ошибся
+            ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь корректность этой
+            ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы
+            системы, то это ошибка - обратись, пожалуйста, к разработчикам
+        </MudAlert>
+        return;
+    }
 
-<MudExpansionPanels Class="mb-3">
-    <MudExpansionPanel>
-        <TitleContent>
-            <div class="d-flex">
-                <MudIcon Color="Color.Primary" Icon="@Icons.Material.Filled.Info" />
-                <MudText Color="Color.Primary" Class="ml-3">Мероприятие <strong>@_contestEvent.EventName</strong></MudText>
-            </div>
-        </TitleContent>
-        <ChildContent>
-            <MudText>Название конкурса мероприятий: <strong>@_contestEvent.ContestName</strong></MudText>
-            <MudText>Число отзывов, оставленных экспертами: <strong>@_contestEvent.FeedbacksQuantity</strong></MudText>
+    <PageTitle>Отзывы экспертов о мероприятии @_contestEvent.EventName</PageTitle>
+    @if (!_contestEvent.IsGraded)
+    {
+        <MudAlert Severity="Severity.Warning">
+            Мероприятия конкурса <strong>@_contestEvent.ContestName</strong> не оцениваются экспертами. Если
+            ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
+            проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
+            корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
+            с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
+        </MudAlert>
+        return;
+    }
 
-            @foreach (var criterion in _contestEvent.GradeCriterions)
+    <MudExpansionPanels Class="mb-3">
+        <MudExpansionPanel>
+            <TitleContent>
+                <div class="d-flex">
+                    <MudIcon Color="Color.Primary" Icon="@Icons.Material.Filled.Info" />
+                    <MudText Color="Color.Primary" Class="ml-3">Мероприятие <strong>@_contestEvent.EventName</strong></MudText>
+                </div>
+            </TitleContent>
+            <ChildContent>
+                <MudText>Название конкурса мероприятий: <strong>@_contestEvent.ContestName</strong></MudText>
+                <MudText>Число отзывов, оставленных экспертами: <strong>@_contestEvent.FeedbacksQuantity</strong></MudText>
+
+                @foreach (var criterion in _contestEvent.GradeCriterions)
+                {
+                    <MudText>Оценка по критерию <em>@criterion.Name</em>: <strong>@criterion.TotalGrade.ToString("0.0")</strong></MudText>
+                }
+
+                <MudDivider Class="mt-3" />
+                <MudButton Href="@($"/forms/expert-feedback/{EventId}")"
+                           Variant="Variant.Outlined"
+                           Color="Color.Secondary"
+                           StartIcon="@Icons.Material.Filled.QrCode"
+                           Class="mt-3">
+                    Форма эксперта
+                </MudButton>
+
+            </ChildContent>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+
+    <MudTable Items="@_feedbacks"
+              Filter="FilterRecords"
+              Breakpoint="Breakpoint.None"
+              Hover="true">
+
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Отзывы экспертов</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchFilter"
+                          MaxLength="50"
+                          Clearable="true"
+                          Placeholder="Поиск"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" />
+        </ToolBarContent>
+
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh><MudTableSortLabel T="Feedback" SortBy="SelectNameField">Имя эксперта</MudTableSortLabel></MudTh>
+
+            @for (var number = 0; number < _contestEvent.GradeCriterions.Count; number++)
             {
-                <MudText>Оценка по критерию <em>@criterion.Name</em>: <strong>@criterion.TotalGrade.ToString("0.0")</strong></MudText>
+                var index = number;
+                <MudTh>
+                    <MudTableSortLabel T="Feedback" SortBy="item => SelectGradeField(item, _contestEvent.GradeCriterions[index].Identifier)">
+                        <MudTooltip Text="@_contestEvent.GradeCriterions[index].Name">
+                            <div class="d-flex">
+                                <MudIcon Icon="@Icons.Material.Filled.Star" Size="Size.Small" />
+                                <MudText Class="ml-1">@(index + 1)</MudText>
+                            </div>
+                        </MudTooltip>
+                    </MudTableSortLabel>
+                </MudTh>
             }
 
-            <MudDivider Class="mt-3" />
-            <MudButton Href="@($"/forms/expert-feedback/{EventId}")"
-                       Variant="Variant.Outlined"
-                       Color="Color.Secondary"
-                       StartIcon="@Icons.Material.Filled.QrCode"
-                       Class="mt-3">
-                Форма эксперта
-            </MudButton>
+            <MudTh>Дополнительный комментарий</MudTh>
+            <MudTh>Время получения</MudTh>
+        </HeaderContent>
 
-        </ChildContent>
-    </MudExpansionPanel>
-</MudExpansionPanels>
+        <RowTemplate>
+            <MudTd>@context.Number</MudTd>
+            <MudTd>@context.ExpertName</MudTd>
 
-<MudTable Items="@_feedbacks"
-          Filter="FilterRecords"
-          Breakpoint="Breakpoint.None"
-          Hover="true">
+            @for (var number = 0; number < _contestEvent.GradeCriterions.Count; number++)
+            {
+                var index = number;
+                <MudTd>@context.Grades[_contestEvent.GradeCriterions[index].Identifier]</MudTd>
+            }
 
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Отзывы экспертов</MudText>
-        <MudSpacer />
-        <MudTextField @bind-Value="_searchFilter"
-                      MaxLength="50"
-                      Clearable="true"
-                      Placeholder="Поиск"
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" />
-    </ToolBarContent>
+            <MudTd>@context.Note</MudTd>
+            <MudTd>@context.ReceivedAt</MudTd>
+        </RowTemplate>
 
-    <HeaderContent>
-        <MudTh>#</MudTh>
-        <MudTh><MudTableSortLabel T="Feedback" SortBy="SelectNameField">Имя эксперта</MudTableSortLabel></MudTh>
+        <NoRecordsContent>
+            <MudAlert Severity="Severity.Info">
+                О мероприятии <strong>@_contestEvent.EventName</strong> экспертами не было оставлено ни одного отзыва
+            </MudAlert>
+        </NoRecordsContent>
+    </MudTable>
 
-        @for (var number = 0; number < _contestEvent.GradeCriterions.Count; number++)
-        {
-            var index = number;
-            <MudTh>
-                <MudTableSortLabel T="Feedback" SortBy="item => SelectGradeField(item, _contestEvent.GradeCriterions[index].Identifier)">
-                    <MudTooltip Text="@_contestEvent.GradeCriterions[index].Name">
-                        <div class="d-flex">
-                            <MudIcon Icon="@Icons.Material.Filled.Star" Size="Size.Small" />
-                            <MudText Class="ml-1">@(index + 1)</MudText>
-                        </div>
-                    </MudTooltip>
-                </MudTableSortLabel>
-            </MudTh>
-        }
-
-        <MudTh>Дополнительный комментарий</MudTh>
-        <MudTh>Время получения</MudTh>
-    </HeaderContent>
-
-    <RowTemplate>
-        <MudTd>@context.Number</MudTd>
-        <MudTd>@context.ExpertName</MudTd>
-
-        @for (var number = 0; number < _contestEvent.GradeCriterions.Count; number++)
-        {
-            var index = number;
-            <MudTd>@context.Grades[_contestEvent.GradeCriterions[index].Identifier]</MudTd>
-        }
-
-        <MudTd>@context.Note</MudTd>
-        <MudTd>@context.ReceivedAt</MudTd>
-    </RowTemplate>
-
-    <NoRecordsContent>
-        <MudAlert Severity="Severity.Info">
-            О мероприятии <strong>@_contestEvent.EventName</strong> экспертами не было оставлено ни одного отзыва
-        </MudAlert>
-    </NoRecordsContent>
-</MudTable>
+</LayoutView>
 
 @code {
 

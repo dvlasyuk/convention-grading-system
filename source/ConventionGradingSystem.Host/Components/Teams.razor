@@ -2,6 +2,7 @@
 
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
+@using ConventionGradingSystem.Host.Components.Shared.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Extensions.Options
@@ -10,44 +11,48 @@
 @inject IOptions<ApplicationConfiguration> Configuration
 @inject DatabaseContext DatabaseContext
 
-<PageTitle>Команды участников</PageTitle>
+<LayoutView Layout="@typeof(TeamsLayout)">
 
-<MudTable Items="@_teams"
-          Filter="FilterRecords"
-          Breakpoint="Breakpoint.None"
-          Hover="true">
+    <PageTitle>Команды участников</PageTitle>
 
-    <ToolBarContent>
-        <MudText Typo="Typo.h6">Команды участников</MudText>
-        <MudSpacer />
-        <MudTextField @bind-Value="_searchFilter"
-                      MaxLength="50"
-                      Clearable="true"
-                      Placeholder="Поиск"
-                      Adornment="Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" />
-    </ToolBarContent>
+    <MudTable Items="@_teams"
+              Filter="FilterRecords"
+              Breakpoint="Breakpoint.None"
+              Hover="true">
 
-    <HeaderContent>
-        <MudTh>#</MudTh>
-        <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectNameField">Название команды</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectMembersField">Количество участников</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectRegistrationsField">Количество регистраций</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectAttendancesField">Количество посещений</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectAbsencesField">Количество пропусков</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectSpecialMarksField">Особые отметки</MudTableSortLabel></MudTh>
-    </HeaderContent>
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Команды участников</MudText>
+            <MudSpacer />
+            <MudTextField @bind-Value="_searchFilter"
+                          MaxLength="50"
+                          Clearable="true"
+                          Placeholder="Поиск"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" />
+        </ToolBarContent>
 
-    <RowTemplate>
-        <MudTd>@context.Number</MudTd>
-        <MudTd>@context.Name</MudTd>
-        <MudTd>@context.MembersQuantity</MudTd>
-        <MudTd>@context.RegistrationsQuantity</MudTd>
-        <MudTd>@context.AttendancesQuantity</MudTd>
-        <MudTd>@context.AbsencesQuantity</MudTd>
-        <MudTd>@context.SpecialMarksQuantity</MudTd>
-    </RowTemplate>
-</MudTable>
+        <HeaderContent>
+            <MudTh>#</MudTh>
+            <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectNameField">Название команды</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectMembersField">Количество участников</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectRegistrationsField">Количество регистраций</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectAttendancesField">Количество посещений</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectAbsencesField">Количество пропусков</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="ParticipantsTeam" SortBy="SelectSpecialMarksField">Особые отметки</MudTableSortLabel></MudTh>
+        </HeaderContent>
+
+        <RowTemplate>
+            <MudTd>@context.Number</MudTd>
+            <MudTd>@context.Name</MudTd>
+            <MudTd>@context.MembersQuantity</MudTd>
+            <MudTd>@context.RegistrationsQuantity</MudTd>
+            <MudTd>@context.AttendancesQuantity</MudTd>
+            <MudTd>@context.AbsencesQuantity</MudTd>
+            <MudTd>@context.SpecialMarksQuantity</MudTd>
+        </RowTemplate>
+    </MudTable>
+
+</LayoutView>
 
 @code {
     private IEnumerable<ParticipantsTeam> _teams = new List<ParticipantsTeam>();
