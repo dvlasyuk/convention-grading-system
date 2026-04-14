@@ -58,7 +58,7 @@
 
     private async Task SignInToSystem()
     {
-        await _formSelector!.Validate();
+        await _formSelector!.ValidateAsync();
         if (!_isFormValid)
         {
             return;
