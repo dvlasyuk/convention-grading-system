@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="ConventionGradingSystem.DataAccess/ConventionGradingSystem.DataAccess.csproj" />
+  <Project Path="ConventionGradingSystem.Host/ConventionGradingSystem.Host.csproj" />
+</Solution>

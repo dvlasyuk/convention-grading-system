@@ -176,7 +176,7 @@
 
     private async Task ProcessForm()
     {
-        await _formSelector!.Validate();
+        await _formSelector!.ValidateAsync();
         if (!_isFormValid)
         {
             return;
