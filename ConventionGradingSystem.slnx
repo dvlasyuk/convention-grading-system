@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/common/">
+    <File Path="CHANGELOG.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/source/">
+    <Project Path="source/ConventionGradingSystem.DataAccess/ConventionGradingSystem.DataAccess.csproj" />
+    <Project Path="source/ConventionGradingSystem.Host/ConventionGradingSystem.Host.csproj" />
+  </Folder>
+</Solution>
