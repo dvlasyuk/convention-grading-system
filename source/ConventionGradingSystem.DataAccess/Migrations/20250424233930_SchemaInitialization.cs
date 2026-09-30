@@ -6,10 +6,8 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ConventionGradingSystem.DataAccess.Migrations;
 
-/// <inheritdoc />
 public partial class SchemaInitialization : Migration
 {
-    /// <inheritdoc />
     protected override void Up([NotNull] MigrationBuilder migrationBuilder)
     {
         migrationBuilder.CreateTable(
@@ -109,7 +107,6 @@ public partial class SchemaInitialization : Migration
             });
     }
 
-    /// <inheritdoc />
     protected override void Down([NotNull] MigrationBuilder migrationBuilder)
     {
         migrationBuilder.DropTable(

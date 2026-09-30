@@ -140,9 +140,6 @@
     private List<MudSelect<Candidate>> _candidateSelectors = new List<MudSelect<Candidate>>();
     MudSelect<Candidate> CandidateSelector { set => _candidateSelectors.Add(value); }
 
-    /// <summary>
-    /// Идентификатор зрительского голосования.
-    /// </summary>
     [Parameter]
     public string? VotingId { get; set; }
 

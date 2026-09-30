@@ -7,15 +7,8 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ConventionGradingSystem.DataAccess.Database.Configurators;
 
-/// <summary>
-/// Конфигуратор голоса участника в рамках зрительского голосования.
-/// </summary>
 public class ParticipantVoteConfigurator : IEntityTypeConfiguration<ParticipantVote>
 {
-    /// <summary>
-    /// Конфигурирует модель сущности базы данных.
-    /// </summary>
-    /// <param name="builder">Конструктор для конфигурирования модели.</param>
     public void Configure([NotNull] EntityTypeBuilder<ParticipantVote> builder)
     {
         builder.HasKey(entity => entity.Identifier);

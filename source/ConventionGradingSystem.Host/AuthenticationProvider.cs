@@ -11,19 +11,11 @@ using Microsoft.Extensions.Options;
 
 namespace ConventionGradingSystem.Host;
 
-/// <summary>
-/// Провайдер информации об аутентифицированном пользователе.
-/// </summary>
 public class AuthenticationProvider : AuthenticationStateProvider
 {
     private readonly SecurityConfiguration _configuration;
     private readonly ProtectedLocalStorage _localStorage;
 
-    /// <summary>
-    /// Создаёт новый экземпляр <see cref="AuthenticationProvider"/>.
-    /// </summary>
-    /// <param name="configuration">Конфигурационные данные для обеспечения безопасности приложения.</param>
-    /// <param name="localStorage">Локальное хранилище браузера.</param>
     public AuthenticationProvider(
         [NotNull] IOptions<SecurityConfiguration> configuration,
         [NotNull] ProtectedLocalStorage localStorage)
@@ -32,10 +24,6 @@ public class AuthenticationProvider : AuthenticationStateProvider
         _localStorage = localStorage;
     }
 
-    /// <summary>
-    /// Возвращает состояние аутентифицированного пользователя.
-    /// </summary>
-    /// <returns>Состояние аутентифицированного пользователя.</returns>
     [SuppressMessage("Design", "CA1031: Do not catch general exception types")]
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
@@ -55,10 +43,6 @@ public class AuthenticationProvider : AuthenticationStateProvider
         return new AuthenticationState(principal);
     }
 
-    /// <summary>
-    /// Осуществляет вход пользователя по секретной фразе.
-    /// </summary>
-    /// <param name="secretPhrase">Секретная фраза пользователя.</param>
     public async Task SignIn(string secretPhrase)
     {
         ArgumentNullException.ThrowIfNull(secretPhrase);
@@ -95,9 +79,6 @@ public class AuthenticationProvider : AuthenticationStateProvider
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
     }
 
-    /// <summary>
-    /// Осуществляет выход пользователя.
-    /// </summary>
     public async Task SignOut()
     {
         await _localStorage.DeleteAsync("Identity");

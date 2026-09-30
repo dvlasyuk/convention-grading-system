@@ -14,7 +14,6 @@ namespace ConventionGradingSystem.DataAccess.Migrations
     [Migration("20250424233930_SchemaInitialization")]
     partial class SchemaInitialization
     {
-        /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
