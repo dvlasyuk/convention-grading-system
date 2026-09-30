@@ -7,11 +7,11 @@
 
 @inject IOptions<ApplicationConfiguration> Configuration
 
-@if (!_votingsSectionAvailable)
+@if (!_contestsSectionAvailable)
 {
-    <PageTitle>Зрительские голосования</PageTitle>
-    <MudAlert Severity="Severity.Warning">
-        В рамках слёта не проводится ни одно зрительское голосование. Если ты вводил адрес страницы в адресную
+    <PageTitle>Конкурсы мероприятий</PageTitle>
+    <MudAlert Severity="@Severity.Warning">
+        В рамках слёта не проводится ни один конкурс мероприятий. Если ты вводил адрес страницы в адресную
         строку браузера вручную или вставлял скопированную ссылку, то проверь не ошибся ли ты при вводе или
         копировании. Если ты переходил по прямой ссылке, то проверь корректность этой ссылки или попроси
         сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы системы, то это
@@ -25,10 +25,10 @@ else
 
 @code {
 
-    private bool _votingsSectionAvailable = false;
+    private bool _contestsSectionAvailable = false;
 
     protected override void OnInitialized()
     {
-        _votingsSectionAvailable = Configuration.Value.Votings.Count > 0;
+        _contestsSectionAvailable = Configuration.Value.Contests.Count > 0;
     }
 }

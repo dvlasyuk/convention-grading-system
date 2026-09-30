@@ -2,7 +2,7 @@
 
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
-@using ConventionGradingSystem.Host.Components.Shared.Sections
+@using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Extensions.Options
@@ -16,26 +16,26 @@
     <PageTitle>Зрительские голосования</PageTitle>
 
     <MudTable Items="@_audienceVotings"
-              Filter="FilterRecords"
-              Breakpoint="Breakpoint.None"
+              Filter="@FilterRecords"
+              Breakpoint="@Breakpoint.None"
               Hover="true">
 
         <ToolBarContent>
-            <MudText Typo="Typo.h6">Зрительские голосования</MudText>
+            <MudText Typo="@Typo.h6">Зрительские голосования</MudText>
             <MudSpacer />
-            <MudTextField @bind-Value="_searchFilter"
+            <MudTextField @bind-Value="@_searchFilter"
                           MaxLength="50"
                           Clearable="true"
                           Placeholder="Поиск"
-                          Adornment="Adornment.Start"
+                          Adornment="@Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Search" />
         </ToolBarContent>
 
         <HeaderContent>
             <MudTh>#</MudTh>
-            <MudTh><MudTableSortLabel T="AudienceVoting" SortBy="SelectNameField">Название голосования</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="AudienceVoting" SortBy="SelectCandidatesField">Количество кандидатов</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="AudienceVoting" SortBy="SelectVotesField">Общее количество голосов</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@AudienceVoting" SortBy="@SelectNameField">Название голосования</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@AudienceVoting" SortBy="@SelectCandidatesField">Количество кандидатов</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@AudienceVoting" SortBy="@SelectVotesField">Общее количество голосов</MudTableSortLabel></MudTh>
             <MudTh>Действия</MudTh>
         </HeaderContent>
 
@@ -46,14 +46,14 @@
             <MudTd>@context.TotalVotesQuantity</MudTd>
             <MudTd>
                 <MudButton Href="@context.DetailsLink"
-                           Variant="Variant.Outlined"
-                           Color="Color.Primary"
+                           Variant="@Variant.Outlined"
+                           Color="@Color.Primary"
                            StartIcon="@Icons.Material.Filled.Info">
                     Детали
                 </MudButton>
                 <MudButton Href="@context.FormLink"
-                           Variant="Variant.Outlined"
-                           Color="Color.Secondary"
+                           Variant="@Variant.Outlined"
+                           Color="@Color.Secondary"
                            StartIcon="@Icons.Material.Filled.QrCode"
                            Class="ml-3">
                     Форма голосования

@@ -2,7 +2,7 @@
 
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
-@using ConventionGradingSystem.Host.Components.Shared.Sections
+@using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Extensions.Options
@@ -16,27 +16,27 @@
     <PageTitle>Конкурсы мероприятий</PageTitle>
 
     <MudTable Items="@_contests"
-              Filter="FilterRecords"
-              Breakpoint="Breakpoint.None"
+              Filter="@FilterRecords"
+              Breakpoint="@Breakpoint.None"
               Hover="true">
 
         <ToolBarContent>
-            <MudText Typo="Typo.h6">Конкурсы мероприятий</MudText>
+            <MudText Typo="@Typo.h6">Конкурсы мероприятий</MudText>
             <MudSpacer />
-            <MudTextField @bind-Value="_searchFilter"
+            <MudTextField @bind-Value="@_searchFilter"
                           MaxLength="50"
                           Clearable="true"
                           Placeholder="Поиск"
-                          Adornment="Adornment.Start"
+                          Adornment="@Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Search" />
         </ToolBarContent>
 
         <HeaderContent>
             <MudTh>#</MudTh>
-            <MudTh><MudTableSortLabel T="Contest" SortBy="SelectNameField">Название конкурса</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="Contest" SortBy="SelectEventsField">Количество мероприятий</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="Contest" SortBy="SelectExpertField">Количество отзывов экспертов</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="Contest" SortBy="SelectParticipantField">Количество отзывов участников</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@Contest" SortBy="@SelectNameField">Название конкурса</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@Contest" SortBy="@SelectEventsField">Количество мероприятий</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@Contest" SortBy="@SelectExpertField">Количество отзывов экспертов</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@Contest" SortBy="@SelectParticipantField">Количество отзывов участников</MudTableSortLabel></MudTh>
             <MudTh>Действия</MudTh>
         </HeaderContent>
 
@@ -48,8 +48,8 @@
             <MudTd>@context.ParticiapntFeedbaksQuantity</MudTd>
             <MudTd>
                 <MudButton Href="@context.DetailsLink"
-                           Variant="Variant.Outlined"
-                           Color="Color.Primary"
+                           Variant="@Variant.Outlined"
+                           Color="@Color.Primary"
                            StartIcon="@Icons.Material.Filled.Info">
                     Детали
                 </MudButton>

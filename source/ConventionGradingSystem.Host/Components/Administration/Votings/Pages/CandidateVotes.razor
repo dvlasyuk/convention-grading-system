@@ -1,13 +1,13 @@
 @page "/candidates/{candidateId}/votes"
 
+@using System.Globalization
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
-@using ConventionGradingSystem.Host.Components.Shared.Sections
+@using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Extensions.Options
 @using MudBlazor
-@using System.Globalization
 
 @inject IOptions<ApplicationConfiguration> Configuration
 @inject DatabaseContext DatabaseContext
@@ -17,7 +17,7 @@
     @if (_votingCandidate == null)
     {
         <PageTitle>Голоса за неизвестного кандидата</PageTitle>
-        <MudAlert Severity="Severity.Warning">
+        <MudAlert Severity="@Severity.Warning">
             Кандидат зрительского голосования с идентификатором <em>@CandidateId</em> <strong>не найден</strong>.
             Если ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
             проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
@@ -33,8 +33,8 @@
         <MudExpansionPanel>
             <TitleContent>
                 <div class="d-flex">
-                    <MudIcon Color="Color.Primary" Icon="@Icons.Material.Filled.Info" />
-                    <MudText Color="Color.Primary" Class="ml-3">Кандидат голосования <strong>@_votingCandidate.CandidateName</strong></MudText>
+                    <MudIcon Color="@Color.Primary" Icon="@Icons.Material.Filled.Info" />
+                    <MudText Color="@Color.Primary" Class="ml-3">Кандидат голосования <strong>@_votingCandidate.CandidateName</strong></MudText>
                 </div>
             </TitleContent>
             <ChildContent>
@@ -46,26 +46,26 @@
     </MudExpansionPanels>
 
     <MudTable Items="@_participantVotes"
-              Filter="FilterRecords"
-              Breakpoint="Breakpoint.None"
+              Filter="@FilterRecords"
+              Breakpoint="@Breakpoint.None"
               Hover="true">
 
         <ToolBarContent>
-            <MudText Typo="Typo.h6">Голоса за кандидата</MudText>
+            <MudText Typo="@Typo.h6">Голоса за кандидата</MudText>
             <MudSpacer />
-            <MudTextField @bind-Value="_searchFilter"
+            <MudTextField @bind-Value="@_searchFilter"
                           MaxLength="50"
                           Clearable="true"
                           Placeholder="Поиск"
-                          Adornment="Adornment.Start"
+                          Adornment="@Adornment.Start"
                           AdornmentIcon="@Icons.Material.Filled.Search" />
         </ToolBarContent>
 
         <HeaderContent>
             <MudTh>#</MudTh>
-            <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectNameField">Имя участника</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectBrigadeField">Отряд участника</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="ParticipantVote" SortBy="SelectTeamField">Команда участника</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@ParticipantVote" SortBy="@SelectNameField">Имя участника</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@ParticipantVote" SortBy="@SelectBrigadeField">Отряд участника</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@ParticipantVote" SortBy="@SelectTeamField">Команда участника</MudTableSortLabel></MudTh>
             <MudTh>Дополнительный комментарий</MudTh>
             <MudTh>Время получения</MudTh>
         </HeaderContent>
@@ -80,7 +80,7 @@
         </RowTemplate>
 
         <NoRecordsContent>
-            <MudAlert Severity="Severity.Info">
+            <MudAlert Severity="@Severity.Info">
                 За кандидата голосования <strong>@_votingCandidate.CandidateName</strong> не было отдано ни одного голоса
             </MudAlert>
         </NoRecordsContent>

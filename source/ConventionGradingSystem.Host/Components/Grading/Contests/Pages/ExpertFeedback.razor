@@ -3,10 +3,11 @@
 
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
-@using ConventionGradingSystem.Host.Components.Shared
-@using ConventionGradingSystem.Host.Components.Shared.Sections
+@using ConventionGradingSystem.Host.Components.Shared.Components
+@using ConventionGradingSystem.Host.Components.Shared.Layouts
+@using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.Extensions.Options
 @using MudBlazor
@@ -28,7 +29,7 @@
             @if (_eventDetails == null)
             {
                 <PageTitle>Форма отзыва о неизвестном мероприятии</PageTitle>
-                <MudAlert Severity="Severity.Warning">
+                <MudAlert Severity="@Severity.Warning">
                     Мероприятие с идентификатором <em>@EventId</em> <strong>не найдено</strong>. Если ты вводил адрес
                     страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то проверь не ошибся
                     ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь корректность этой
@@ -42,7 +43,7 @@
 
             @if (!_eventDetails.IsGraded)
             {
-                <MudAlert Severity="Severity.Warning">
+                <MudAlert Severity="@Severity.Warning">
                     Мероприятия конкурса <strong>@_eventDetails.ContestName</strong> не оцениваются экспертами. Если
                     ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
                     проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
@@ -54,63 +55,63 @@
 
             @if (_isFormDisabled)
             {
-                <MudAlert Severity="Severity.Info">
+                <MudAlert Severity="@Severity.Info">
                     Твой отзыв о мероприятии <strong>@_eventDetails.EventName</strong> в рамка конкурса мероприятий
                     <strong>@_eventDetails.ContestName</strong> принят. Спасибо большое за участие!
                 </MudAlert>
                 return;
             }
 
-            <MudAlert Severity="Severity.Info">
+            <MudAlert Severity="@Severity.Info">
                 Приветствуем тебя, эксперт! Ты можешь свой отзыв о мероприятии <strong>@_eventDetails.EventName</strong>
                 в рамка конкурса мероприятий <strong>@_eventDetails.ContestName</strong>. Оцени мероприятие по приведённым
                 критериям, оставь дополнительный комментарий, если хочешь, и нажми кнопку <em>Отправить</em>
             </MudAlert>
 
             <MudPaper Class="mt-3 pa-3">
-                <MudForm @ref="_formSelector" @bind-IsValid="@_isFormValid">
+                <MudForm @ref="@_formSelector" @bind-IsValid="@_isFormValid">
 
-                    <MudAutocomplete T="Expert"
-                                     @bind-Value="_selectedExpert"
+                    <MudAutocomplete T="@Expert"
+                                     @bind-Value="@_selectedExpert"
                                      SearchFunc="@SearchExpert"
                                      Required="true"
                                      ResetValueOnEmptyText="true"
                                      Label="Выбери себя"
                                      RequiredError="Выбор эксперта обязателен"
-                                     Variant="Variant.Outlined"
-                                     Adornment="Adornment.End"
+                                     Variant="@Variant.Outlined"
+                                     Adornment="@Adornment.End"
                                      AdornmentIcon="@Icons.Material.Filled.Search"
                                      Class="my-3" />
 
                     @foreach (var criterion in _eventDetails.Criterions)
                     {
                         <MudPaper Outlined="true" Class="mt-3 pa-3">
-                            <MudText Typo="Typo.subtitle1">@criterion.Name</MudText>
-                            <MudText Typo="Typo.subtitle2">@criterion.Description</MudText>
+                            <MudText Typo="@Typo.subtitle1">@criterion.Name</MudText>
+                            <MudText Typo="@Typo.subtitle2">@criterion.Description</MudText>
                             <MudSlider @bind-Value="@_selectedGrades[criterion.Identifier]"
                                        Min="@criterion.MinimalGrade"
                                        Max="@criterion.MaximalGrade"
                                        TickMarks="true"
                                        TickMarkLabels="@GetSliderLabels(criterion)"
                                        ValueLabel="true"
-                                       Variant="Variant.Outlined"
+                                       Variant="@Variant.Outlined"
                                        Class="mt-3 mb-5" />
                         </MudPaper>
                     }
 
-                    <MudTextField T="string"
-                                  @bind-Value="_enteredNote"
+                    <MudTextField T="@string"
+                                  @bind-Value="@_enteredNote"
                                   Label="Оставь любой дополнительный комментарий"
-                                  Variant="Variant.Outlined"
+                                  Variant="@Variant.Outlined"
                                   Lines="3"
                                   Class="my-3" />
 
                     <MudDivider />
-                    <MudButton OnClick="ProcessForm"
+                    <MudButton OnClick="@ProcessForm"
                                Disabled="@(!_isFormValid)"
-                               Variant="Variant.Outlined"
-                               Size="Size.Large"
-                               Color="Color.Primary"
+                               Variant="@Variant.Outlined"
+                               Size="@Size.Large"
+                               Color="@Color.Primary"
                                StartIcon="@Icons.Material.Filled.Send"
                                Class="mt-3">
                         Проголосовать
