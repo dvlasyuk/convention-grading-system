@@ -2,7 +2,7 @@
 
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
-@using ConventionGradingSystem.Host.Components.Shared.Sections
+@using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using Microsoft.EntityFrameworkCore
 @using Microsoft.Extensions.Options
@@ -44,10 +44,10 @@
                 <MudText>Общее число голосов, отданных зрителями: <strong>@_audienceVoting.TotalVotesQuantity</strong></MudText>
                 <MudDivider Class="mt-3" />
                 <MudButton Href="@($"/forms/audience-voting/{VotingId}")"
-                            Variant="Variant.Outlined"
-                            Color="Color.Secondary"
-                            StartIcon="@Icons.Material.Filled.QrCode"
-                            Class="mt-3">
+                           Variant="Variant.Outlined"
+                           Color="Color.Secondary"
+                           StartIcon="@Icons.Material.Filled.QrCode"
+                           Class="mt-3">
                     Форма голосования
                 </MudButton>
             </ChildContent>
