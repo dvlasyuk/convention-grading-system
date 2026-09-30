@@ -8,20 +8,8 @@ using Microsoft.Extensions.Options;
 
 namespace ConventionGradingSystem.DataAccess;
 
-/// <summary>
-/// Методы расширения, предназначенные для регистрации функциональности доступа к данным.
-/// </summary>
 public static class RegistrationExtensions
 {
-    /// <summary>
-    /// Регистрирует сервисы, необходимые для доступа к данным в заданном экземпляре <see cref="IServiceCollection"/>.
-    /// </summary>
-    /// <param name="services">Коллекция, в которой требуется зарегистрировать необходмиые сервисы.</param>
-    /// <param name="configurationSection">Название секции конфигурации приложения, из которой должны быть
-    /// получены конфигурационные данные приложения.</param>
-    /// <param name="connectionString">Название строки подключения к базе данных, в которой должны храниться
-    /// операционные данные приложения.</param>
-    /// <returns>Тот же экземпляр <see cref="IServiceCollection"/>, что позволяет создать цепочку вызовов.</returns>
     public static IServiceCollection AddDataAccess(
         this IServiceCollection services,
         string configurationSection,
