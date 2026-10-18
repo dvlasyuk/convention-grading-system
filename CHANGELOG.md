@@ -5,6 +5,19 @@
 ## [Unreleased]
 
 ### Изменено
+- Относительные пути к страницами приложения:
+  - Путь изменён: `/contests` -> `/administration/contests`
+  - Путь изменён: `/contests/{contestId}` -> `/administration/contests/{contestId}/events`
+  - Путь изменён: `/events/{eventId}/expert-feedbacks` -> `/administration/events/{eventId}/expert-feedbacks`
+  - Путь изменён: `/events/{eventId}/participant-feedbacks` -> `/administration/events/{eventId}/participant-feedbacks`
+  - Путь изменён: `/teams` -> `/administration/teams`
+  - Путь изменён: `/votings` -> `/administration/votings`
+  - Путь изменён: `/votings/{votingId}` -> `/administration/votings/{votingId}/candidates`
+  - Путь изменён: `/candidates/{candidateId}/votes` -> `/administration/candidates/{candidateId}/votes`
+  - Путь изменён: `/forms/expert-feedback/{eventId}` -> `/grading/events/{eventId}/expert-feedback`
+  - Путь изменён: `/forms/participant-feedback/{eventId}` -> `/grading/events/{eventId}/participant-feedback`
+  - Путь изменён: `/forms/event-attendance/{eventId}` -> `/grading/events/{eventId}/facilitator-attendance`
+  - Путь изменён: `/forms/audience-voting/{votingId}` -> `/grading/votings/{votingId}/participant-voting`
 - Целевой фреймворк приложения изменён на .NET 10 вместо .NET 9
 
 ## [0.6.0] - 2026-04-14

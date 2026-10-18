@@ -1,4 +1,4 @@
-@page "/forms/participant-feedback/{eventId}"
+@page "/grading/events/{eventId}/participant-feedback"
 @layout BaseLayout
 
 @using ConventionGradingSystem.DataAccess.Configuration
@@ -214,7 +214,7 @@
         await DatabaseContext.SaveChangesAsync();
         await LocalStorage.SetAsync(GetLocalStorageKey(), DateTime.UtcNow.ToString());
 
-        NavigationManager.NavigateTo($"/forms/participant-feedback/{EventId}", true);
+        NavigationManager.NavigateTo($"/grading/events/{EventId}/participant-feedback", true);
     }
 
     private Task<IEnumerable<Team>> SearchTeam(string value, CancellationToken token)
