@@ -1,21 +1,12 @@
 @page "/grading/events/{eventId}/facilitator-attendance"
 @layout BaseLayout
 
-@using ConventionGradingSystem.DataAccess.Configuration
-@using ConventionGradingSystem.DataAccess.Database
-@using ConventionGradingSystem.DataAccess.Database.Entities
 @using ConventionGradingSystem.Host.Components.Shared.Components
 @using ConventionGradingSystem.Host.Components.Shared.Layouts
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
-@using Microsoft.EntityFrameworkCore
-@using Microsoft.Extensions.Options
 @using MudBlazor
-
-@inject IOptions<ApplicationConfiguration> Configuration
-@inject DatabaseContext DatabaseContext
-@inject NavigationManager NavigationManager
 
 <LayoutView Layout="@typeof(ContestsLayout)">
 
@@ -121,120 +112,3 @@
     </AuthorizeView>
 
 </LayoutView>
-
-@code {
-
-    private EventDetails? _eventDetails = null;
-    private string? _searchFilter;
-
-    private Dictionary<string, bool> _attendanceMarks = new Dictionary<string, bool>();
-    private Dictionary<string, bool> _specialMarks = new Dictionary<string, bool>();
-
-    [Parameter]
-    public string? EventId { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var contestEvent = Configuration.Value.Contests
-            .SelectMany(@event => @event.Events)
-            .FirstOrDefault(@event => @event.Identifier == EventId);
-
-        if (contestEvent == null)
-        {
-            return;
-        }
-
-        var contest = Configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
-        var participants = Configuration.Value.Participants.ToDictionary(item => item.Identifier);
-        var brigades = Configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
-        var teams = Configuration.Value.Teams.ToDictionary(team => team.Identifier);
-
-        _eventDetails = new EventDetails(
-            EventName: contestEvent.Name,
-            ContestName: contest.Name,
-            AttendanceControl: contest.AttendanceControl,
-            Participants: contestEvent.Participants
-                .Select(identifier => participants[identifier])
-                .Select(participant => new Participant(
-                    Identifier: participant.Identifier,
-                    Name: participant.Name,
-                    Brigade: !string.IsNullOrWhiteSpace(participant.Brigade)
-                        ? brigades[participant.Brigade].Name
-                        : null,
-                    Team: teams[participant.Team].Name))
-                .ToList());
-
-        var savedAttendanceMarks = await DatabaseContext.AttendanceMarks
-            .Where(item => item.EventId == EventId)
-            .ToListAsync();
-
-        foreach (var participant in _eventDetails.Participants)
-        {
-            _attendanceMarks.Add(participant.Identifier, savedAttendanceMarks.Any(mark => mark.ParticipantId == participant.Identifier));
-            _specialMarks.Add(participant.Identifier, savedAttendanceMarks.Any(mark =>
-                mark.ParticipantId == participant.Identifier &&
-                mark.SpecialMark));
-        }
-    }
-
-    private async Task ProcessForm()
-    {
-        var savedAttendanceMarks = await DatabaseContext.AttendanceMarks
-            .Where(item => item.EventId == EventId)
-            .ToListAsync();
-
-        foreach (var particiapntId in _attendanceMarks.Keys)
-        {
-            var savedMark = savedAttendanceMarks.FirstOrDefault(mark => mark.ParticipantId == particiapntId);
-            if (savedMark == null)
-            {
-                if (_attendanceMarks[particiapntId])
-                {
-                    DatabaseContext.AttendanceMarks.Add(new AttendanceMark
-                    {
-                        ParticipantId = particiapntId,
-                        EventId = EventId!,
-                        SpecialMark = _specialMarks[particiapntId]
-                    });
-                }
-
-                continue;
-            }
-
-            if (!_attendanceMarks[particiapntId])
-            {
-                DatabaseContext.AttendanceMarks.Remove(savedMark);
-            }
-
-            savedMark.SpecialMark = _specialMarks[particiapntId];
-            DatabaseContext.AttendanceMarks.Update(savedMark);
-        }
-
-        await DatabaseContext.SaveChangesAsync();
-        NavigationManager.NavigateTo($"/grading/events/{EventId}/facilitator-attendance", true);
-    }
-
-    private bool FilterRecords(Participant participant)
-    {
-        return string.IsNullOrWhiteSpace(_searchFilter) ||
-            participant.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            participant.Team.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            (participant.Brigade?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
-    }
-
-    private object SelectNameField(Participant participant) => participant.Name;
-    private object SelectBrigadeField(Participant participant) => participant.Brigade ?? string.Empty;
-    private object SelectTeamField(Participant participant) => participant.Team;
-
-    private record EventDetails(
-        string EventName,
-        string ContestName,
-        bool AttendanceControl,
-        IReadOnlyCollection<Participant> Participants);
-
-    private record Participant(
-        string Identifier,
-        string Name,
-        string? Brigade,
-        string Team);
-}

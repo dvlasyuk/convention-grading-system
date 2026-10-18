@@ -1,11 +1,7 @@
 @inherits LayoutComponentBase
 
-@using ConventionGradingSystem.DataAccess.Configuration
 @using Microsoft.AspNetCore.Components.Web
-@using Microsoft.Extensions.Options
 @using MudBlazor
-
-@inject IOptions<ApplicationConfiguration> Configuration
 
 @if (!_votingsSectionAvailable)
 {
@@ -21,14 +17,4 @@
 else
 {
     @Body
-}
-
-@code {
-
-    private bool _votingsSectionAvailable = false;
-
-    protected override void OnInitialized()
-    {
-        _votingsSectionAvailable = Configuration.Value.Votings.Count > 0;
-    }
 }

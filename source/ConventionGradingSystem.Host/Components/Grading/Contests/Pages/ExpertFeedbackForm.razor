@@ -1,21 +1,12 @@
 @page "/grading/events/{eventId}/expert-feedback"
 @layout BaseLayout
 
-@using ConventionGradingSystem.DataAccess.Configuration
-@using ConventionGradingSystem.DataAccess.Database
 @using ConventionGradingSystem.Host.Components.Shared.Components
 @using ConventionGradingSystem.Host.Components.Shared.Layouts
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage
 @using Microsoft.AspNetCore.Components.Web
-@using Microsoft.Extensions.Options
 @using MudBlazor
-
-@inject IOptions<ApplicationConfiguration> Configuration
-@inject DatabaseContext DatabaseContext
-@inject NavigationManager NavigationManager
-@inject ProtectedLocalStorage LocalStorage
 
 <LayoutView Layout="@typeof(ContestsLayout)">
 
@@ -123,126 +114,3 @@
     </AuthorizeView>
 
 </LayoutView>
-
-@code {
-
-    private EventDetails? _eventDetails = null;
-    private bool _isFormDisabled = false;
-    private bool _isFormValid = false;
-
-    private Expert? _selectedExpert = null;
-    private Dictionary<string, int> _selectedGrades = new Dictionary<string, int>();
-    private string? _enteredNote = null;
-
-    private MudForm? _formSelector;
-
-    [Parameter]
-    public string? EventId { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var contestEvent = Configuration.Value.Contests
-            .SelectMany(@event => @event.Events)
-            .FirstOrDefault(@event => @event.Identifier == EventId);
-
-        if (contestEvent == null)
-        {
-            return;
-        }
-
-        var result = await LocalStorage.GetAsync<string>(GetLocalStorageKey());
-        _isFormDisabled = result.Success;
-
-        var contest = Configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
-        _eventDetails = new EventDetails(
-            EventName: contestEvent.Name,
-            ContestName: contest.Name,
-            IsGraded: contest.ExpertCriterions.Count > 0,
-            Criterions: contest.ExpertCriterions
-                .Select(criterion => new GradeCriterion(
-                    Identifier: criterion.Identifier,
-                    Name: criterion.Name,
-                    Description: criterion.Description,
-                    MinimalGrade: criterion.MinimalGrade,
-                    MaximalGrade: criterion.MaximalGrade))
-                .ToList());
-
-        foreach (var criterion in _eventDetails.Criterions)
-        {
-            _selectedGrades.Add(criterion.Identifier, criterion.MaximalGrade);
-        }
-    }
-
-    private async Task ProcessForm()
-    {
-        await _formSelector!.ValidateAsync();
-        if (!_isFormValid)
-        {
-            return;
-        }
-
-        var feedback = new DataAccess.Database.Entities.ExpertFeedback
-        {
-            EventId = EventId!,
-            ExpertId = _selectedExpert!.Identifier,
-            Note = _enteredNote,
-            ReceivedAt = DateTimeOffset.Now
-        };
-
-        foreach (var criterionId in _selectedGrades.Keys)
-        {
-            feedback.Grades.Add(new DataAccess.Database.Entities.ExpertGrade
-            {
-                CriterionId = criterionId,
-                GradeValue = _selectedGrades[criterionId]
-            });
-        }
-
-        DatabaseContext.ExpertFeedbacks.Add(feedback);
-
-        await DatabaseContext.SaveChangesAsync();
-        await LocalStorage.SetAsync(GetLocalStorageKey(), DateTime.UtcNow.ToString());
-
-        NavigationManager.NavigateTo($"/grading/events/{EventId}/expert-feedback", true);
-    }
-
-    private Task<IEnumerable<Expert>> SearchExpert(string value, CancellationToken token)
-    {
-        if (string.IsNullOrEmpty(value))
-        {
-            return Task.FromResult(Enumerable.Empty<Expert>());
-        }
-
-        return Task.FromResult<IEnumerable<Expert>>(Configuration.Value.Experts
-            .Where(expert => expert.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
-            .Select(expert => new Expert(
-                Identifier: expert.Identifier,
-                Name: expert.Name))
-            .ToList());
-    }
-
-    private string[] GetSliderLabels(GradeCriterion criterion) => Enumerable
-        .Range(criterion.MinimalGrade, criterion.MaximalGrade)
-        .Select(label => label.ToString())
-        .ToArray();
-
-    private string GetLocalStorageKey() => $"ExpertFeedback-{EventId}";
-
-    private record EventDetails(
-        string EventName,
-        string ContestName,
-        bool IsGraded,
-        IReadOnlyList<GradeCriterion> Criterions);
-
-    private record Expert(string Identifier, string Name)
-    {
-        public override string ToString() => Name;
-    }
-
-    private record GradeCriterion(
-        string Identifier,
-        string Name,
-        string Description,
-        int MinimalGrade,
-        int MaximalGrade);
-}

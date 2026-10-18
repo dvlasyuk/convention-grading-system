@@ -1,16 +1,8 @@
 @page "/administration/events/{eventId}/participant-feedbacks"
 
-@using System.Globalization
-@using ConventionGradingSystem.DataAccess.Configuration
-@using ConventionGradingSystem.DataAccess.Database
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Web
-@using Microsoft.EntityFrameworkCore
-@using Microsoft.Extensions.Options
 @using MudBlazor
-
-@inject IOptions<ApplicationConfiguration> Configuration
-@inject DatabaseContext DatabaseContext
 
 <LayoutView Layout="@typeof(ContestsLayout)">
 
@@ -136,109 +128,3 @@
     </MudTable>
 
 </LayoutView>
-
-@code {
-
-    private ContestEvent? _contestEvent = null;
-    private IEnumerable<Feedback> _feedbacks = new List<Feedback>();
-    private string? _searchFilter;
-
-    [Parameter]
-    public string? EventId { get; set; }
-
-    protected override async Task OnInitializedAsync()
-    {
-        var contestEvent = Configuration.Value.Contests
-            .SelectMany(item => item.Events)
-            .FirstOrDefault(item => item.Identifier == EventId);
-
-        if (contestEvent == null)
-        {
-            return;
-        }
-
-        var feedbacks = await DatabaseContext.ParticipantFeedbacks
-            .Where(item => item.EventId == EventId)
-            .Include(item => item.Grades)
-            .ToListAsync();
-
-        var contest = Configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
-        var brigades = Configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
-        var teams = Configuration.Value.Teams.ToDictionary(team => team.Identifier);
-
-        _contestEvent = new ContestEvent(
-            EventName: contestEvent.Name,
-            ContestName: contest.Name,
-            IsGraded: contest.ParticipantCriterions.Count > 0,
-            Brigades: contestEvent.Brigades
-                .Select(identifier => brigades[identifier])
-                .Select(brigade => brigade.Name)
-                .ToList(),
-            FeedbacksQuantity: feedbacks.Count(),
-            GradeCriterions: contest.ParticipantCriterions
-                .Select(criterion => new GradeCriterion(
-                    Identifier: criterion.Identifier,
-                    Name: criterion.Name,
-                    TotalGrade: feedbacks.Count == 0 ? (float)0 :
-                        feedbacks
-                            .SelectMany(feedback => feedback.Grades)
-                            .Where(grade => grade.CriterionId == criterion.Identifier)
-                            .Sum(grade => grade.GradeValue) /
-                        (float)feedbacks.Count))
-                .ToList());
-
-        var participants = Configuration.Value.Participants.ToDictionary(item => item.Identifier);
-        _feedbacks = feedbacks
-            .OrderBy(feedback => feedback.Identifier)
-            .Select((feedback, index) => new Feedback(
-                Number: index + 1,
-                ParticipantName: participants[feedback.ParticipantId].Name,
-                ParticipantBrigade: !string.IsNullOrWhiteSpace(participants[feedback.ParticipantId].Brigade)
-                    ? brigades[participants[feedback.ParticipantId].Brigade!].Name
-                    : null,
-                ParticipantTeam: teams[participants[feedback.ParticipantId].Team].Name,
-                Grades: feedback.Grades.ToDictionary(
-                    grade => grade.CriterionId,
-                    grade => grade.GradeValue),
-                Note: feedback.Note,
-                ReceivedAt: feedback.ReceivedAt.ToString(new CultureInfo("ru-RU"))))
-            .ToList();
-    }
-
-    private bool FilterRecords(Feedback feedback)
-    {
-        return string.IsNullOrWhiteSpace(_searchFilter) ||
-            feedback.ParticipantName.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            feedback.ParticipantTeam.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            (feedback.ParticipantBrigade?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
-            (feedback.Note?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
-    }
-
-    private object SelectNameField(Feedback feedback) => feedback.ParticipantName;
-    private object SelectBrigadeField(Feedback feedback) => feedback.ParticipantBrigade ?? string.Empty;
-    private object SelectTeamField(Feedback feedback) => feedback.ParticipantTeam;
-
-    private object SelectGradeField(Feedback feedback, string gradeId) => feedback.Grades[gradeId];
-
-    private record ContestEvent(
-        string EventName,
-        string ContestName,
-        bool IsGraded,
-        IReadOnlyCollection<string> Brigades,
-        int FeedbacksQuantity,
-        IReadOnlyList<GradeCriterion> GradeCriterions);
-
-    private record GradeCriterion(
-        string Identifier,
-        string Name,
-        float TotalGrade);
-
-    private record Feedback(
-        int Number,
-        string ParticipantName,
-        string? ParticipantBrigade,
-        string ParticipantTeam,
-        IReadOnlyDictionary<string, int> Grades,
-        string? Note,
-        string ReceivedAt);
-}

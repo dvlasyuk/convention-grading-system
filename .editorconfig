@@ -210,6 +210,8 @@ csharp_style_prefer_null_check_over_type_check = true
 csharp_prefer_braces = true
 # Use simple 'using' statement (IDE0063)
 csharp_prefer_simple_using_statement = true
+# Use primary constructor (IDE0290)
+csharp_style_prefer_primary_constructors = false
 
 # 'using' directive placement (IDE0065)
 csharp_using_directive_placement = outside_namespace
