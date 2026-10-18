@@ -1,15 +1,8 @@
 @page "/administration/votings"
 
-@using ConventionGradingSystem.DataAccess.Configuration
-@using ConventionGradingSystem.DataAccess.Database
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Web
-@using Microsoft.EntityFrameworkCore
-@using Microsoft.Extensions.Options
 @using MudBlazor
-
-@inject IOptions<ApplicationConfiguration> Configuration
-@inject DatabaseContext DatabaseContext
 
 <LayoutView Layout="@typeof(VotingsLayout)">
 
@@ -63,45 +56,3 @@
     </MudTable>
 
 </LayoutView>
-
-@code {
-    private IEnumerable<AudienceVoting> _audienceVotings = new List<AudienceVoting>();
-    private string? _searchFilter;
-
-    protected override async Task OnInitializedAsync()
-    {
-        var savedVotes = await DatabaseContext.ParticipantVotes.ToListAsync();
-        _audienceVotings = Configuration.Value.Votings
-            .OrderBy(voting => voting.Identifier)
-            .Select((voting, index) => new AudienceVoting(
-                Number: index + 1,
-                Identifier: voting.Identifier,
-                Name: voting.Name,
-                CandidatesQuantity: voting.Candidates.Count,
-                TotalVotesQuantity: voting.Candidates.Sum(candidate =>
-                    savedVotes.Count(vote => vote.CandidateId == candidate.Identifier)),
-                CandidatesListLink: $"/administration/votings/{voting.Identifier}/candidates",
-                ParticipantVotingFormLink: $"/grading/votings/{voting.Identifier}/participant-voting"))
-            .ToList();
-    }
-
-    private bool FilterRecords(AudienceVoting voting)
-    {
-        return string.IsNullOrWhiteSpace(_searchFilter) ||
-            voting.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            voting.Identifier.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase);
-    }
-
-    private object SelectNameField(AudienceVoting voting) => voting.Name;
-    private object SelectCandidatesField(AudienceVoting voting) => voting.CandidatesQuantity;
-    private object SelectVotesField(AudienceVoting voting) => voting.TotalVotesQuantity;
-
-    private record AudienceVoting(
-        int Number,
-        string Identifier,
-        string Name,
-        int CandidatesQuantity,
-        int TotalVotesQuantity,
-        string CandidatesListLink,
-        string ParticipantVotingFormLink);
-}

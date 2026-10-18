@@ -1,9 +1,6 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using MudBlazor
 
-@inject AuthenticationProvider AuthenticationProvider
-@inject NavigationManager NavigationManager
-
 <AuthorizeView>
     <Authorized>
         <MudAlert Severity="Severity.Warning">
@@ -44,42 +41,3 @@
         </MudButton>
     </MudForm>
 </MudPaper>
-
-@code {
-
-    private MudForm? _formSelector;
-    private string? _enteredSecret = null;
-    private bool _isFormValid = false;
-
-    private bool _isPasswordShowed;
-    private InputType _passwordInputType = InputType.Password;
-    private string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
-
-    private async Task SignInToSystem()
-    {
-        await _formSelector!.ValidateAsync();
-        if (!_isFormValid)
-        {
-            return;
-        }
-
-        await AuthenticationProvider.SignIn(_enteredSecret!);
-        NavigationManager.NavigateTo(NavigationManager.Uri, true);
-    }
-
-    private void ShowPassword()
-    {
-        @if (_isPasswordShowed)
-        {
-            _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
-            _passwordInputType = InputType.Password;
-        }
-        else
-        {
-            _passwordInputIcon = Icons.Material.Filled.Visibility;
-            _passwordInputType = InputType.Text;
-        }
-
-        _isPasswordShowed = !_isPasswordShowed;
-    }
-}

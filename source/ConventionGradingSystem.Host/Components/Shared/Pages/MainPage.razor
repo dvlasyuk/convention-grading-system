@@ -1,11 +1,7 @@
 @page "/"
 
-@using ConventionGradingSystem.DataAccess.Configuration
 @using Microsoft.AspNetCore.Components.Web
-@using Microsoft.Extensions.Options
 @using MudBlazor
-
-@inject IOptions<ApplicationConfiguration> Configuration
 
 <PageTitle>Главная страница</PageTitle>
 
@@ -46,23 +42,3 @@
     }
 
 </MudList>
-
-@code {
-
-    private string _conventionName = string.Empty;
-
-    private bool _contestsSectionAvailable = false;
-    private bool _votingsSectionAvailable = false;
-    private bool _teamsSectionAvailable = false;
-
-    protected override void OnInitialized()
-    {
-        _conventionName = Configuration.Value.ConventionName;
-
-        _contestsSectionAvailable = Configuration.Value.Contests.Count > 0;
-        _votingsSectionAvailable = Configuration.Value.Votings.Count > 0;
-        _teamsSectionAvailable =
-            Configuration.Value.Teams.Count > 0 &&
-            Configuration.Value.Contests.Count > 0;
-    }
-}
