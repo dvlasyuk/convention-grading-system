@@ -1,4 +1,4 @@
-@page "/votings"
+@page "/administration/votings"
 
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
@@ -45,13 +45,13 @@
             <MudTd>@context.CandidatesQuantity</MudTd>
             <MudTd>@context.TotalVotesQuantity</MudTd>
             <MudTd>
-                <MudButton Href="@context.DetailsLink"
+                <MudButton Href="@context.CandidatesListLink"
                            Variant="Variant.Outlined"
                            Color="Color.Primary"
                            StartIcon="@Icons.Material.Filled.Info">
                     Детали
                 </MudButton>
-                <MudButton Href="@context.FormLink"
+                <MudButton Href="@context.ParticipantVotingFormLink"
                            Variant="Variant.Outlined"
                            Color="Color.Secondary"
                            StartIcon="@Icons.Material.Filled.QrCode"
@@ -80,8 +80,8 @@
                 CandidatesQuantity: voting.Candidates.Count,
                 TotalVotesQuantity: voting.Candidates.Sum(candidate =>
                     savedVotes.Count(vote => vote.CandidateId == candidate.Identifier)),
-                DetailsLink: $"/votings/{voting.Identifier}",
-                FormLink: $"/forms/audience-voting/{voting.Identifier}"))
+                CandidatesListLink: $"/administration/votings/{voting.Identifier}/candidates",
+                ParticipantVotingFormLink: $"/grading/votings/{voting.Identifier}/participant-voting"))
             .ToList();
     }
 
@@ -102,6 +102,6 @@
         string Name,
         int CandidatesQuantity,
         int TotalVotesQuantity,
-        string DetailsLink,
-        string FormLink);
+        string CandidatesListLink,
+        string ParticipantVotingFormLink);
 }

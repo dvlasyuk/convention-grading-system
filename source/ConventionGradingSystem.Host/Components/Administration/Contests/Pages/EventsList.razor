@@ -1,4 +1,4 @@
-@page "/contests/{contestId}"
+@page "/administration/contests/{contestId}/events"
 
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
@@ -138,7 +138,7 @@
 
                 @if (_contest.ExpertCriterionsQuantity > 0)
                 {
-                    <MudButton Href="@context.ExpertFeedbacksLink"
+                    <MudButton Href="@context.ExpertFeedbacksListLink"
                                Variant="Variant.Outlined"
                                Color="Color.Primary"
                                StartIcon="@Icons.Material.Filled.Info"
@@ -148,7 +148,7 @@
                 }
                 @if (_contest.ParticipantCriterionsQuantity > 0)
                 {
-                    <MudButton Href="@context.ParticipantFeedbacksLink"
+                    <MudButton Href="@context.ParticipantFeedbacksListLink"
                                Variant="Variant.Outlined"
                                Color="Color.Primary"
                                StartIcon="@Icons.Material.Filled.Info"
@@ -161,7 +161,7 @@
 
                 @if (_contest.ExpertCriterionsQuantity > 0)
                 {
-                    <MudButton Href="@context.ExpertFormLink"
+                    <MudButton Href="@context.ExpertFeedbackFormLink"
                                Variant="Variant.Outlined"
                                Color="Color.Secondary"
                                StartIcon="@Icons.Material.Filled.QrCode"
@@ -171,7 +171,7 @@
                 }
                 @if (_contest.ParticipantCriterionsQuantity > 0)
                 {
-                    <MudButton Href="@context.ParticipantFormLink"
+                    <MudButton Href="@context.ParticipantFeedbackFormLink"
                                Variant="Variant.Outlined"
                                Color="Color.Secondary"
                                StartIcon="@Icons.Material.Filled.QrCode"
@@ -184,7 +184,7 @@
 
                 @if (_contest.AttendanceControl)
                 {
-                    <MudButton Href="@context.AttendanceFormLink"
+                    <MudButton Href="@context.FacilitatorAttendanceFormLink"
                         Variant="Variant.Outlined"
                                  Color="Color.Tertiary"
                                  StartIcon="@Icons.Material.Filled.QrCode"
@@ -275,11 +275,11 @@
                         .SelectMany(feedback => feedback.Grades)
                         .GroupBy(grade => grade.CriterionId)
                         .Sum(group => group.Sum(grade => grade.GradeValue) / (float)group.Count()),
-                ExpertFormLink: $"/forms/expert-feedback/{@event.Identifier}",
-                ExpertFeedbacksLink: $"/events/{@event.Identifier}/expert-feedbacks",
-                ParticipantFormLink: $"/forms/participant-feedback/{@event.Identifier}",
-                ParticipantFeedbacksLink: $"/events/{@event.Identifier}/participant-feedbacks",
-                AttendanceFormLink: $"/forms/event-attendance/{@event.Identifier}"))
+                ExpertFeedbackFormLink: $"/grading/events/{@event.Identifier}/expert-feedback",
+                ExpertFeedbacksListLink: $"/administration/events/{@event.Identifier}/expert-feedbacks",
+                ParticipantFeedbackFormLink: $"/grading/events/{@event.Identifier}/participant-feedback",
+                ParticipantFeedbacksListLink: $"/administration/events/{@event.Identifier}/participant-feedbacks",
+                FacilitatorAttendanceFormLink: $"/grading/events/{@event.Identifier}/facilitator-attendance"))
             .ToList();
     }
 
@@ -321,9 +321,9 @@
         float ExpertGrade,
         float ParticipantGrade,
         float TotalGrade,
-        string ExpertFormLink,
-        string ExpertFeedbacksLink,
-        string ParticipantFormLink,
-        string ParticipantFeedbacksLink,
-        string AttendanceFormLink);
+        string ExpertFeedbackFormLink,
+        string ExpertFeedbacksListLink,
+        string ParticipantFeedbackFormLink,
+        string ParticipantFeedbacksListLink,
+        string FacilitatorAttendanceFormLink);
 }

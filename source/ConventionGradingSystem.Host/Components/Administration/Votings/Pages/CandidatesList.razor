@@ -1,4 +1,4 @@
-@page "/votings/{votingId}"
+@page "/administration/votings/{votingId}/candidates"
 
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
@@ -43,7 +43,7 @@
                 <MudText>Общее число кандидатов в голосовании <strong>@_audienceVoting.CandidatesQuantity</strong></MudText>
                 <MudText>Общее число голосов, отданных зрителями: <strong>@_audienceVoting.TotalVotesQuantity</strong></MudText>
                 <MudDivider Class="mt-3" />
-                <MudButton Href="@($"/forms/audience-voting/{VotingId}")"
+                <MudButton Href="@($"/grading/votings/{VotingId}/participant-voting")"
                            Variant="Variant.Outlined"
                            Color="Color.Secondary"
                            StartIcon="@Icons.Material.Filled.QrCode"
@@ -98,7 +98,7 @@
             </MudTd>
             <MudTd>@context.VotesQuantity</MudTd>
             <MudTd>
-                <MudButton Href="@context.VotesLink"
+                <MudButton Href="@context.VotesListLink"
                            Variant="Variant.Outlined"
                            Color="Color.Primary"
                            StartIcon="@Icons.Material.Filled.Info">
@@ -162,7 +162,7 @@
                     .ToList(),
                 VotesQuantity: savedVotes
                     .Count(vote => vote.CandidateId == candidate.Identifier),
-                VotesLink: $"/candidates/{candidate.Identifier}/votes"))
+                VotesListLink: $"/administration/candidates/{candidate.Identifier}/votes"))
             .ToList();
     }
 
@@ -192,5 +192,5 @@
         IReadOnlyCollection<string> Brigades,
         IReadOnlyCollection<string> Teams,
         int VotesQuantity,
-        string VotesLink);
+        string VotesListLink);
 }

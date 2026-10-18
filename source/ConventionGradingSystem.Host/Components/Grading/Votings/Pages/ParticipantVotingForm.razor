@@ -1,4 +1,4 @@
-@page "/forms/audience-voting/{votingId}"
+@page "/grading/votings/{votingId}/participant-voting"
 @layout BaseLayout
 
 @using ConventionGradingSystem.DataAccess.Configuration
@@ -190,7 +190,7 @@
         await DatabaseContext.SaveChangesAsync();
         await LocalStorage.SetAsync(GetLocalStorageKey(), DateTime.UtcNow.ToString());
 
-        NavigationManager.NavigateTo($"/forms/audience-voting/{VotingId}", true);
+        NavigationManager.NavigateTo($"/grading/votings/{VotingId}/participant-voting", true);
     }
 
     private Task<IEnumerable<Team>> SearchTeam(string value, CancellationToken token)

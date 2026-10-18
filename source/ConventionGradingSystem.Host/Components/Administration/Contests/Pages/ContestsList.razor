@@ -1,4 +1,4 @@
-@page "/contests"
+@page "/administration/contests"
 
 @using ConventionGradingSystem.DataAccess.Configuration
 @using ConventionGradingSystem.DataAccess.Database
@@ -47,7 +47,7 @@
             <MudTd>@context.ExpertFeedbaksQuantity</MudTd>
             <MudTd>@context.ParticiapntFeedbaksQuantity</MudTd>
             <MudTd>
-                <MudButton Href="@context.DetailsLink"
+                <MudButton Href="@context.EventsListLink"
                            Variant="Variant.Outlined"
                            Color="Color.Primary"
                            StartIcon="@Icons.Material.Filled.Info">
@@ -80,7 +80,7 @@
                     expertFeedbacks.Count(feedback => feedback.EventId == @event.Identifier) ),
                 ParticiapntFeedbaksQuantity: contest.Events.Sum(@event =>
                     participantFeedbacks.Count(feedback => feedback.EventId == @event.Identifier)),
-                DetailsLink: $"/contests/{contest.Identifier}"))
+                EventsListLink: $"/administration/contests/{contest.Identifier}/events"))
             .ToList();
     }
 
@@ -103,5 +103,5 @@
         int EventsQuantity,
         int ExpertFeedbaksQuantity,
         int ParticiapntFeedbaksQuantity,
-        string DetailsLink);
+        string EventsListLink);
 }

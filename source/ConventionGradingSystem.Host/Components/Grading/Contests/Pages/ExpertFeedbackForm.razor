@@ -1,4 +1,4 @@
-@page "/forms/expert-feedback/{eventId}"
+@page "/grading/events/{eventId}/expert-feedback"
 @layout BaseLayout
 
 @using ConventionGradingSystem.DataAccess.Configuration
@@ -203,7 +203,7 @@
         await DatabaseContext.SaveChangesAsync();
         await LocalStorage.SetAsync(GetLocalStorageKey(), DateTime.UtcNow.ToString());
 
-        NavigationManager.NavigateTo($"/forms/expert-feedback/{EventId}", true);
+        NavigationManager.NavigateTo($"/grading/events/{EventId}/expert-feedback", true);
     }
 
     private Task<IEnumerable<Expert>> SearchExpert(string value, CancellationToken token)

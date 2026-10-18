@@ -1,4 +1,4 @@
-@page "/forms/event-attendance/{eventId}"
+@page "/grading/events/{eventId}/facilitator-attendance"
 @layout BaseLayout
 
 @using ConventionGradingSystem.DataAccess.Configuration
@@ -211,7 +211,7 @@
         }
 
         await DatabaseContext.SaveChangesAsync();
-        NavigationManager.NavigateTo($"/forms/event-attendance/{EventId}", true);
+        NavigationManager.NavigateTo($"/grading/events/{EventId}/facilitator-attendance", true);
     }
 
     private bool FilterRecords(Participant participant)
