@@ -69,7 +69,7 @@ public partial class VotesList
                     : null,
                 ParticipantTeam: teams[participants[vote.ParticipantId].Team].Name,
                 Note: vote.Note,
-                ReceivedAt: vote.ReceivedAt.ToString(new CultureInfo("ru-RU"))))];
+                ReceivedAt: vote.ReceivedAt.ToString(CultureInfo.CurrentCulture)))];
     }
 
     private bool FilterRecords(ParticipantVote vote)

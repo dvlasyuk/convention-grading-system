@@ -93,7 +93,9 @@ public partial class ParticipantVotingForm
         }));
 
         await _databaseContext.SaveChangesAsync();
-        await _localStorage.SetAsync(GetLocalStorageKey(), DateTime.UtcNow.ToString(new CultureInfo("ru-RU")));
+        await _localStorage.SetAsync(
+            key: GetLocalStorageKey(),
+            value: DateTime.UtcNow.ToString(CultureInfo.InvariantCulture));
 
         _navigationManager.NavigateTo(
             uri: NavigationHelper.Grading.GetParticipantVotingFormLink(VotingId!),
