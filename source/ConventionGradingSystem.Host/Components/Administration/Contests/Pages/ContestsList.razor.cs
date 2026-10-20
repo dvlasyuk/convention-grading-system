@@ -40,8 +40,7 @@ public partial class ContestsList
                 ExpertFeedbaksQuantity: contest.Events.Sum(@event =>
                     expertFeedbacks.Count(feedback => feedback.EventId == @event.Identifier)),
                 ParticiapntFeedbaksQuantity: contest.Events.Sum(@event =>
-                    participantFeedbacks.Count(feedback => feedback.EventId == @event.Identifier)),
-                EventsListLink: $"/administration/contests/{contest.Identifier}/events"))];
+                    participantFeedbacks.Count(feedback => feedback.EventId == @event.Identifier))))];
     }
 
     private bool FilterRecords(Contest contest)
@@ -62,6 +61,5 @@ public partial class ContestsList
         string Name,
         int EventsQuantity,
         int ExpertFeedbaksQuantity,
-        int ParticiapntFeedbaksQuantity,
-        string EventsListLink);
+        int ParticiapntFeedbaksQuantity);
 }

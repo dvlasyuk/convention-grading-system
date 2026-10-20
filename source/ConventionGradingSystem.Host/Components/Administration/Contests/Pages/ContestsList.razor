@@ -1,6 +1,7 @@
 @page "/administration/contests"
 
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
+@using ConventionGradingSystem.Host.Navigation
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
@@ -40,7 +41,7 @@
             <MudTd>@context.ExpertFeedbaksQuantity</MudTd>
             <MudTd>@context.ParticiapntFeedbaksQuantity</MudTd>
             <MudTd>
-                <MudButton Href="@context.EventsListLink"
+                <MudButton Href="@NavigationHelper.Administration.GetEventsListLink(context.Identifier)"
                            Variant="Variant.Outlined"
                            Color="Color.Primary"
                            StartIcon="@Icons.Material.Filled.Info">

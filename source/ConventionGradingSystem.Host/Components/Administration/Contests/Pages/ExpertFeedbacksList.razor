@@ -1,6 +1,7 @@
 @page "/administration/events/{eventId}/expert-feedbacks"
 
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
+@using ConventionGradingSystem.Host.Navigation
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
@@ -50,7 +51,7 @@
                 }
 
                 <MudDivider Class="mt-3" />
-                <MudButton Href="@($"/grading/events/{EventId}/expert-feedback")"
+                <MudButton Href="@NavigationHelper.Grading.GetExpertFeedbackFormLink(EventId!)"
                            Variant="Variant.Outlined"
                            Color="Color.Secondary"
                            StartIcon="@Icons.Material.Filled.QrCode"

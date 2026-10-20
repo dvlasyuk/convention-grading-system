@@ -3,6 +3,7 @@ using System.Globalization;
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.DataAccess.Database.Entities;
+using ConventionGradingSystem.Host.Navigation;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
@@ -94,7 +95,9 @@ public partial class ParticipantVotingForm
         await _databaseContext.SaveChangesAsync();
         await _localStorage.SetAsync(GetLocalStorageKey(), DateTime.UtcNow.ToString(new CultureInfo("ru-RU")));
 
-        _navigationManager.NavigateTo($"/grading/votings/{VotingId}/participant-voting", true);
+        _navigationManager.NavigateTo(
+            uri: NavigationHelper.Grading.GetParticipantVotingFormLink(VotingId!),
+            forceLoad: true);
     }
 
     private Task<IEnumerable<Team>> SearchTeam(string value, CancellationToken token)

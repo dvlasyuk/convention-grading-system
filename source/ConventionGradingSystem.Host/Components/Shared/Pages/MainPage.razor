@@ -1,5 +1,6 @@
 @page "/"
 
+@using ConventionGradingSystem.Host.Navigation
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
@@ -17,8 +18,8 @@
 
     @if (_contestsSectionAvailable)
     {
-        <MudListItem Href="/administration/contests" Icon="@Icons.Material.Filled.Star">
-            Раздел <MudLink Href="/administration/contests">Конкурсы мероприятий</MudLink> содержит всю необходимую информацию
+        <MudListItem Href="@NavigationHelper.Administration.GetContestsListLink()" Icon="@Icons.Material.Filled.Star">
+            Раздел <MudLink Href="@NavigationHelper.Administration.GetContestsListLink()">Конкурсы мероприятий</MudLink> содержит всю необходимую информацию
             о конкурсах, в рамках которых проводимые мероприятия оцениваются экспертами и/или участниками
             слёта по настроенным критериям
         </MudListItem>
@@ -26,8 +27,8 @@
 
     @if (_votingsSectionAvailable)
     {
-        <MudListItem Href="/administration/votings" Icon="@Icons.Material.Filled.HowToVote">
-            В разделе <MudLink Href="/administration/votings">Зрительские голосования</MudLink> ты найдёшь всю требуемую
+        <MudListItem Href="@NavigationHelper.Administration.GetVotingsListLink()" Icon="@Icons.Material.Filled.HowToVote">
+            В разделе <MudLink Href="@NavigationHelper.Administration.GetVotingsListLink()">Зрительские голосования</MudLink> ты найдёшь всю требуемую
             информацию о конкурсах зрительских симпатий, в рамках которых участники слёта голосуют за
             понравившихся им участников конкурсов
         </MudListItem>
@@ -35,8 +36,8 @@
 
     @if (_teamsSectionAvailable)
     {
-        <MudListItem Href="/administration/teams" Icon="@Icons.Material.Filled.Groups">
-            В разделе <MudLink Href="/administration/teams">Команды участников</MudLink> собрана информация о регистрации и
+        <MudListItem Href="@NavigationHelper.Administration.GetTeamsListLink()" Icon="@Icons.Material.Filled.Groups">
+            В разделе <MudLink Href="@NavigationHelper.Administration.GetTeamsListLink()">Команды участников</MudLink> собрана информация о регистрации и
             посещении участниками слёта мероприятий, которую можно использовать в рамках системы мотивации
         </MudListItem>
     }

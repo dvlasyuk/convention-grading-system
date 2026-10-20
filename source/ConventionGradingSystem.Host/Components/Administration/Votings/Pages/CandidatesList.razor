@@ -1,6 +1,7 @@
 @page "/administration/votings/{votingId}/candidates"
 
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
+@using ConventionGradingSystem.Host.Navigation
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
@@ -36,7 +37,7 @@
                 <MudText>Общее число кандидатов в голосовании <strong>@_audienceVoting.CandidatesQuantity</strong></MudText>
                 <MudText>Общее число голосов, отданных зрителями: <strong>@_audienceVoting.TotalVotesQuantity</strong></MudText>
                 <MudDivider Class="mt-3" />
-                <MudButton Href="@($"/grading/votings/{VotingId}/participant-voting")"
+                <MudButton Href="@NavigationHelper.Grading.GetParticipantVotingFormLink(VotingId!)"
                            Variant="Variant.Outlined"
                            Color="Color.Secondary"
                            StartIcon="@Icons.Material.Filled.QrCode"
@@ -91,7 +92,7 @@
             </MudTd>
             <MudTd>@context.VotesQuantity</MudTd>
             <MudTd>
-                <MudButton Href="@context.VotesListLink"
+                <MudButton Href="@NavigationHelper.Administration.GetVotesListLink(context.Identifier)"
                            Variant="Variant.Outlined"
                            Color="Color.Primary"
                            StartIcon="@Icons.Material.Filled.Info">

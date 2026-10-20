@@ -70,8 +70,7 @@ public partial class CandidatesList
                     .Select(identifier => teams[identifier])
                     .Select(team => team.Name)],
                 VotesQuantity: savedVotes
-                    .Count(vote => vote.CandidateId == candidate.Identifier),
-                VotesListLink: $"/administration/candidates/{candidate.Identifier}/votes"))];
+                    .Count(vote => vote.CandidateId == candidate.Identifier)))];
     }
 
     private bool FilterRecords(VotingCandidate voting)
@@ -99,6 +98,5 @@ public partial class CandidatesList
         string Name,
         IReadOnlyCollection<string> Brigades,
         IReadOnlyCollection<string> Teams,
-        int VotesQuantity,
-        string VotesListLink);
+        int VotesQuantity);
 }

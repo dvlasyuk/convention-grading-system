@@ -1,6 +1,7 @@
 @page "/administration/contests/{contestId}/events"
 
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
+@using ConventionGradingSystem.Host.Navigation
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
@@ -131,7 +132,7 @@
 
                 @if (_contest.ExpertCriterionsQuantity > 0)
                 {
-                    <MudButton Href="@context.ExpertFeedbacksListLink"
+                    <MudButton Href="@NavigationHelper.Administration.GetExpertFeedbacksListLink(context.Identifier)"
                                Variant="Variant.Outlined"
                                Color="Color.Primary"
                                StartIcon="@Icons.Material.Filled.Info"
@@ -141,7 +142,7 @@
                 }
                 @if (_contest.ParticipantCriterionsQuantity > 0)
                 {
-                    <MudButton Href="@context.ParticipantFeedbacksListLink"
+                    <MudButton Href="@NavigationHelper.Administration.GetParticipantFeedbacksListLink(context.Identifier)"
                                Variant="Variant.Outlined"
                                Color="Color.Primary"
                                StartIcon="@Icons.Material.Filled.Info"
@@ -154,7 +155,7 @@
 
                 @if (_contest.ExpertCriterionsQuantity > 0)
                 {
-                    <MudButton Href="@context.ExpertFeedbackFormLink"
+                    <MudButton Href="@NavigationHelper.Grading.GetExpertFeedbackFormLink(context.Identifier)"
                                Variant="Variant.Outlined"
                                Color="Color.Secondary"
                                StartIcon="@Icons.Material.Filled.QrCode"
@@ -164,7 +165,7 @@
                 }
                 @if (_contest.ParticipantCriterionsQuantity > 0)
                 {
-                    <MudButton Href="@context.ParticipantFeedbackFormLink"
+                    <MudButton Href="@NavigationHelper.Grading.GetParticipantFeedbackFormLink(context.Identifier)"
                                Variant="Variant.Outlined"
                                Color="Color.Secondary"
                                StartIcon="@Icons.Material.Filled.QrCode"
@@ -177,7 +178,7 @@
 
                 @if (_contest.AttendanceControl)
                 {
-                    <MudButton Href="@context.FacilitatorAttendanceFormLink"
+                    <MudButton Href="@NavigationHelper.Grading.GetFacilitatorAttendanceFormLink(context.Identifier)"
                         Variant="Variant.Outlined"
                                  Color="Color.Tertiary"
                                  StartIcon="@Icons.Material.Filled.QrCode"

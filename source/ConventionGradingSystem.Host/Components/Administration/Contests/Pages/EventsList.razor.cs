@@ -98,12 +98,7 @@ public partial class EventsList
                         .Where(feedback => feedback.EventId == @event.Identifier)
                         .SelectMany(feedback => feedback.Grades)
                         .GroupBy(grade => grade.CriterionId)
-                        .Sum(group => group.Sum(grade => grade.GradeValue) / (float)group.Count()),
-                ExpertFeedbackFormLink: $"/grading/events/{@event.Identifier}/expert-feedback",
-                ExpertFeedbacksListLink: $"/administration/events/{@event.Identifier}/expert-feedbacks",
-                ParticipantFeedbackFormLink: $"/grading/events/{@event.Identifier}/participant-feedback",
-                ParticipantFeedbacksListLink: $"/administration/events/{@event.Identifier}/participant-feedbacks",
-                FacilitatorAttendanceFormLink: $"/grading/events/{@event.Identifier}/facilitator-attendance"))];
+                        .Sum(group => group.Sum(grade => grade.GradeValue) / (float)group.Count())))];
     }
 
     private bool FilterRecords(ContestEvent contestEvent)
@@ -140,10 +135,5 @@ public partial class EventsList
         int ParticipantFeedbacksQuantity,
         float ExpertGrade,
         float ParticipantGrade,
-        float TotalGrade,
-        string ExpertFeedbackFormLink,
-        string ExpertFeedbacksListLink,
-        string ParticipantFeedbackFormLink,
-        string ParticipantFeedbacksListLink,
-        string FacilitatorAttendanceFormLink);
+        float TotalGrade);
 }
