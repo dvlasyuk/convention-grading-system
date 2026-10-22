@@ -3,6 +3,7 @@ using System.Globalization;
 
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
+using ConventionGradingSystem.Host.Components.Administration.Votings.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -16,9 +17,7 @@ public partial class VotesList
     private readonly DatabaseContext _databaseContext;
     private readonly IOptions<ApplicationConfiguration> _configuration;
 
-    private VotingCandidate? _votingCandidate;
-    private IEnumerable<ParticipantVote> _participantVotes = [];
-    private string? _searchFilter;
+    private readonly VotesListModel _viewModel = new();
 
     [Parameter]
     public string? CandidateId { get; set; }
@@ -50,7 +49,7 @@ public partial class VotesList
         var brigades = _configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
         var teams = _configuration.Value.Teams.ToDictionary(team => team.Identifier);
 
-        _votingCandidate = new VotingCandidate(
+        _viewModel.Candidate = new VotesListModel.CandidateModel(
             CandidateName: candidate.Name,
             VotingName: voting.Name,
             Brigades: [.. candidate.Brigades
@@ -59,9 +58,9 @@ public partial class VotesList
             VotesQuantity: savedVotes.Count);
 
         var participants = _configuration.Value.Participants.ToDictionary(item => item.Identifier);
-        _participantVotes = [.. savedVotes
+        _viewModel.Votes = [.. savedVotes
             .OrderBy(vote => vote.Identifier)
-            .Select((vote, index) => new ParticipantVote(
+            .Select((vote, index) => new VotesListModel.VoteModel(
                 Number: index + 1,
                 ParticipantName: participants[vote.ParticipantId].Name,
                 ParticipantBrigade: !string.IsNullOrWhiteSpace(participants[vote.ParticipantId].Brigade)
@@ -72,30 +71,16 @@ public partial class VotesList
                 ReceivedAt: vote.ReceivedAt.ToString(new CultureInfo("ru-RU"))))];
     }
 
-    private bool FilterRecords(ParticipantVote vote)
+    private bool FilterRecords(VotesListModel.VoteModel vote)
     {
-        return string.IsNullOrWhiteSpace(_searchFilter) ||
-            vote.ParticipantName.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            vote.ParticipantTeam.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            (vote.ParticipantBrigade?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
-            (vote.Note?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
+        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
+            vote.ParticipantName.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            vote.ParticipantTeam.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            (vote.ParticipantBrigade?.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (vote.Note?.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 
-    private static object SelectNameField(ParticipantVote vote) => vote.ParticipantName;
-    private static object SelectBrigadeField(ParticipantVote vote) => vote.ParticipantBrigade ?? string.Empty;
-    private static object SelectTeamField(ParticipantVote vote) => vote.ParticipantTeam;
-
-    private sealed record VotingCandidate(
-        string CandidateName,
-        string VotingName,
-        IReadOnlyCollection<string> Brigades,
-        int VotesQuantity);
-
-    private sealed record ParticipantVote(
-        int Number,
-        string ParticipantName,
-        string? ParticipantBrigade,
-        string ParticipantTeam,
-        string? Note,
-        string ReceivedAt);
+    private static object SelectNameField(VotesListModel.VoteModel vote) => vote.ParticipantName;
+    private static object SelectBrigadeField(VotesListModel.VoteModel vote) => vote.ParticipantBrigade ?? string.Empty;
+    private static object SelectTeamField(VotesListModel.VoteModel vote) => vote.ParticipantTeam;
 }

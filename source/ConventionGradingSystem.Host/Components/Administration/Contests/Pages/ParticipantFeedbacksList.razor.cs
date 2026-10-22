@@ -3,6 +3,7 @@ using System.Globalization;
 
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
+using ConventionGradingSystem.Host.Components.Administration.Contests.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -16,9 +17,7 @@ public partial class ParticipantFeedbacksList
     private readonly DatabaseContext _databaseContext;
     private readonly IOptions<ApplicationConfiguration> _configuration;
 
-    private ContestEvent? _contestEvent;
-    private IEnumerable<Feedback> _feedbacks = [];
-    private string? _searchFilter;
+    private readonly ParticipantFeedbacksListModel _viewModel = new();
 
     [Parameter]
     public string? EventId { get; set; }
@@ -51,7 +50,7 @@ public partial class ParticipantFeedbacksList
         var brigades = _configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
         var teams = _configuration.Value.Teams.ToDictionary(team => team.Identifier);
 
-        _contestEvent = new ContestEvent(
+        _viewModel.Event = new ParticipantFeedbacksListModel.EventModel(
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             IsGraded: contest.ParticipantCriterions.Count > 0,
@@ -60,7 +59,7 @@ public partial class ParticipantFeedbacksList
                 .Select(brigade => brigade.Name)],
             FeedbacksQuantity: feedbacks.Count,
             GradeCriterions: [.. contest.ParticipantCriterions
-                .Select(criterion => new GradeCriterion(
+                .Select(criterion => new ParticipantFeedbacksListModel.CriterionModel(
                     Identifier: criterion.Identifier,
                     Name: criterion.Name,
                     TotalGrade: feedbacks.Count == 0 ? 0f :
@@ -71,9 +70,9 @@ public partial class ParticipantFeedbacksList
                         (float)feedbacks.Count))]);
 
         var participants = _configuration.Value.Participants.ToDictionary(item => item.Identifier);
-        _feedbacks = [.. feedbacks
+        _viewModel.Feedbacks = [.. feedbacks
             .OrderBy(feedback => feedback.Identifier)
-            .Select((feedback, index) => new Feedback(
+            .Select((feedback, index) => new ParticipantFeedbacksListModel.FeedbackModel(
                 Number: index + 1,
                 ParticipantName: participants[feedback.ParticipantId].Name,
                 ParticipantBrigade: !string.IsNullOrWhiteSpace(participants[feedback.ParticipantId].Brigade)
@@ -87,40 +86,18 @@ public partial class ParticipantFeedbacksList
                 ReceivedAt: feedback.ReceivedAt.ToString(new CultureInfo("ru-RU"))))];
     }
 
-    private bool FilterRecords(Feedback feedback)
+    private bool FilterRecords(ParticipantFeedbacksListModel.FeedbackModel feedback)
     {
-        return string.IsNullOrWhiteSpace(_searchFilter) ||
-            feedback.ParticipantName.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            feedback.ParticipantTeam.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            (feedback.ParticipantBrigade?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
-            (feedback.Note?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
+        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
+            feedback.ParticipantName.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            feedback.ParticipantTeam.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            (feedback.ParticipantBrigade?.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (feedback.Note?.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 
-    private static object SelectNameField(Feedback feedback) => feedback.ParticipantName;
-    private static object SelectBrigadeField(Feedback feedback) => feedback.ParticipantBrigade ?? string.Empty;
-    private static object SelectTeamField(Feedback feedback) => feedback.ParticipantTeam;
+    private static object SelectNameField(ParticipantFeedbacksListModel.FeedbackModel feedback) => feedback.ParticipantName;
+    private static object SelectBrigadeField(ParticipantFeedbacksListModel.FeedbackModel feedback) => feedback.ParticipantBrigade ?? string.Empty;
+    private static object SelectTeamField(ParticipantFeedbacksListModel.FeedbackModel feedback) => feedback.ParticipantTeam;
 
-    private static object SelectGradeField(Feedback feedback, string gradeId) => feedback.Grades[gradeId];
-
-    private sealed record ContestEvent(
-        string EventName,
-        string ContestName,
-        bool IsGraded,
-        IReadOnlyCollection<string> Brigades,
-        int FeedbacksQuantity,
-        IReadOnlyList<GradeCriterion> GradeCriterions);
-
-    private sealed record GradeCriterion(
-        string Identifier,
-        string Name,
-        float TotalGrade);
-
-    private sealed record Feedback(
-        int Number,
-        string ParticipantName,
-        string? ParticipantBrigade,
-        string ParticipantTeam,
-        IReadOnlyDictionary<string, int> Grades,
-        string? Note,
-        string ReceivedAt);
+    private static object SelectGradeField(ParticipantFeedbacksListModel.FeedbackModel feedback, string gradeId) => feedback.Grades[gradeId];
 }

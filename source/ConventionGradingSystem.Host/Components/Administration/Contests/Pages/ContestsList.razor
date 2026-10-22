@@ -1,5 +1,6 @@
 @page "/administration/contests"
 
+@using ConventionGradingSystem.Host.Components.Administration.Contests.Models
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
@@ -8,7 +9,7 @@
 
     <PageTitle>Конкурсы мероприятий</PageTitle>
 
-    <MudTable Items="@_contests"
+    <MudTable Items="@_viewModel.Contests"
               Filter="@FilterRecords"
               Breakpoint="@Breakpoint.None"
               Hover="true">
@@ -16,7 +17,7 @@
         <ToolBarContent>
             <MudText Typo="@Typo.h6">Конкурсы мероприятий</MudText>
             <MudSpacer />
-            <MudTextField @bind-Value="@_searchFilter"
+            <MudTextField @bind-Value="@_viewModel.SearchFilter"
                           MaxLength="50"
                           Clearable="true"
                           Placeholder="Поиск"
@@ -26,10 +27,10 @@
 
         <HeaderContent>
             <MudTh>#</MudTh>
-            <MudTh><MudTableSortLabel T="@Contest" SortBy="@SelectNameField">Название конкурса</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@Contest" SortBy="@SelectEventsField">Количество мероприятий</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@Contest" SortBy="@SelectExpertField">Количество отзывов экспертов</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@Contest" SortBy="@SelectParticipantField">Количество отзывов участников</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@ContestsListModel.ContestModel" SortBy="@SelectNameField">Название конкурса</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@ContestsListModel.ContestModel" SortBy="@SelectEventsField">Количество мероприятий</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@ContestsListModel.ContestModel" SortBy="@SelectExpertField">Количество отзывов экспертов</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@ContestsListModel.ContestModel" SortBy="@SelectParticipantField">Количество отзывов участников</MudTableSortLabel></MudTh>
             <MudTh>Действия</MudTh>
         </HeaderContent>
 

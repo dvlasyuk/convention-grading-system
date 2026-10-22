@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
-@if (!_contestsSectionAvailable)
+@if (!_viewModel.ContestsSectionAvailable)
 {
     <PageTitle>Конкурсы мероприятий</PageTitle>
     <MudAlert Severity="@Severity.Warning">

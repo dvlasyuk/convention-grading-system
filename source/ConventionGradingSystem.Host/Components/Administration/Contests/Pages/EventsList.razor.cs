@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
+using ConventionGradingSystem.Host.Components.Administration.Contests.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -15,9 +16,7 @@ public partial class EventsList
     private readonly DatabaseContext _databaseContext;
     private readonly IOptions<ApplicationConfiguration> _configuration;
 
-    private Contest? _contest;
-    private IEnumerable<ContestEvent> _contestEvents = [];
-    private string? _searchFilter;
+    private readonly EventsListModel _viewModel = new();
 
     [Parameter]
     public string? ContestId { get; set; }
@@ -52,7 +51,7 @@ public partial class EventsList
             .Include(item => item.Grades)
             .ToListAsync();
 
-        _contest = new Contest(
+        _viewModel.Contest = new EventsListModel.ContestModel(
             Name: contest.Name,
             RegisteredGrading: contest.RegisteredGrading,
             FriendlyGrading: contest.FriendlyGrading,
@@ -64,9 +63,9 @@ public partial class EventsList
             ParticipantFeedbacksQuantity: participantFeedbacks.Count);
 
         var brigades = _configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
-        _contestEvents = [.. contest.Events
+        _viewModel.Events = [.. contest.Events
             .OrderBy(@event => @event.Identifier)
-            .Select((@event, index) => new ContestEvent(
+            .Select((@event, index) => new EventsListModel.EventModel(
                 Number: index + 1,
                 Identifier: @event.Identifier,
                 Name: @event.Name,
@@ -106,44 +105,17 @@ public partial class EventsList
                 FacilitatorAttendanceFormLink: $"/grading/events/{@event.Identifier}/facilitator-attendance"))];
     }
 
-    private bool FilterRecords(ContestEvent contestEvent)
+    private bool FilterRecords(EventsListModel.EventModel contestEvent)
     {
-        return string.IsNullOrWhiteSpace(_searchFilter) ||
-            contestEvent.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            contestEvent.Identifier.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase);
+        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
+            contestEvent.Name.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            contestEvent.Identifier.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static object SelectNameField(ContestEvent contestEvent) => contestEvent.Name;
-    private static object SelectExpertFeedbacksField(ContestEvent contestEvent) => contestEvent.ExprertFeedbacksQuantity;
-    private static object SelectParticipantFeedbacksField(ContestEvent contestEvent) => contestEvent.ParticipantFeedbacksQuantity;
-    private static object SelectExpertGradeField(ContestEvent contestEvent) => contestEvent.ExpertGrade;
-    private static object SelectParticipantGradeField(ContestEvent contestEvent) => contestEvent.ParticipantGrade;
-    private static object SelectTotalGradeField(ContestEvent contestEvent) => contestEvent.TotalGrade;
-
-    private sealed record Contest(
-        string Name,
-        bool RegisteredGrading,
-        bool FriendlyGrading,
-        bool AttendanceControl,
-        int ExpertCriterionsQuantity,
-        int ParticipantCriterionsQuantity,
-        int EventsQuantity,
-        int ExpertFeedbacksQuantity,
-        int ParticipantFeedbacksQuantity);
-
-    private sealed record ContestEvent(
-        int Number,
-        string Identifier,
-        string Name,
-        IReadOnlyCollection<string> Brigades,
-        int ExprertFeedbacksQuantity,
-        int ParticipantFeedbacksQuantity,
-        float ExpertGrade,
-        float ParticipantGrade,
-        float TotalGrade,
-        string ExpertFeedbackFormLink,
-        string ExpertFeedbacksListLink,
-        string ParticipantFeedbackFormLink,
-        string ParticipantFeedbacksListLink,
-        string FacilitatorAttendanceFormLink);
+    private static object SelectNameField(EventsListModel.EventModel contestEvent) => contestEvent.Name;
+    private static object SelectExpertFeedbacksField(EventsListModel.EventModel contestEvent) => contestEvent.ExprertFeedbacksQuantity;
+    private static object SelectParticipantFeedbacksField(EventsListModel.EventModel contestEvent) => contestEvent.ParticipantFeedbacksQuantity;
+    private static object SelectExpertGradeField(EventsListModel.EventModel contestEvent) => contestEvent.ExpertGrade;
+    private static object SelectParticipantGradeField(EventsListModel.EventModel contestEvent) => contestEvent.ParticipantGrade;
+    private static object SelectTotalGradeField(EventsListModel.EventModel contestEvent) => contestEvent.TotalGrade;
 }

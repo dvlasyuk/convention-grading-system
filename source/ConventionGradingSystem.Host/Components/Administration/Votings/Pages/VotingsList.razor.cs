@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
+using ConventionGradingSystem.Host.Components.Administration.Votings.Models;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -14,8 +15,7 @@ public partial class VotingsList
     private readonly DatabaseContext _databaseContext;
     private readonly IOptions<ApplicationConfiguration> _configuration;
 
-    private IEnumerable<AudienceVoting> _audienceVotings = [];
-    private string? _searchFilter;
+    private readonly VotingsListModel _viewModel = new();
 
     public VotingsList(
         DatabaseContext databaseContext,
@@ -28,9 +28,9 @@ public partial class VotingsList
     protected override async Task OnInitializedAsync()
     {
         var savedVotes = await _databaseContext.ParticipantVotes.ToListAsync();
-        _audienceVotings = [.. _configuration.Value.Votings
+        _viewModel.Votings = [.. _configuration.Value.Votings
             .OrderBy(voting => voting.Identifier)
-            .Select((voting, index) => new AudienceVoting(
+            .Select((voting, index) => new VotingsListModel.VotingModel(
                 Number: index + 1,
                 Identifier: voting.Identifier,
                 Name: voting.Name,
@@ -41,23 +41,14 @@ public partial class VotingsList
                 ParticipantVotingFormLink: $"/grading/votings/{voting.Identifier}/participant-voting"))];
     }
 
-    private bool FilterRecords(AudienceVoting voting)
+    private bool FilterRecords(VotingsListModel.VotingModel voting)
     {
-        return string.IsNullOrWhiteSpace(_searchFilter) ||
-            voting.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            voting.Identifier.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase);
+        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
+            voting.Name.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            voting.Identifier.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static object SelectNameField(AudienceVoting voting) => voting.Name;
-    private static object SelectCandidatesField(AudienceVoting voting) => voting.CandidatesQuantity;
-    private static object SelectVotesField(AudienceVoting voting) => voting.TotalVotesQuantity;
-
-    private sealed record AudienceVoting(
-        int Number,
-        string Identifier,
-        string Name,
-        int CandidatesQuantity,
-        int TotalVotesQuantity,
-        string CandidatesListLink,
-        string ParticipantVotingFormLink);
+    private static object SelectNameField(VotingsListModel.VotingModel voting) => voting.Name;
+    private static object SelectCandidatesField(VotingsListModel.VotingModel voting) => voting.CandidatesQuantity;
+    private static object SelectVotesField(VotingsListModel.VotingModel voting) => voting.TotalVotesQuantity;
 }

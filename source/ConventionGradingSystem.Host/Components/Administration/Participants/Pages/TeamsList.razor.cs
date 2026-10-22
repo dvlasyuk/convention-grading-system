@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
+using ConventionGradingSystem.Host.Components.Administration.Participants.Models;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -14,8 +15,7 @@ public partial class TeamsList
     private readonly DatabaseContext _databaseContext;
     private readonly IOptions<ApplicationConfiguration> _configuration;
 
-    private IEnumerable<ParticipantsTeam> _teams = [];
-    private string? _searchFilter;
+    private readonly TeamsListModel _viewModel = new();
 
     public TeamsList(
         DatabaseContext databaseContext,
@@ -28,9 +28,9 @@ public partial class TeamsList
     protected override async Task OnInitializedAsync()
     {
         var attendanceMarks = await _databaseContext.AttendanceMarks.ToListAsync();
-        _teams = [.. _configuration.Value.Teams
+        _viewModel.Teams = [.. _configuration.Value.Teams
             .OrderBy(team => team.Identifier)
-            .Select((team, index) => new ParticipantsTeam(
+            .Select((team, index) => new TeamsListModel.TeamModel(
                 Number: index + 1,
                 Identifier: team.Identifier,
                 Name: team.Name,
@@ -68,27 +68,17 @@ public partial class TeamsList
                     .Count(mark => mark.SpecialMark)))];
     }
 
-    private bool FilterRecords(ParticipantsTeam team)
+    private bool FilterRecords(TeamsListModel.TeamModel team)
     {
-        return string.IsNullOrWhiteSpace(_searchFilter) ||
-            team.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            team.Identifier.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase);
+        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
+            team.Name.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            team.Identifier.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static object SelectNameField(ParticipantsTeam team) => team.Name;
-    private static object SelectMembersField(ParticipantsTeam team) => team.MembersQuantity;
-    private static object SelectRegistrationsField(ParticipantsTeam team) => team.RegistrationsQuantity;
-    private static object SelectAttendancesField(ParticipantsTeam team) => team.AttendancesQuantity;
-    private static object SelectAbsencesField(ParticipantsTeam team) => team.AbsencesQuantity;
-    private static object SelectSpecialMarksField(ParticipantsTeam team) => team.SpecialMarksQuantity;
-
-    private sealed record ParticipantsTeam(
-        int Number,
-        string Identifier,
-        string Name,
-        int MembersQuantity,
-        int RegistrationsQuantity,
-        int AttendancesQuantity,
-        int AbsencesQuantity,
-        int SpecialMarksQuantity);
+    private static object SelectNameField(TeamsListModel.TeamModel team) => team.Name;
+    private static object SelectMembersField(TeamsListModel.TeamModel team) => team.MembersQuantity;
+    private static object SelectRegistrationsField(TeamsListModel.TeamModel team) => team.RegistrationsQuantity;
+    private static object SelectAttendancesField(TeamsListModel.TeamModel team) => team.AttendancesQuantity;
+    private static object SelectAbsencesField(TeamsListModel.TeamModel team) => team.AbsencesQuantity;
+    private static object SelectSpecialMarksField(TeamsListModel.TeamModel team) => team.SpecialMarksQuantity;
 }

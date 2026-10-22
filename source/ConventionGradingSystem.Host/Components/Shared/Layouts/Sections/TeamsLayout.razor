@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
-@if (!_teamsSectionAvailable)
+@if (!_viewModel.TeamsSectionAvailable)
 {
     <PageTitle>Команды участников</PageTitle>
     <MudAlert Severity="@Severity.Warning">

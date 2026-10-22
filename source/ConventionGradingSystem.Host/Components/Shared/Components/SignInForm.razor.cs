@@ -1,3 +1,5 @@
+using ConventionGradingSystem.Host.Components.Shared.Models;
+
 using Microsoft.AspNetCore.Components;
 
 using MudBlazor;
@@ -9,13 +11,8 @@ public partial class SignInForm
     private readonly AuthenticationProvider _authenticationProvider;
     private readonly NavigationManager _navigationManager;
 
+    private readonly SignInFormModel _viewModel = new();
     private MudForm? _formSelector;
-    private string? _enteredSecret;
-    private bool _isFormValid;
-
-    private bool _isPasswordShowed;
-    private InputType _passwordInputType = InputType.Password;
-    private string _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
 
     public SignInForm(
         AuthenticationProvider authenticationProvider,
@@ -28,28 +25,28 @@ public partial class SignInForm
     private async Task SignInToSystem()
     {
         await _formSelector!.ValidateAsync();
-        if (!_isFormValid)
+        if (!_viewModel.IsFormValid)
         {
             return;
         }
 
-        await _authenticationProvider.SignIn(_enteredSecret!);
+        await _authenticationProvider.SignIn(_viewModel.EnteredSecret!);
         _navigationManager.NavigateTo(_navigationManager.Uri, true);
     }
 
     private void ShowPassword()
     {
-        if (_isPasswordShowed)
+        if (_viewModel.IsPasswordShowed)
         {
-            _passwordInputIcon = Icons.Material.Filled.VisibilityOff;
-            _passwordInputType = InputType.Password;
+            _viewModel.PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
+            _viewModel.PasswordInputType = InputType.Password;
         }
         else
         {
-            _passwordInputIcon = Icons.Material.Filled.Visibility;
-            _passwordInputType = InputType.Text;
+            _viewModel.PasswordInputIcon = Icons.Material.Filled.Visibility;
+            _viewModel.PasswordInputType = InputType.Text;
         }
 
-        _isPasswordShowed = !_isPasswordShowed;
+        _viewModel.IsPasswordShowed = !_viewModel.IsPasswordShowed;
     }
 }

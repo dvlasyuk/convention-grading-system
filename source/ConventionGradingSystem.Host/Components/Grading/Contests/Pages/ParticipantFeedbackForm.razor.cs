@@ -2,6 +2,7 @@ using System.Globalization;
 
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
+using ConventionGradingSystem.Host.Components.Grading.Contests.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
@@ -18,17 +19,9 @@ public partial class ParticipantFeedbackForm
     private readonly NavigationManager _navigationManager;
     private readonly ProtectedLocalStorage _localStorage;
 
-    private EventDetails? _eventDetails;
-    private bool _isFormDisabled;
-    private bool _isFormValid;
-
-    private Team? _selectedTeam;
-    private Participant? _selectedParticipant;
-    private readonly Dictionary<string, int> _selectedGrades = [];
-    private string? _enteredNote;
-
+    private readonly ParticipantFeedbackFormModel _viewModel = new();
     private MudForm? _formSelector;
-    private MudAutocomplete<Participant>? _participantSelector;
+    private MudAutocomplete<ParticipantFeedbackFormModel.ParticipantModel>? _participantSelector;
 
     [Parameter]
     public string? EventId { get; set; }
@@ -57,10 +50,10 @@ public partial class ParticipantFeedbackForm
         }
 
         var result = await _localStorage.GetAsync<string>(GetLocalStorageKey());
-        _isFormDisabled = result.Success;
+        _viewModel.IsFormDisabled = result.Success;
 
         var contest = _configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
-        _eventDetails = new EventDetails(
+        _viewModel.Event = new ParticipantFeedbackFormModel.EventModel(
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             IsGraded: contest.ParticipantCriterions.Count > 0,
@@ -70,23 +63,23 @@ public partial class ParticipantFeedbackForm
             Brigades: contestEvent.Brigades.ToList(),
             Participants: contestEvent.Participants.ToList(),
             Criterions: [.. contest.ParticipantCriterions
-                .Select(criterion => new GradeCriterion(
+                .Select(criterion => new ParticipantFeedbackFormModel.CriterionModel(
                     Identifier: criterion.Identifier,
                     Name: criterion.Name,
                     Description: criterion.Description,
                     MinimalGrade: criterion.MinimalGrade,
                     MaximalGrade: criterion.MaximalGrade))]);
 
-        foreach (var criterion in _eventDetails.Criterions)
+        foreach (var criterion in _viewModel.Event.Criterions)
         {
-            _selectedGrades.Add(criterion.Identifier, criterion.MaximalGrade);
+            _viewModel.SelectedGrades.Add(criterion.Identifier, criterion.MaximalGrade);
         }
     }
 
     private async Task ProcessForm()
     {
         await _formSelector!.ValidateAsync();
-        if (!_isFormValid)
+        if (!_viewModel.IsFormValid)
         {
             return;
         }
@@ -94,17 +87,17 @@ public partial class ParticipantFeedbackForm
         var feedback = new DataAccess.Database.Entities.ParticipantFeedback
         {
             EventId = EventId!,
-            ParticipantId = _selectedParticipant!.Identifier,
-            Note = _enteredNote,
+            ParticipantId = _viewModel.SelectedParticipant!.Identifier,
+            Note = _viewModel.EnteredNote,
             ReceivedAt = DateTimeOffset.Now
         };
 
-        foreach (var criterionId in _selectedGrades.Keys)
+        foreach (var criterionId in _viewModel.SelectedGrades.Keys)
         {
             feedback.Grades.Add(new DataAccess.Database.Entities.ParticipantGrade
             {
                 CriterionId = criterionId,
-                GradeValue = _selectedGrades[criterionId]
+                GradeValue = _viewModel.SelectedGrades[criterionId]
             });
         }
 
@@ -118,55 +111,55 @@ public partial class ParticipantFeedbackForm
         _navigationManager.NavigateTo($"/grading/events/{EventId}/participant-feedback", true);
     }
 
-    private Task<IEnumerable<Team>> SearchTeam(string value, CancellationToken token)
+    private Task<IEnumerable<ParticipantFeedbackFormModel.TeamModel>> SearchTeam(string value, CancellationToken token)
     {
         if (string.IsNullOrEmpty(value))
         {
-            return Task.FromResult(Enumerable.Empty<Team>());
+            return Task.FromResult(Enumerable.Empty<ParticipantFeedbackFormModel.TeamModel>());
         }
 
-        return Task.FromResult<IEnumerable<Team>>([.. _configuration.Value.Teams
-            .Where(team => !_eventDetails!.BannedTeams.Contains(team.Identifier))
+        return Task.FromResult<IEnumerable<ParticipantFeedbackFormModel.TeamModel>>([.. _configuration.Value.Teams
+            .Where(team => !_viewModel.Event!.BannedTeams.Contains(team.Identifier))
             .Where(team => _configuration.Value.Participants
                 .Where(participant => participant.Team == team.Identifier)
                 .Where(participant =>
-                    !_eventDetails!.RegisteredGrading ||
-                    _eventDetails!.Participants.Contains(participant.Identifier))
+                    !_viewModel.Event!.RegisteredGrading ||
+                    _viewModel.Event!.Participants.Contains(participant.Identifier))
                 .Where(participant =>
-                    _eventDetails!.FriendlyGrading ||
+                    _viewModel.Event!.FriendlyGrading ||
                     string.IsNullOrWhiteSpace(participant.Brigade) ||
-                    !_eventDetails!.Brigades.Contains(participant.Brigade))
+                    !_viewModel.Event!.Brigades.Contains(participant.Brigade))
                 .Any())
             .Where(team => team.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
-            .Select(team => new Team(
+            .Select(team => new ParticipantFeedbackFormModel.TeamModel(
                 Identifier: team.Identifier,
                 Name: team.Name))]);
     }
 
-    private Task<IEnumerable<Participant>> SearchParticipant(string value, CancellationToken token)
+    private Task<IEnumerable<ParticipantFeedbackFormModel.ParticipantModel>> SearchParticipant(string value, CancellationToken token)
     {
         if (string.IsNullOrEmpty(value))
         {
-            return Task.FromResult(Enumerable.Empty<Participant>());
+            return Task.FromResult(Enumerable.Empty<ParticipantFeedbackFormModel.ParticipantModel>());
         }
-        if (_selectedTeam == null)
+        if (_viewModel.SelectedTeam == null)
         {
-            return Task.FromResult(Enumerable.Empty<Participant>());
+            return Task.FromResult(Enumerable.Empty<ParticipantFeedbackFormModel.ParticipantModel>());
         }
 
-        return Task.FromResult<IEnumerable<Participant>>([.. _configuration.Value.Teams
-            .Where(team => team.Identifier == _selectedTeam.Identifier)
+        return Task.FromResult<IEnumerable<ParticipantFeedbackFormModel.ParticipantModel>>([.. _configuration.Value.Teams
+            .Where(team => team.Identifier == _viewModel.SelectedTeam.Identifier)
             .SelectMany(team => _configuration.Value.Participants
                 .Where(participant => participant.Team == team.Identifier))
             .Where(participant =>
-                !_eventDetails!.RegisteredGrading ||
-                _eventDetails!.Participants.Contains(participant.Identifier))
+                !_viewModel.Event!.RegisteredGrading ||
+                _viewModel.Event!.Participants.Contains(participant.Identifier))
             .Where(participant =>
-                _eventDetails!.FriendlyGrading ||
+                _viewModel.Event!.FriendlyGrading ||
                 string.IsNullOrWhiteSpace(participant.Brigade) ||
-                !_eventDetails!.Brigades.Contains(participant.Brigade))
+                !_viewModel.Event!.Brigades.Contains(participant.Brigade))
             .Where(participant => participant.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
-            .Select(participant => new Participant(
+            .Select(participant => new ParticipantFeedbackFormModel.ParticipantModel(
                 Identifier: participant.Identifier,
                 Name: participant.Name))]);
     }
@@ -176,37 +169,9 @@ public partial class ParticipantFeedbackForm
         await _participantSelector!.ResetAsync();
     }
 
-    private static string[] GetSliderLabels(GradeCriterion criterion) => [.. Enumerable
+    private static string[] GetSliderLabels(ParticipantFeedbackFormModel.CriterionModel criterion) => [.. Enumerable
         .Range(criterion.MinimalGrade, criterion.MaximalGrade)
         .Select(label => label.ToString(new CultureInfo("ru-RU")))];
 
     private string GetLocalStorageKey() => $"ParticipantFeedback-{EventId}";
-
-    private sealed record EventDetails(
-        string EventName,
-        string ContestName,
-        bool IsGraded,
-        bool RegisteredGrading,
-        bool FriendlyGrading,
-        IReadOnlyCollection<string> BannedTeams,
-        IReadOnlyCollection<string> Brigades,
-        IReadOnlyCollection<string> Participants,
-        IReadOnlyList<GradeCriterion> Criterions);
-
-    private sealed record Team(string Identifier, string Name)
-    {
-        public override string ToString() => Name;
-    }
-
-    private sealed record Participant(string Identifier, string Name)
-    {
-        public override string ToString() => Name;
-    }
-
-    private sealed record GradeCriterion(
-        string Identifier,
-        string Name,
-        string Description,
-        int MinimalGrade,
-        int MaximalGrade);
 }

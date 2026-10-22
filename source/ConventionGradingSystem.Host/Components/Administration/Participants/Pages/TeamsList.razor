@@ -1,5 +1,6 @@
 @page "/administration/teams"
 
+@using ConventionGradingSystem.Host.Components.Administration.Participants.Models
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
@@ -8,7 +9,7 @@
 
     <PageTitle>Команды участников</PageTitle>
 
-    <MudTable Items="@_teams"
+    <MudTable Items="@_viewModel.Teams"
               Filter="@FilterRecords"
               Breakpoint="@Breakpoint.None"
               Hover="true">
@@ -16,7 +17,7 @@
         <ToolBarContent>
             <MudText Typo="@Typo.h6">Команды участников</MudText>
             <MudSpacer />
-            <MudTextField @bind-Value="@_searchFilter"
+            <MudTextField @bind-Value="@_viewModel.SearchFilter"
                           MaxLength="50"
                           Clearable="true"
                           Placeholder="Поиск"
@@ -26,12 +27,12 @@
 
         <HeaderContent>
             <MudTh>#</MudTh>
-            <MudTh><MudTableSortLabel T="@ParticipantsTeam" SortBy="@SelectNameField">Название команды</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@ParticipantsTeam" SortBy="@SelectMembersField">Количество участников</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@ParticipantsTeam" SortBy="@SelectRegistrationsField">Количество регистраций</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@ParticipantsTeam" SortBy="@SelectAttendancesField">Количество посещений</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@ParticipantsTeam" SortBy="@SelectAbsencesField">Количество пропусков</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@ParticipantsTeam" SortBy="@SelectSpecialMarksField">Особые отметки</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectNameField">Название команды</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectMembersField">Количество участников</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectRegistrationsField">Количество регистраций</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectAttendancesField">Количество посещений</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectAbsencesField">Количество пропусков</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectSpecialMarksField">Особые отметки</MudTableSortLabel></MudTh>
         </HeaderContent>
 
         <RowTemplate>

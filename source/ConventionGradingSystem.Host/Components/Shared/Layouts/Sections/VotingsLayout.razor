@@ -3,7 +3,7 @@
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
-@if (!_votingsSectionAvailable)
+@if (!_viewModel.VotingsSectionAvailable)
 {
     <PageTitle>Зрительские голосования</PageTitle>
     <MudAlert Severity="@Severity.Warning">

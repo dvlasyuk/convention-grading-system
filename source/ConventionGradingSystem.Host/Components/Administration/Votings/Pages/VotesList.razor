@@ -1,12 +1,13 @@
 @page "/administration/candidates/{candidateId}/votes"
 
+@using ConventionGradingSystem.Host.Components.Administration.Votings.Models
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
 <LayoutView Layout="@typeof(VotingsLayout)">
 
-    @if (_votingCandidate == null)
+    @if (_viewModel.Candidate == null)
     {
         <PageTitle>Голоса за неизвестного кандидата</PageTitle>
         <MudAlert Severity="@Severity.Warning">
@@ -19,25 +20,25 @@
         return;
     }
 
-    <PageTitle>Голоса за кандидата @_votingCandidate.CandidateName</PageTitle>
+    <PageTitle>Голоса за кандидата @_viewModel.Candidate.CandidateName</PageTitle>
 
     <MudExpansionPanels Class="mb-3">
         <MudExpansionPanel>
             <TitleContent>
                 <div class="d-flex">
                     <MudIcon Color="@Color.Primary" Icon="@Icons.Material.Filled.Info" />
-                    <MudText Color="@Color.Primary" Class="ml-3">Кандидат голосования <strong>@_votingCandidate.CandidateName</strong></MudText>
+                    <MudText Color="@Color.Primary" Class="ml-3">Кандидат голосования <strong>@_viewModel.Candidate.CandidateName</strong></MudText>
                 </div>
             </TitleContent>
             <ChildContent>
-                <MudText>Название зрительского голосования: <strong>@_votingCandidate.VotingName</strong></MudText>
-                <MudText>Связанные с кандидатом отряды: <strong>@(string.Join(", ", _votingCandidate.Brigades))</strong></MudText>
-                <MudText>Число голосов, отданных зрителями: <strong>@_votingCandidate.VotesQuantity</strong></MudText>
+                <MudText>Название зрительского голосования: <strong>@_viewModel.Candidate.VotingName</strong></MudText>
+                <MudText>Связанные с кандидатом отряды: <strong>@(string.Join(", ", _viewModel.Candidate.Brigades))</strong></MudText>
+                <MudText>Число голосов, отданных зрителями: <strong>@_viewModel.Candidate.VotesQuantity</strong></MudText>
             </ChildContent>
         </MudExpansionPanel>
     </MudExpansionPanels>
 
-    <MudTable Items="@_participantVotes"
+    <MudTable Items="@_viewModel.Votes"
               Filter="@FilterRecords"
               Breakpoint="@Breakpoint.None"
               Hover="true">
@@ -45,7 +46,7 @@
         <ToolBarContent>
             <MudText Typo="@Typo.h6">Голоса за кандидата</MudText>
             <MudSpacer />
-            <MudTextField @bind-Value="@_searchFilter"
+            <MudTextField @bind-Value="@_viewModel.SearchFilter"
                           MaxLength="50"
                           Clearable="true"
                           Placeholder="Поиск"
@@ -55,9 +56,9 @@
 
         <HeaderContent>
             <MudTh>#</MudTh>
-            <MudTh><MudTableSortLabel T="@ParticipantVote" SortBy="@SelectNameField">Имя участника</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@ParticipantVote" SortBy="@SelectBrigadeField">Отряд участника</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@ParticipantVote" SortBy="@SelectTeamField">Команда участника</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@VotesListModel.VoteModel" SortBy="@SelectNameField">Имя участника</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@VotesListModel.VoteModel" SortBy="@SelectBrigadeField">Отряд участника</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@VotesListModel.VoteModel" SortBy="@SelectTeamField">Команда участника</MudTableSortLabel></MudTh>
             <MudTh>Дополнительный комментарий</MudTh>
             <MudTh>Время получения</MudTh>
         </HeaderContent>
@@ -73,7 +74,7 @@
 
         <NoRecordsContent>
             <MudAlert Severity="@Severity.Info">
-                За кандидата голосования <strong>@_votingCandidate.CandidateName</strong> не было отдано ни одного голоса
+                За кандидата голосования <strong>@_viewModel.Candidate.CandidateName</strong> не было отдано ни одного голоса
             </MudAlert>
         </NoRecordsContent>
     </MudTable>

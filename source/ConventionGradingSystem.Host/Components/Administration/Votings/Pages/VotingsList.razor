@@ -1,5 +1,6 @@
 @page "/administration/votings"
 
+@using ConventionGradingSystem.Host.Components.Administration.Votings.Models
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
@@ -8,7 +9,7 @@
 
     <PageTitle>Зрительские голосования</PageTitle>
 
-    <MudTable Items="@_audienceVotings"
+    <MudTable Items="@_viewModel.Votings"
               Filter="@FilterRecords"
               Breakpoint="@Breakpoint.None"
               Hover="true">
@@ -16,7 +17,7 @@
         <ToolBarContent>
             <MudText Typo="@Typo.h6">Зрительские голосования</MudText>
             <MudSpacer />
-            <MudTextField @bind-Value="@_searchFilter"
+            <MudTextField @bind-Value="@_viewModel.SearchFilter"
                           MaxLength="50"
                           Clearable="true"
                           Placeholder="Поиск"
@@ -26,9 +27,9 @@
 
         <HeaderContent>
             <MudTh>#</MudTh>
-            <MudTh><MudTableSortLabel T="@AudienceVoting" SortBy="@SelectNameField">Название голосования</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@AudienceVoting" SortBy="@SelectCandidatesField">Количество кандидатов</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@AudienceVoting" SortBy="@SelectVotesField">Общее количество голосов</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@VotingsListModel.VotingModel" SortBy="@SelectNameField">Название голосования</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@VotingsListModel.VotingModel" SortBy="@SelectCandidatesField">Количество кандидатов</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@VotingsListModel.VotingModel" SortBy="@SelectVotesField">Общее количество голосов</MudTableSortLabel></MudTh>
             <MudTh>Действия</MudTh>
         </HeaderContent>
 

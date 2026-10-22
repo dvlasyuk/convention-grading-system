@@ -1,4 +1,5 @@
 using ConventionGradingSystem.DataAccess.Configuration;
+using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
@@ -11,13 +12,7 @@ public partial class MainLayout
     private readonly IOptions<ApplicationConfiguration> _configuration;
     private readonly NavigationManager _navigationManager;
 
-    private string _conventionName = string.Empty;
-
-    private bool _contestsSectionAvailable;
-    private bool _votingsSectionAvailable;
-    private bool _teamsSectionAvailable;
-
-    private bool _isDrawerOpen;
+    private readonly MainLayoutModel _viewModel = new();
 
     public MainLayout(
         AuthenticationProvider authenticationProvider,
@@ -31,16 +26,16 @@ public partial class MainLayout
 
     protected override void OnInitialized()
     {
-        _conventionName = _configuration.Value.ConventionName;
+        _viewModel.ConventionName = _configuration.Value.ConventionName;
 
-        _contestsSectionAvailable = _configuration.Value.Contests.Count > 0;
-        _votingsSectionAvailable = _configuration.Value.Votings.Count > 0;
-        _teamsSectionAvailable =
+        _viewModel.ContestsSectionAvailable = _configuration.Value.Contests.Count > 0;
+        _viewModel.VotingsSectionAvailable = _configuration.Value.Votings.Count > 0;
+        _viewModel.TeamsSectionAvailable =
             _configuration.Value.Teams.Count > 0 &&
             _configuration.Value.Contests.Count > 0;
     }
 
-    private void ToogleDrawer() => _isDrawerOpen = !_isDrawerOpen;
+    private void ToogleDrawer() => _viewModel.IsDrawerOpen = !_viewModel.IsDrawerOpen;
 
     private async Task OnSignOutFromSystem()
     {

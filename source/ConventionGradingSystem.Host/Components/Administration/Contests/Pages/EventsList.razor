@@ -1,12 +1,13 @@
 @page "/administration/contests/{contestId}/events"
 
+@using ConventionGradingSystem.Host.Components.Administration.Contests.Models
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
 <LayoutView Layout="@typeof(ContestsLayout)">
 
-    @if (_contest == null)
+    @if (_viewModel.Contest == null)
     {
         <PageTitle>Неизвестный конкурс мероприятий</PageTitle>
         <MudAlert Severity="@Severity.Warning">
@@ -19,53 +20,53 @@
         return;
     }
 
-    <PageTitle>Конкурс мероприятий @_contest.Name</PageTitle>
+    <PageTitle>Конкурс мероприятий @_viewModel.Contest.Name</PageTitle>
 
     <MudExpansionPanels Class="mb-3">
         <MudExpansionPanel>
             <TitleContent>
                 <div class="d-flex">
                     <MudIcon Color="@Color.Primary" Icon="@Icons.Material.Filled.Info" />
-                    <MudText Color="@Color.Primary" Class="ml-3">Конкурс мероприятий <strong>@_contest.Name</strong></MudText>
+                    <MudText Color="@Color.Primary" Class="ml-3">Конкурс мероприятий <strong>@_viewModel.Contest.Name</strong></MudText>
                 </div>
             </TitleContent>
             <ChildContent>
 
-                <MudText>Принимаются ли отзывы экспертов: <strong>@(_contest.ExpertCriterionsQuantity > 0 ? "Да" : "Нет")</strong></MudText>
-                <MudText>Принимаются ли отзывы участников: <strong>@(_contest.ParticipantCriterionsQuantity > 0 ? "Да" : "Нет")</strong></MudText>
+                <MudText>Принимаются ли отзывы экспертов: <strong>@(_viewModel.Contest.ExpertCriterionsQuantity > 0 ? "Да" : "Нет")</strong></MudText>
+                <MudText>Принимаются ли отзывы участников: <strong>@(_viewModel.Contest.ParticipantCriterionsQuantity > 0 ? "Да" : "Нет")</strong></MudText>
 
-                @if (_contest.ParticipantCriterionsQuantity > 0)
+                @if (_viewModel.Contest.ParticipantCriterionsQuantity > 0)
                 {
-                    <MudText>Принимаются ли отзывы от любых участников: <strong>@(!_contest.RegisteredGrading ? "Да" : "Нет")</strong></MudText>
-                    <MudText>Принимаются ли отзывы участников на свой отряд: <strong>@(_contest.FriendlyGrading ? "Да" : "Нет")</strong></MudText>
+                    <MudText>Принимаются ли отзывы от любых участников: <strong>@(!_viewModel.Contest.RegisteredGrading ? "Да" : "Нет")</strong></MudText>
+                    <MudText>Принимаются ли отзывы участников на свой отряд: <strong>@(_viewModel.Contest.FriendlyGrading ? "Да" : "Нет")</strong></MudText>
                 }
 
-                @if (_contest.ExpertCriterionsQuantity > 0)
+                @if (_viewModel.Contest.ExpertCriterionsQuantity > 0)
                 {
-                    <MudText>Количество критериев оценивания экспертами: <strong>@_contest.ExpertCriterionsQuantity</strong></MudText>
+                    <MudText>Количество критериев оценивания экспертами: <strong>@_viewModel.Contest.ExpertCriterionsQuantity</strong></MudText>
                 }
-                @if (_contest.ParticipantCriterionsQuantity > 0)
+                @if (_viewModel.Contest.ParticipantCriterionsQuantity > 0)
                 {
-                    <MudText>Количество критериев оценивания участниками: <strong>@_contest.ParticipantCriterionsQuantity</strong></MudText>
+                    <MudText>Количество критериев оценивания участниками: <strong>@_viewModel.Contest.ParticipantCriterionsQuantity</strong></MudText>
                 }
 
-                <MudText>Контролируется ли посещаемость мероприятий: <strong>@(_contest.AttendanceControl ? "Да" : "Нет")</strong></MudText>
-                <MudText>Общее число мероприятий в конкурсе: <strong>@_contest.EventsQuantity</strong></MudText>
+                <MudText>Контролируется ли посещаемость мероприятий: <strong>@(_viewModel.Contest.AttendanceControl ? "Да" : "Нет")</strong></MudText>
+                <MudText>Общее число мероприятий в конкурсе: <strong>@_viewModel.Contest.EventsQuantity</strong></MudText>
 
-                @if (_contest.ExpertCriterionsQuantity > 0)
+                @if (_viewModel.Contest.ExpertCriterionsQuantity > 0)
                 {
-                    <MudText>Число отзывов, оставленных экспертами: <strong>@_contest.ExpertFeedbacksQuantity</strong></MudText>
+                    <MudText>Число отзывов, оставленных экспертами: <strong>@_viewModel.Contest.ExpertFeedbacksQuantity</strong></MudText>
                 }
-                @if (_contest.ParticipantCriterionsQuantity > 0)
+                @if (_viewModel.Contest.ParticipantCriterionsQuantity > 0)
                 {
-                    <MudText>Число отзывов, оставленных участниками: <strong>@_contest.ParticipantFeedbacksQuantity</strong></MudText>
+                    <MudText>Число отзывов, оставленных участниками: <strong>@_viewModel.Contest.ParticipantFeedbacksQuantity</strong></MudText>
                 }
 
             </ChildContent>
         </MudExpansionPanel>
     </MudExpansionPanels>
 
-    <MudTable Items="@_contestEvents"
+    <MudTable Items="@_viewModel.Events"
               Filter="@FilterRecords"
               Breakpoint="@Breakpoint.None"
               Hover="true"
@@ -74,7 +75,7 @@
         <ToolBarContent>
             <MudText Typo="@Typo.h6">Мероприятия конкурса</MudText>
             <MudSpacer />
-            <MudTextField @bind-Value="@_searchFilter"
+            <MudTextField @bind-Value="@_viewModel.SearchFilter"
                           MaxLength="50"
                           Clearable="true"
                           Placeholder="Поиск"
@@ -85,21 +86,21 @@
         <HeaderContent>
 
             <MudTh>#</MudTh>
-            <MudTh><MudTableSortLabel T="@ContestEvent" SortBy="@SelectNameField">Название мероприятия</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@EventsListModel.EventModel" SortBy="@SelectNameField">Название мероприятия</MudTableSortLabel></MudTh>
             <MudTh>Связанные отряды</MudTh>
 
-            @if (_contest.ExpertCriterionsQuantity > 0)
+            @if (_viewModel.Contest.ExpertCriterionsQuantity > 0)
             {
-                <MudTh><MudTableSortLabel T="@ContestEvent" SortBy="@SelectExpertFeedbacksField">Отзывы экспертов</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel T="@ContestEvent" SortBy="@SelectExpertGradeField">Оценка экспертов</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel T="@EventsListModel.EventModel" SortBy="@SelectExpertFeedbacksField">Отзывы экспертов</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel T="@EventsListModel.EventModel" SortBy="@SelectExpertGradeField">Оценка экспертов</MudTableSortLabel></MudTh>
             }
-            @if (_contest.ParticipantCriterionsQuantity > 0)
+            @if (_viewModel.Contest.ParticipantCriterionsQuantity > 0)
             {
-                <MudTh><MudTableSortLabel T="@ContestEvent" SortBy="@SelectParticipantFeedbacksField">Отзывы участников</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel T="@ContestEvent" SortBy="@SelectParticipantGradeField">Оценка участников</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel T="@EventsListModel.EventModel" SortBy="@SelectParticipantFeedbacksField">Отзывы участников</MudTableSortLabel></MudTh>
+                <MudTh><MudTableSortLabel T="@EventsListModel.EventModel" SortBy="@SelectParticipantGradeField">Оценка участников</MudTableSortLabel></MudTh>
             }
 
-            <MudTh><MudTableSortLabel T="@ContestEvent" SortBy="@SelectTotalGradeField">Общая оценка</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@EventsListModel.EventModel" SortBy="@SelectTotalGradeField">Общая оценка</MudTableSortLabel></MudTh>
             <MudTh>Действия</MudTh>
         </HeaderContent>
 
@@ -115,12 +116,12 @@
                 }
             </MudTd>
 
-            @if (_contest.ExpertCriterionsQuantity > 0)
+            @if (_viewModel.Contest.ExpertCriterionsQuantity > 0)
             {
                 <MudTd>@context.ExprertFeedbacksQuantity</MudTd>
                 <MudTd>@context.ExpertGrade.ToString("0.0")</MudTd>
             }
-            @if (_contest.ParticipantCriterionsQuantity > 0)
+            @if (_viewModel.Contest.ParticipantCriterionsQuantity > 0)
             {
                 <MudTd>@context.ParticipantFeedbacksQuantity</MudTd>
                 <MudTd>@context.ParticipantGrade.ToString("0.0")</MudTd>
@@ -129,7 +130,7 @@
             <MudTd>@context.TotalGrade.ToString("0.0")</MudTd>
             <MudTd>
 
-                @if (_contest.ExpertCriterionsQuantity > 0)
+                @if (_viewModel.Contest.ExpertCriterionsQuantity > 0)
                 {
                     <MudButton Href="@context.ExpertFeedbacksListLink"
                                Variant="@Variant.Outlined"
@@ -139,7 +140,7 @@
                         Отзывы экспертов
                     </MudButton>
                 }
-                @if (_contest.ParticipantCriterionsQuantity > 0)
+                @if (_viewModel.Contest.ParticipantCriterionsQuantity > 0)
                 {
                     <MudButton Href="@context.ParticipantFeedbacksListLink"
                                Variant="@Variant.Outlined"
@@ -152,7 +153,7 @@
 
                 <br/>
 
-                @if (_contest.ExpertCriterionsQuantity > 0)
+                @if (_viewModel.Contest.ExpertCriterionsQuantity > 0)
                 {
                     <MudButton Href="@context.ExpertFeedbackFormLink"
                                Variant="@Variant.Outlined"
@@ -162,7 +163,7 @@
                         Форма эксперта
                     </MudButton>
                 }
-                @if (_contest.ParticipantCriterionsQuantity > 0)
+                @if (_viewModel.Contest.ParticipantCriterionsQuantity > 0)
                 {
                     <MudButton Href="@context.ParticipantFeedbackFormLink"
                                Variant="@Variant.Outlined"
@@ -175,7 +176,7 @@
 
                 <br />
 
-                @if (_contest.AttendanceControl)
+                @if (_viewModel.Contest.AttendanceControl)
                 {
                     <MudButton Href="@context.FacilitatorAttendanceFormLink"
                                Variant="@Variant.Outlined"

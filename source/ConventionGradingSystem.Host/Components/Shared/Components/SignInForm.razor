@@ -17,21 +17,21 @@
 </AuthorizeView>
 
 <MudPaper Class="mt-3 pa-3">
-    <MudForm @ref="@_formSelector" @bind-IsValid="@_isFormValid">
+    <MudForm @ref="@_formSelector" @bind-IsValid="@_viewModel.IsFormValid">
         <MudTextField T="@string"
-                      @bind-Value="@_enteredSecret"
+                      @bind-Value="@_viewModel.EnteredSecret"
                       OnAdornmentClick="@ShowPassword"
                       Required="true"
                       Label="Введи секретную фразу"
                       RequiredError="Секретная фраза обязательна"
-                      InputType="@_passwordInputType"
+                      InputType="@_viewModel.PasswordInputType"
                       Variant="@Variant.Outlined"
                       Adornment="@Adornment.End"
-                      AdornmentIcon="@_passwordInputIcon"
+                      AdornmentIcon="@_viewModel.PasswordInputIcon"
                       Class="my-3" />
 
         <MudButton OnClick="@SignInToSystem"
-                   Disabled="@(!_isFormValid)"
+                   Disabled="@(!_viewModel.IsFormValid)"
                    Variant="@Variant.Outlined"
                    Size="@Size.Large"
                    Color="@Color.Primary"

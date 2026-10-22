@@ -1,4 +1,5 @@
 using ConventionGradingSystem.DataAccess.Configuration;
+using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.Extensions.Options;
 
@@ -7,8 +8,7 @@ namespace ConventionGradingSystem.Host.Components.Shared.Layouts;
 public partial class BaseLayout
 {
     private readonly IOptions<ApplicationConfiguration> _configuration;
-
-    private string _conventionName = string.Empty;
+    private readonly BaseLayoutModel _viewModel = new();
 
     public BaseLayout(IOptions<ApplicationConfiguration> configuration)
     {
@@ -17,6 +17,6 @@ public partial class BaseLayout
 
     protected override void OnInitialized()
     {
-        _conventionName = _configuration.Value.ConventionName;
+        _viewModel.ConventionName = _configuration.Value.ConventionName;
     }
 }

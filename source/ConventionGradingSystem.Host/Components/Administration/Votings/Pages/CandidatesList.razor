@@ -1,12 +1,13 @@
 @page "/administration/votings/{votingId}/candidates"
 
+@using ConventionGradingSystem.Host.Components.Administration.Votings.Models
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
 <LayoutView Layout="@typeof(VotingsLayout)">
 
-    @if (_audienceVoting == null)
+    @if (_viewModel.Voting == null)
     {
         <PageTitle>Неизвестное зрительское голосование</PageTitle>
         <MudAlert Severity="@Severity.Warning">
@@ -19,22 +20,22 @@
         return;
     }
 
-    <PageTitle>Зрительское голосование @_audienceVoting.Name</PageTitle>
+    <PageTitle>Зрительское голосование @_viewModel.Voting.Name</PageTitle>
 
     <MudExpansionPanels Class="mb-3">
         <MudExpansionPanel>
             <TitleContent>
                 <div class="d-flex">
                     <MudIcon Color="@Color.Primary" Icon="@Icons.Material.Filled.Info" />
-                    <MudText Color="@Color.Primary" Class="ml-3">Зрительское голосование <strong>@_audienceVoting.Name</strong></MudText>
+                    <MudText Color="@Color.Primary" Class="ml-3">Зрительское голосование <strong>@_viewModel.Voting.Name</strong></MudText>
                 </div>
             </TitleContent>
             <ChildContent>
-                <MudText>Допустимо ли голосование за свой отряд: <strong>@(_audienceVoting.BrigadeFriendlyVoting ? "Да" : "Нет")</strong></MudText>
-                <MudText>Допустимо ли голосование за свою команду: <strong>@(_audienceVoting.TeamFriendlyVoting ? "Да" : "Нет")</strong></MudText>
-                <MudText>Количество голосов от одного зрителя: <strong>@_audienceVoting.VotesQuantity</strong></MudText>
-                <MudText>Общее число кандидатов в голосовании <strong>@_audienceVoting.CandidatesQuantity</strong></MudText>
-                <MudText>Общее число голосов, отданных зрителями: <strong>@_audienceVoting.TotalVotesQuantity</strong></MudText>
+                <MudText>Допустимо ли голосование за свой отряд: <strong>@(_viewModel.Voting.BrigadeFriendlyVoting ? "Да" : "Нет")</strong></MudText>
+                <MudText>Допустимо ли голосование за свою команду: <strong>@(_viewModel.Voting.TeamFriendlyVoting ? "Да" : "Нет")</strong></MudText>
+                <MudText>Количество голосов от одного зрителя: <strong>@_viewModel.Voting.VotesQuantity</strong></MudText>
+                <MudText>Общее число кандидатов в голосовании <strong>@_viewModel.Voting.CandidatesQuantity</strong></MudText>
+                <MudText>Общее число голосов, отданных зрителями: <strong>@_viewModel.Voting.TotalVotesQuantity</strong></MudText>
                 <MudDivider Class="mt-3" />
                 <MudButton Href="@($"/grading/votings/{VotingId}/participant-voting")"
                            Variant="@Variant.Outlined"
@@ -47,7 +48,7 @@
         </MudExpansionPanel>
     </MudExpansionPanels>
 
-    <MudTable Items="@_votingCandidates"
+    <MudTable Items="@_viewModel.Candidates"
               Filter="@FilterRecords"
               Breakpoint="@Breakpoint.None"
               Hover="true">
@@ -55,7 +56,7 @@
         <ToolBarContent>
             <MudText Typo="@Typo.h6">Кандидаты голосования</MudText>
             <MudSpacer />
-            <MudTextField @bind-Value="@_searchFilter"
+            <MudTextField @bind-Value="@_viewModel.SearchFilter"
                           MaxLength="50"
                           Clearable="true"
                           Placeholder="Поиск"
@@ -65,10 +66,10 @@
 
         <HeaderContent>
             <MudTh>#</MudTh>
-            <MudTh><MudTableSortLabel T="@VotingCandidate" SortBy="@SelectNameField">Название/имя участника</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@CandidatesListModel.CandidateModel" SortBy="@SelectNameField">Название/имя участника</MudTableSortLabel></MudTh>
             <MudTh>Связанные отряды</MudTh>
             <MudTh>Связанные команды</MudTh>
-            <MudTh><MudTableSortLabel T="@VotingCandidate" SortBy="@SelectQuantityField">Количество голосов</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel T="@CandidatesListModel.CandidateModel" SortBy="@SelectQuantityField">Количество голосов</MudTableSortLabel></MudTh>
             <MudTh>Действия</MudTh>
         </HeaderContent>
 

@@ -3,6 +3,7 @@ using System.Globalization;
 
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
+using ConventionGradingSystem.Host.Components.Administration.Contests.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -16,9 +17,7 @@ public partial class ExpertFeedbacksList
     private readonly DatabaseContext _databaseContext;
     private readonly IOptions<ApplicationConfiguration> _configuration;
 
-    private ContestEvent? _contestEvent;
-    private IEnumerable<Feedback> _feedbacks = [];
-    private string? _searchFilter;
+    private readonly ExpertFeedbacksListModel _viewModel = new();
 
     [Parameter]
     public string? EventId { get; set; }
@@ -48,13 +47,13 @@ public partial class ExpertFeedbacksList
             .ToListAsync();
 
         var contest = _configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
-        _contestEvent = new ContestEvent(
+        _viewModel.Event = new ExpertFeedbacksListModel.EventModel(
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             IsGraded: contest.ExpertCriterions.Count > 0,
             FeedbacksQuantity: feedbacks.Count,
             GradeCriterions: [.. contest.ExpertCriterions
-                .Select(criterion => new GradeCriterion(
+                .Select(criterion => new ExpertFeedbacksListModel.CriterionModel(
                     Identifier: criterion.Identifier,
                     Name: criterion.Name,
                     TotalGrade: feedbacks.Count == 0 ? 0f :
@@ -65,9 +64,9 @@ public partial class ExpertFeedbacksList
                         (float)feedbacks.Count))]);
 
         var experts = _configuration.Value.Experts.ToDictionary(item => item.Identifier);
-        _feedbacks = [.. feedbacks
+        _viewModel.Feedbacks = [.. feedbacks
             .OrderBy(feedback => feedback.Identifier)
-            .Select((feedback, index) => new Feedback(
+            .Select((feedback, index) => new ExpertFeedbacksListModel.FeedbackModel(
                 Number: index + 1,
                 ExpertName: experts[feedback.ExpertId].Name,
                 Grades: feedback.Grades.ToDictionary(
@@ -77,32 +76,13 @@ public partial class ExpertFeedbacksList
                 ReceivedAt: feedback.ReceivedAt.ToString(new CultureInfo("ru-RU"))))];
     }
 
-    private bool FilterRecords(Feedback feedback)
+    private bool FilterRecords(ExpertFeedbacksListModel.FeedbackModel feedback)
     {
-        return string.IsNullOrWhiteSpace(_searchFilter) ||
-            feedback.ExpertName.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            (feedback.Note?.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
+        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
+            feedback.ExpertName.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            (feedback.Note?.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 
-    private static object SelectNameField(Feedback feedback) => feedback.ExpertName;
-    private static object SelectGradeField(Feedback feedback, string gradeId) => feedback.Grades[gradeId];
-
-    private sealed record ContestEvent(
-        string EventName,
-        string ContestName,
-        bool IsGraded,
-        int FeedbacksQuantity,
-        IReadOnlyList<GradeCriterion> GradeCriterions);
-
-    private sealed record GradeCriterion(
-        string Identifier,
-        string Name,
-        float TotalGrade);
-
-    private sealed record Feedback(
-        int Number,
-        string ExpertName,
-        IReadOnlyDictionary<string, int> Grades,
-        string? Note,
-        string ReceivedAt);
+    private static object SelectNameField(ExpertFeedbacksListModel.FeedbackModel feedback) => feedback.ExpertName;
+    private static object SelectGradeField(ExpertFeedbacksListModel.FeedbackModel feedback, string gradeId) => feedback.Grades[gradeId];
 }

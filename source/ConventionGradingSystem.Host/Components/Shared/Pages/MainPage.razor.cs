@@ -1,4 +1,5 @@
 using ConventionGradingSystem.DataAccess.Configuration;
+using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.Extensions.Options;
 
@@ -7,12 +8,7 @@ namespace ConventionGradingSystem.Host.Components.Shared.Pages;
 public partial class MainPage
 {
     private readonly IOptions<ApplicationConfiguration> _configuration;
-
-    private string _conventionName = string.Empty;
-
-    private bool _contestsSectionAvailable;
-    private bool _votingsSectionAvailable;
-    private bool _teamsSectionAvailable;
+    private readonly MainPageModel _viewModel = new();
 
     public MainPage(IOptions<ApplicationConfiguration> configuration)
     {
@@ -21,11 +17,11 @@ public partial class MainPage
 
     protected override void OnInitialized()
     {
-        _conventionName = _configuration.Value.ConventionName;
+        _viewModel.ConventionName = _configuration.Value.ConventionName;
 
-        _contestsSectionAvailable = _configuration.Value.Contests.Count > 0;
-        _votingsSectionAvailable = _configuration.Value.Votings.Count > 0;
-        _teamsSectionAvailable =
+        _viewModel.ContestsSectionAvailable = _configuration.Value.Contests.Count > 0;
+        _viewModel.VotingsSectionAvailable = _configuration.Value.Votings.Count > 0;
+        _viewModel.TeamsSectionAvailable =
             _configuration.Value.Teams.Count > 0 &&
             _configuration.Value.Contests.Count > 0;
     }

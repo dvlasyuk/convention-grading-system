@@ -2,6 +2,7 @@ using System.Diagnostics.CodeAnalysis;
 
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
+using ConventionGradingSystem.Host.Components.Administration.Contests.Models;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -14,8 +15,7 @@ public partial class ContestsList
     private readonly DatabaseContext _databaseContext;
     private readonly IOptions<ApplicationConfiguration> _configuration;
 
-    private IEnumerable<Contest> _contests = [];
-    private string? _searchFilter;
+    private readonly ContestsListModel _viewModel = new();
 
     public ContestsList(
         DatabaseContext databaseContext,
@@ -30,9 +30,9 @@ public partial class ContestsList
         var expertFeedbacks = await _databaseContext.ExpertFeedbacks.ToListAsync();
         var participantFeedbacks = await _databaseContext.ParticipantFeedbacks.ToListAsync();
 
-        _contests = [.. _configuration.Value.Contests
+        _viewModel.Contests = [.. _configuration.Value.Contests
             .OrderBy(contest => contest.Identifier)
-            .Select((contest, index) => new Contest(
+            .Select((contest, index) => new ContestsListModel.ContestModel(
                 Number: index + 1,
                 Identifier: contest.Identifier,
                 Name: contest.Name,
@@ -44,24 +44,15 @@ public partial class ContestsList
                 EventsListLink: $"/administration/contests/{contest.Identifier}/events"))];
     }
 
-    private bool FilterRecords(Contest contest)
+    private bool FilterRecords(ContestsListModel.ContestModel contest)
     {
-        return string.IsNullOrWhiteSpace(_searchFilter) ||
-            contest.Name.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase) ||
-            contest.Identifier.Contains(_searchFilter, StringComparison.OrdinalIgnoreCase);
+        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
+            contest.Name.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            contest.Identifier.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static object SelectNameField(Contest contest) => contest.Name;
-    private static object SelectEventsField(Contest contest) => contest.EventsQuantity;
-    private static object SelectExpertField(Contest contest) => contest.ExpertFeedbaksQuantity;
-    private static object SelectParticipantField(Contest contest) => contest.ParticiapntFeedbaksQuantity;
-
-    private sealed record Contest(
-        int Number,
-        string Identifier,
-        string Name,
-        int EventsQuantity,
-        int ExpertFeedbaksQuantity,
-        int ParticiapntFeedbaksQuantity,
-        string EventsListLink);
+    private static object SelectNameField(ContestsListModel.ContestModel contest) => contest.Name;
+    private static object SelectEventsField(ContestsListModel.ContestModel contest) => contest.EventsQuantity;
+    private static object SelectExpertField(ContestsListModel.ContestModel contest) => contest.ExpertFeedbaksQuantity;
+    private static object SelectParticipantField(ContestsListModel.ContestModel contest) => contest.ParticiapntFeedbaksQuantity;
 }

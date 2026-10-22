@@ -1,6 +1,7 @@
 @page "/grading/events/{eventId}/facilitator-attendance"
 @layout BaseLayout
 
+@using ConventionGradingSystem.Host.Components.Grading.Contests.Models
 @using ConventionGradingSystem.Host.Components.Shared.Components
 @using ConventionGradingSystem.Host.Components.Shared.Layouts
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
@@ -17,7 +18,7 @@
         </NotAuthorized>
         <Authorized>
 
-            @if (_eventDetails == null)
+            @if (_viewModel.Event == null)
             {
                 <PageTitle>Форма посещаемости неизвестного мероприятия</PageTitle>
                 <MudAlert Severity="@Severity.Warning">
@@ -30,12 +31,12 @@
                 return;
             }
 
-            <PageTitle>Форма посещаемости мероприятия @_eventDetails.EventName</PageTitle>
+            <PageTitle>Форма посещаемости мероприятия @_viewModel.Event.EventName</PageTitle>
 
-            @if (!_eventDetails.AttendanceControl)
+            @if (!_viewModel.Event.AttendanceControl)
             {
                 <MudAlert Severity="@Severity.Warning">
-                    Посещаемость мероприятий конкурса <strong>@_eventDetails.ContestName</strong> не контролируется. Если
+                    Посещаемость мероприятий конкурса <strong>@_viewModel.Event.ContestName</strong> не контролируется. Если
                     ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
                     проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
                     корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
@@ -45,13 +46,13 @@
             }
 
             <MudAlert Severity="@Severity.Info">
-                Приветствуем тебя, проводящий! Ты можешь отметить участников своего мероприятия <strong>@_eventDetails.EventName</strong>
-                в рамка конкурса мероприятий <strong>@_eventDetails.ContestName</strong>. Отметь участников, которые
+                Приветствуем тебя, проводящий! Ты можешь отметить участников своего мероприятия <strong>@_viewModel.Event.EventName</strong>
+                в рамка конкурса мероприятий <strong>@_viewModel.Event.ContestName</strong>. Отметь участников, которые
                 посетили мероприятие, отметь особо хорошо себя показавших участников, если хочешь, и нажми кнопку
                 <em>Обновить данные</em>
             </MudAlert>
 
-            <MudTable Items="@_eventDetails.Participants"
+            <MudTable Items="@_viewModel.Event.Participants"
                       Filter="@FilterRecords"
                       Breakpoint="@Breakpoint.None"
                       Hover="true"
@@ -60,7 +61,7 @@
                 <ToolBarContent>
                     <MudText Typo="@Typo.h6">Участники мероприятия</MudText>
                     <MudSpacer />
-                    <MudTextField @bind-Value="@_searchFilter"
+                    <MudTextField @bind-Value="@_viewModel.SearchFilter"
                                   MaxLength="50"
                                   Clearable="true"
                                   Placeholder="Поиск"
@@ -69,9 +70,9 @@
                 </ToolBarContent>
 
                 <HeaderContent>
-                    <MudTh><MudTableSortLabel T="@Participant" SortBy="@SelectNameField">Имя участника</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel T="@Participant" SortBy="@SelectBrigadeField">Отряд</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel T="@Participant" SortBy="@SelectTeamField">Команда</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel T="@FacilitatorAttendanceFormModel.ParticipantModel" SortBy="@SelectNameField">Имя участника</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel T="@FacilitatorAttendanceFormModel.ParticipantModel" SortBy="@SelectBrigadeField">Отряд</MudTableSortLabel></MudTh>
+                    <MudTh><MudTableSortLabel T="@FacilitatorAttendanceFormModel.ParticipantModel" SortBy="@SelectTeamField">Команда</MudTableSortLabel></MudTh>
                     <MudTh>Отметка о посещении</MudTh>
                     <MudTh>Особая отметка</MudTh>
                 </HeaderContent>
@@ -81,13 +82,13 @@
                     <MudTd>@rowContext.Brigade</MudTd>
                     <MudTd>@rowContext.Team</MudTd>
                     <MudTd>
-                        <MudCheckBox @bind-Value="@_attendanceMarks[rowContext.Identifier]"
+                        <MudCheckBox @bind-Value="@(_viewModel.AttendanceMarks[rowContext.Identifier])"
                                      Label="Посещение"
                                      Color="@Color.Success"
                                      UnCheckedColor="@Color.Error" />
                     </MudTd>
                     <MudTd>
-                        <MudCheckBox @bind-Value="@_specialMarks[rowContext.Identifier]"
+                        <MudCheckBox @bind-Value="@(_viewModel.SpecialMarks[rowContext.Identifier])"
                                      Label="Отличие"
                                      Color="@Color.Primary"
                                      UnCheckedColor="@Color.Default" />

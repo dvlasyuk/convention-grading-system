@@ -1,6 +1,7 @@
 @page "/grading/events/{eventId}/participant-feedback"
 @layout BaseLayout
 
+@using ConventionGradingSystem.Host.Components.Grading.Contests.Models
 @using ConventionGradingSystem.Host.Components.Shared.Layouts
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Web
@@ -8,7 +9,7 @@
 
 <LayoutView Layout="@typeof(ContestsLayout)">
 
-    @if (_eventDetails == null)
+    @if (_viewModel.Event == null)
     {
         <PageTitle>Форма отзыва о неизвестном мероприятии</PageTitle>
         <MudAlert Severity="@Severity.Warning">
@@ -21,12 +22,12 @@
         return;
     }
 
-    <PageTitle>Форма отзыва о мероприятии @_eventDetails.EventName</PageTitle>
+    <PageTitle>Форма отзыва о мероприятии @_viewModel.Event.EventName</PageTitle>
 
-    @if (!_eventDetails.IsGraded)
+    @if (!_viewModel.Event.IsGraded)
     {
         <MudAlert Severity="@Severity.Warning">
-            Мероприятия конкурса <strong>@_eventDetails.ContestName</strong> не оцениваются участниками. Если
+            Мероприятия конкурса <strong>@_viewModel.Event.ContestName</strong> не оцениваются участниками. Если
             ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
             проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
             корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
@@ -35,27 +36,27 @@
         return;
     }
 
-    @if (_isFormDisabled)
+    @if (_viewModel.IsFormDisabled)
     {
         <MudAlert Severity="@Severity.Info">
-            Твой отзыв о мероприятии <strong>@_eventDetails.EventName</strong> в рамка конкурса мероприятий
-            <strong>@_eventDetails.ContestName</strong> принят. Спасибо большое за участие!
+            Твой отзыв о мероприятии <strong>@_viewModel.Event.EventName</strong> в рамка конкурса мероприятий
+            <strong>@_viewModel.Event.ContestName</strong> принят. Спасибо большое за участие!
         </MudAlert>
         return;
     }
 
     <MudAlert Severity="@Severity.Info">
-        Приветствуем тебя, участник! Ты можешь свой отзыв о мероприятии <strong>@_eventDetails.EventName</strong>
-        в рамка конкурса мероприятий <strong>@_eventDetails.ContestName</strong>, в котором принял участие. Оцени
+        Приветствуем тебя, участник! Ты можешь свой отзыв о мероприятии <strong>@_viewModel.Event.EventName</strong>
+        в рамка конкурса мероприятий <strong>@_viewModel.Event.ContestName</strong>, в котором принял участие. Оцени
         мероприятие по приведённым критериям, оставь дополнительный комментарий, если хочешь, и нажми кнопку
         <em>Отправить</em>
     </MudAlert>
 
     <MudPaper Class="mt-3 pa-3">
-        <MudForm @ref="@_formSelector" @bind-IsValid="@_isFormValid">
+        <MudForm @ref="@_formSelector" @bind-IsValid="@_viewModel.IsFormValid">
 
-            <MudAutocomplete T="@Team"
-                             @bind-Value="@_selectedTeam"
+            <MudAutocomplete T="@ParticipantFeedbackFormModel.TeamModel"
+                             @bind-Value="@_viewModel.SelectedTeam"
                              @bind-Value:after="@OnSelectedTeamChange"
                              SearchFunc="@SearchTeam"
                              Required="true"
@@ -67,10 +68,10 @@
                              AdornmentIcon="@Icons.Material.Filled.Search"
                              Class="my-3" />
 
-            <MudAutocomplete T="@Participant"
+            <MudAutocomplete T="@ParticipantFeedbackFormModel.ParticipantModel"
                              @ref="@_participantSelector"
-                             @bind-Value="@_selectedParticipant"
-                             Disabled="@(_selectedTeam == null)"
+                             @bind-Value="@_viewModel.SelectedParticipant"
+                             Disabled="@(_viewModel.SelectedTeam == null)"
                              SearchFunc="@SearchParticipant"
                              Required="true"
                              ResetValueOnEmptyText="true"
@@ -81,12 +82,12 @@
                              AdornmentIcon="@Icons.Material.Filled.Search"
                              Class="my-3" />
 
-            @foreach (var criterion in _eventDetails.Criterions)
+            @foreach (var criterion in _viewModel.Event.Criterions)
             {
                 <MudPaper Outlined="true" Class="mt-3 pa-3">
                     <MudText Typo="@Typo.subtitle1">@criterion.Name</MudText>
                     <MudText Typo="@Typo.subtitle2">@criterion.Description</MudText>
-                    <MudSlider @bind-Value="@_selectedGrades[criterion.Identifier]"
+                    <MudSlider @bind-Value="@_viewModel.SelectedGrades[criterion.Identifier]"
                                Min="@criterion.MinimalGrade"
                                Max="@criterion.MaximalGrade"
                                TickMarks="true"
@@ -98,7 +99,7 @@
             }
 
             <MudTextField T="@string"
-                          @bind-Value="@_enteredNote"
+                          @bind-Value="@_viewModel.EnteredNote"
                           Label="Оставь любой дополнительный комментарий"
                           Variant="@Variant.Outlined"
                           Lines="3"
@@ -106,7 +107,7 @@
 
             <MudDivider />
             <MudButton OnClick="@ProcessForm"
-                       Disabled="@(!_isFormValid)"
+                       Disabled="@(!_viewModel.IsFormValid)"
                        Variant="@Variant.Outlined"
                        Size="@Size.Large"
                        Color="@Color.Primary"

@@ -1,6 +1,7 @@
 @page "/grading/votings/{votingId}/participant-voting"
 @layout BaseLayout
 
+@using ConventionGradingSystem.Host.Components.Grading.Votings.Models
 @using ConventionGradingSystem.Host.Components.Shared.Layouts
 @using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
 @using Microsoft.AspNetCore.Components.Web
@@ -8,7 +9,7 @@
 
 <LayoutView Layout="@typeof(VotingsLayout)">
 
-    @if (_votingDetails == null)
+    @if (_viewModel.Voting == null)
     {
         <PageTitle>Форма неизвестного зрительского голосования</PageTitle>
         <MudAlert Severity="@Severity.Warning">
@@ -21,27 +22,27 @@
         return;
     }
 
-    <PageTitle>Форма зрительского голосования @_votingDetails.Name</PageTitle>
+    <PageTitle>Форма зрительского голосования @_viewModel.Voting.Name</PageTitle>
 
-    @if (_isFormDisabled)
+    @if (_viewModel.IsFormDisabled)
     {
         <MudAlert Severity="@Severity.Info">
-            Твой голос в голосовании <strong>@_votingDetails.Name</strong> принят. Спасибо большое за участие!
+            Твой голос в голосовании <strong>@_viewModel.Voting.Name</strong> принят. Спасибо большое за участие!
         </MudAlert>
         return;
     }
 
     <MudAlert Severity="@Severity.Info">
-        Приветствуем тебя! Ты можешь принять участние в голосовании <strong>@_votingDetails.Name</strong>.
-        Выбери, пожалуйста, @(_votingDetails.VotesQuantity > 1 ? "кандидатов" : "кандидата"),
-        @(_votingDetails.VotesQuantity > 1 ? "которые понравились" : "который понравился") тебе больше остальных,
+        Приветствуем тебя! Ты можешь принять участние в голосовании <strong>@_viewModel.Voting.Name</strong>.
+        Выбери, пожалуйста, @(_viewModel.Voting.VotesQuantity > 1 ? "кандидатов" : "кандидата"),
+        @(_viewModel.Voting.VotesQuantity > 1 ? "которые понравились" : "который понравился") тебе больше остальных,
         оставь дополнительный комментарий, если хочешь, и нажми кнопку <em>Проголосовать</em>
     </MudAlert>
 
     <MudPaper Class="mt-3 pa-3">
-        <MudForm @ref="@_formSelector" @bind-IsValid="@_isFormValid">
-            <MudAutocomplete T="@Team"
-                             @bind-Value="@_selectedTeam"
+        <MudForm @ref="@_formSelector" @bind-IsValid="@_viewModel.IsFormValid">
+            <MudAutocomplete T="@ParticipantVotingFormModel.TeamModel"
+                             @bind-Value="@_viewModel.SelectedTeam"
                              @bind-Value:after="@OnSelectedTeamChange"
                              SearchFunc="@SearchTeam"
                              Required="true"
@@ -53,11 +54,11 @@
                              AdornmentIcon="@Icons.Material.Filled.Search"
                              Class="my-3"/>
 
-            <MudAutocomplete T="@Participant"
+            <MudAutocomplete T="@ParticipantVotingFormModel.ParticipantModel"
                              @ref="@_participantSelector"
-                             @bind-Value="@_selectedParticipant"
+                             @bind-Value="@_viewModel.SelectedParticipant"
                              @bind-Value:after="@OnSelectedParticipantChange"
-                             Disabled="@(_selectedTeam == null)"
+                             Disabled="@(_viewModel.SelectedTeam == null)"
                              SearchFunc="@SearchParticipant"
                              Required="true"
                              ResetValueOnEmptyText="true"
@@ -68,15 +69,15 @@
                              AdornmentIcon="@Icons.Material.Filled.Search"
                              Class="my-3" />
 
-            @for (var number = 0; number < _votingDetails.VotesQuantity; number++)
+            @for (var number = 0; number < _viewModel.Voting.VotesQuantity; number++)
             {
                 var index = number;
-                <MudSelect T="@Candidate"
+                <MudSelect T="@ParticipantVotingFormModel.CandidateModel"
                            @ref="@CandidateSelector"
-                           @bind-Value="@_selectedCandidates[index]"
+                           @bind-Value="@_viewModel.SelectedCandidates[index]"
                            @bind-Value:after="@(() => OnSelectedCandidateChange(index))"
                            Disabled="@DisableCandidateSelector(index)"
-                           Validation="@(new Func<Candidate, string?>((value) => ValidateSelectedCandidate(index, value)))"
+                           Validation="@(new Func<ParticipantVotingFormModel.CandidateModel, string?>((value) => ValidateSelectedCandidate(index, value)))"
                            Required="true"
                            Label="Выбери понравившегося кандидата"
                            RequiredError="Выбор кандидата обязателен"
@@ -85,7 +86,7 @@
                            AdornmentIcon="@Icons.Material.Filled.HowToVote"
                            Class="my-3">
 
-                    @foreach (var candidate in _votingDetails.Candidates)
+                    @foreach (var candidate in _viewModel.Voting.Candidates)
                     {
                         <MudSelectItem Value="@candidate" />
                     }
@@ -93,7 +94,7 @@
             }
 
             <MudTextField T="@string"
-                          @bind-Value="@_enteredNote"
+                          @bind-Value="@_viewModel.EnteredNote"
                           Label="Оставь любой дополнительный комментарий"
                           Variant="@Variant.Outlined"
                           Lines="3"
@@ -101,7 +102,7 @@
 
             <MudDivider />
             <MudButton OnClick="@ProcessForm"
-                       Disabled="@(!_isFormValid)"
+                       Disabled="@(!_viewModel.IsFormValid)"
                        Variant="@Variant.Outlined"
                        Size="@Size.Large"
                        Color="@Color.Primary"
