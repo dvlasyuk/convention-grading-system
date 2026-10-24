@@ -19,6 +19,7 @@
   - Путь изменён: `/forms/event-attendance/{eventId}` -> `/grading/events/{eventId}/facilitator-attendance`
   - Путь изменён: `/forms/audience-voting/{votingId}` -> `/grading/votings/{votingId}/participant-voting`
 - Разделена общая конфигурация приложения и конфигурация, содержащая данные
+- В конфигурацию приложения добавлено явное управление доступной функциональностью
 - Целевой фреймворк приложения изменён на .NET 10 вместо .NET 9
 
 ## [0.6.0] - 2026-04-14

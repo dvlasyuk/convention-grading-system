@@ -1,4 +1,3 @@
-using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.Host.Components.Shared.Models;
 using ConventionGradingSystem.Host.Configuration;
 
@@ -9,25 +8,19 @@ namespace ConventionGradingSystem.Host.Components.Shared.Pages;
 public partial class MainPage
 {
     private readonly IOptions<ApplicationConfiguration> _applicationConfiguration;
-    private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly MainPageModel _viewModel = new();
 
-    public MainPage(
-        IOptions<ApplicationConfiguration> applicationConfiguration,
-        IOptions<DataConfiguration> dataConfiguration)
+    public MainPage(IOptions<ApplicationConfiguration> applicationConfiguration)
     {
         _applicationConfiguration = applicationConfiguration;
-        _dataConfiguration = dataConfiguration;
     }
 
     protected override void OnInitialized()
     {
         _viewModel.ConventionName = _applicationConfiguration.Value.ConventionName;
 
-        _viewModel.ContestsSectionAvailable = _dataConfiguration.Value.Contests.Count > 0;
-        _viewModel.VotingsSectionAvailable = _dataConfiguration.Value.Votings.Count > 0;
-        _viewModel.TeamsSectionAvailable =
-            _dataConfiguration.Value.Teams.Count > 0 &&
-            _dataConfiguration.Value.Contests.Count > 0;
+        _viewModel.ContestsSectionAvailable = _applicationConfiguration.Value.ContestsFeatureEnabled;
+        _viewModel.VotingsSectionAvailable = _applicationConfiguration.Value.VotingsFeatureEnabled;
+        _viewModel.TeamsSectionAvailable = _applicationConfiguration.Value.TeamsFeatureEnabled;
     }
 }

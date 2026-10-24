@@ -1,5 +1,5 @@
-using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.Host.Components.Shared.Models;
+using ConventionGradingSystem.Host.Configuration;
 
 using Microsoft.Extensions.Options;
 
@@ -7,16 +7,16 @@ namespace ConventionGradingSystem.Host.Components.Shared.Layouts.Sections;
 
 public partial class ContestsLayout
 {
-    private readonly IOptions<DataConfiguration> _dataConfiguration;
+    private readonly IOptions<ApplicationConfiguration> _applicationConfiguration;
     private readonly ContestsLayoutModel _viewModel = new();
 
-    public ContestsLayout(IOptions<DataConfiguration> dataConfiguration)
+    public ContestsLayout(IOptions<ApplicationConfiguration> applicationConfiguration)
     {
-        _dataConfiguration = dataConfiguration;
+        _applicationConfiguration = applicationConfiguration;
     }
 
     protected override void OnInitialized()
     {
-        _viewModel.ContestsSectionAvailable = _dataConfiguration.Value.Contests.Count > 0;
+        _viewModel.ContestsSectionAvailable = _applicationConfiguration.Value.ContestsFeatureEnabled;
     }
 }

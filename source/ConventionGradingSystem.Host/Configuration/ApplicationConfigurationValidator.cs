@@ -9,6 +9,7 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
     public ValidateOptionsResult Validate(string? name, [NotNull] ApplicationConfiguration options)
     {
         var failureMessages = new List<string>();
+
         if (string.IsNullOrWhiteSpace(options.ConventionName))
         {
             failureMessages.Add($"Задано пустое название слёта, для которого работает система");
@@ -16,6 +17,11 @@ public class ApplicationConfigurationValidator : IValidateOptions<ApplicationCon
         else if (options.ConventionName.Length > 100)
         {
             failureMessages.Add($"Задано название слёта, для которого работает система, превышающее 100 символов");
+        }
+
+        if (options.TeamsFeatureEnabled && !options.ContestsFeatureEnabled)
+        {
+            failureMessages.Add($"Включена функциональность команд участников при выключенной функциональности конкурсов мероприятий");
         }
 
         return failureMessages.Count > 0

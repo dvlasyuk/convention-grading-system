@@ -1,4 +1,3 @@
-using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.Host.Components.Shared.Models;
 using ConventionGradingSystem.Host.Configuration;
 
@@ -11,7 +10,6 @@ public partial class MainLayout
 {
     private readonly AuthenticationProvider _authenticationProvider;
     private readonly IOptions<ApplicationConfiguration> _applicationConfiguration;
-    private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly NavigationManager _navigationManager;
 
     private readonly MainLayoutModel _viewModel = new();
@@ -19,12 +17,10 @@ public partial class MainLayout
     public MainLayout(
         AuthenticationProvider authenticationProvider,
         IOptions<ApplicationConfiguration> applicationConfiguration,
-        IOptions<DataConfiguration> dataConfiguration,
         NavigationManager navigationManager)
     {
         _authenticationProvider = authenticationProvider;
         _applicationConfiguration = applicationConfiguration;
-        _dataConfiguration = dataConfiguration;
         _navigationManager = navigationManager;
     }
 
@@ -32,11 +28,9 @@ public partial class MainLayout
     {
         _viewModel.ConventionName = _applicationConfiguration.Value.ConventionName;
 
-        _viewModel.ContestsSectionAvailable = _dataConfiguration.Value.Contests.Count > 0;
-        _viewModel.VotingsSectionAvailable = _dataConfiguration.Value.Votings.Count > 0;
-        _viewModel.TeamsSectionAvailable =
-            _dataConfiguration.Value.Teams.Count > 0 &&
-            _dataConfiguration.Value.Contests.Count > 0;
+        _viewModel.ContestsSectionAvailable = _applicationConfiguration.Value.ContestsFeatureEnabled;
+        _viewModel.VotingsSectionAvailable = _applicationConfiguration.Value.VotingsFeatureEnabled;
+        _viewModel.TeamsSectionAvailable = _applicationConfiguration.Value.TeamsFeatureEnabled;
     }
 
     private void ToogleDrawer() => _viewModel.IsDrawerOpen = !_viewModel.IsDrawerOpen;
