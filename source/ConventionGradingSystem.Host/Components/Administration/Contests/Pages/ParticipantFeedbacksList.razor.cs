@@ -15,7 +15,7 @@ namespace ConventionGradingSystem.Host.Components.Administration.Contests.Pages;
 public partial class ParticipantFeedbacksList
 {
     private readonly DatabaseContext _databaseContext;
-    private readonly IOptions<ApplicationConfiguration> _configuration;
+    private readonly IOptions<DataConfiguration> _dataConfiguration;
 
     private readonly ParticipantFeedbacksListModel _viewModel = new();
 
@@ -24,15 +24,15 @@ public partial class ParticipantFeedbacksList
 
     public ParticipantFeedbacksList(
         DatabaseContext databaseContext,
-        IOptions<ApplicationConfiguration> configuration)
+        IOptions<DataConfiguration> dataConfiguration)
     {
         _databaseContext = databaseContext;
-        _configuration = configuration;
+        _dataConfiguration = dataConfiguration;
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var contestEvent = _configuration.Value.Contests
+        var contestEvent = _dataConfiguration.Value.Contests
             .SelectMany(item => item.Events)
             .FirstOrDefault(item => item.Identifier == EventId);
 
@@ -46,9 +46,9 @@ public partial class ParticipantFeedbacksList
             .Include(item => item.Grades)
             .ToListAsync();
 
-        var contest = _configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
-        var brigades = _configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
-        var teams = _configuration.Value.Teams.ToDictionary(team => team.Identifier);
+        var contest = _dataConfiguration.Value.Contests.First(item => item.Events.Contains(contestEvent));
+        var brigades = _dataConfiguration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
+        var teams = _dataConfiguration.Value.Teams.ToDictionary(team => team.Identifier);
 
         _viewModel.Event = new ParticipantFeedbacksListModel.EventModel(
             EventName: contestEvent.Name,
@@ -69,7 +69,7 @@ public partial class ParticipantFeedbacksList
                             .Sum(grade => grade.GradeValue) /
                         (float)feedbacks.Count))]);
 
-        var participants = _configuration.Value.Participants.ToDictionary(item => item.Identifier);
+        var participants = _dataConfiguration.Value.Participants.ToDictionary(item => item.Identifier);
         _viewModel.Feedbacks = [.. feedbacks
             .OrderBy(feedback => feedback.Identifier)
             .Select((feedback, index) => new ParticipantFeedbacksListModel.FeedbackModel(

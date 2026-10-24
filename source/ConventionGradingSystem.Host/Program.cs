@@ -20,14 +20,16 @@ public static class Program
         applicationBuilder.Services.AddServerSideBlazor();
         applicationBuilder.Services.AddMudServices();
 
+        applicationBuilder.Services.AddOptions<ApplicationConfiguration>().BindConfiguration("ApplicationConfiguration");
         applicationBuilder.Services.AddOptions<SecurityConfiguration>().BindConfiguration("SecurityConfiguration");
+        applicationBuilder.Services.AddSingleton<IValidateOptions<ApplicationConfiguration>, ApplicationConfigurationValidator>();
         applicationBuilder.Services.AddSingleton<IValidateOptions<SecurityConfiguration>, SecurityConfigurationValidator>();
 
         applicationBuilder.Services.AddScoped<AuthenticationProvider>();
         applicationBuilder.Services.AddScoped<AuthenticationStateProvider, AuthenticationProvider>();
 
         applicationBuilder.Services.AddDataAccess(
-            configurationSection: "ApplicationConfiguration",
+            configurationSection: "DataConfiguration",
             connectionString: "ApplicationDatabase");
 
         var application = applicationBuilder.Build();

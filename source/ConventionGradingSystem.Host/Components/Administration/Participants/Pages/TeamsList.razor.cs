@@ -13,55 +13,55 @@ namespace ConventionGradingSystem.Host.Components.Administration.Participants.Pa
 public partial class TeamsList
 {
     private readonly DatabaseContext _databaseContext;
-    private readonly IOptions<ApplicationConfiguration> _configuration;
+    private readonly IOptions<DataConfiguration> _dataConfiguration;
 
     private readonly TeamsListModel _viewModel = new();
 
     public TeamsList(
         DatabaseContext databaseContext,
-        IOptions<ApplicationConfiguration> configuration)
+        IOptions<DataConfiguration> dataConfiguration)
     {
         _databaseContext = databaseContext;
-        _configuration = configuration;
+        _dataConfiguration = dataConfiguration;
     }
 
     protected override async Task OnInitializedAsync()
     {
         var attendanceMarks = await _databaseContext.AttendanceMarks.ToListAsync();
-        _viewModel.Teams = [.. _configuration.Value.Teams
+        _viewModel.Teams = [.. _dataConfiguration.Value.Teams
             .OrderBy(team => team.Identifier)
             .Select((team, index) => new TeamsListModel.TeamModel(
                 Number: index + 1,
                 Identifier: team.Identifier,
                 Name: team.Name,
-                MembersQuantity: _configuration.Value.Participants
+                MembersQuantity: _dataConfiguration.Value.Participants
                     .Count(participant => participant.Team == team.Identifier),
-                RegistrationsQuantity: _configuration.Value.Participants
+                RegistrationsQuantity: _dataConfiguration.Value.Participants
                     .Where(participant => participant.Team == team.Identifier)
-                    .SelectMany(participant => _configuration.Value.Contests
+                    .SelectMany(participant => _dataConfiguration.Value.Contests
                         .SelectMany(contest => contest.Events)
                         .SelectMany(@event => @event.Participants)
                         .Where(identifier => identifier == participant.Identifier))
                     .Count(),
-                AttendancesQuantity: _configuration.Value.Participants
+                AttendancesQuantity: _dataConfiguration.Value.Participants
                     .Where(participant => participant.Team == team.Identifier)
                     .SelectMany(participant => attendanceMarks
                         .Where(mark => mark.ParticipantId == participant.Identifier))
                     .Count(),
                 AbsencesQuantity:
-                    _configuration.Value.Participants
+                    _dataConfiguration.Value.Participants
                         .Where(participant => participant.Team == team.Identifier)
-                        .SelectMany(participant => _configuration.Value.Contests
+                        .SelectMany(participant => _dataConfiguration.Value.Contests
                             .SelectMany(contest => contest.Events)
                             .SelectMany(@event => @event.Participants)
                             .Where(identifier => identifier == participant.Identifier))
                         .Count() -
-                    _configuration.Value.Participants
+                    _dataConfiguration.Value.Participants
                         .Where(participant => participant.Team == team.Identifier)
                         .SelectMany(participant => attendanceMarks
                             .Where(mark => mark.ParticipantId == participant.Identifier))
                         .Count(),
-                SpecialMarksQuantity: _configuration.Value.Participants
+                SpecialMarksQuantity: _dataConfiguration.Value.Participants
                     .Where(participant => participant.Team == team.Identifier)
                     .SelectMany(participant => attendanceMarks
                         .Where(mark => mark.ParticipantId == participant.Identifier))

@@ -13,22 +13,22 @@ namespace ConventionGradingSystem.Host.Components.Administration.Votings.Pages;
 public partial class VotingsList
 {
     private readonly DatabaseContext _databaseContext;
-    private readonly IOptions<ApplicationConfiguration> _configuration;
+    private readonly IOptions<DataConfiguration> _dataConfiguration;
 
     private readonly VotingsListModel _viewModel = new();
 
     public VotingsList(
         DatabaseContext databaseContext,
-        IOptions<ApplicationConfiguration> configuration)
+        IOptions<DataConfiguration> dataConfiguration)
     {
         _databaseContext = databaseContext;
-        _configuration = configuration;
+        _dataConfiguration = dataConfiguration;
     }
 
     protected override async Task OnInitializedAsync()
     {
         var savedVotes = await _databaseContext.ParticipantVotes.ToListAsync();
-        _viewModel.Votings = [.. _configuration.Value.Votings
+        _viewModel.Votings = [.. _dataConfiguration.Value.Votings
             .OrderBy(voting => voting.Identifier)
             .Select((voting, index) => new VotingsListModel.VotingModel(
                 Number: index + 1,

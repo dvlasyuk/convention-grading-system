@@ -15,7 +15,7 @@ namespace ConventionGradingSystem.Host.Components.Administration.Votings.Pages;
 public partial class VotesList
 {
     private readonly DatabaseContext _databaseContext;
-    private readonly IOptions<ApplicationConfiguration> _configuration;
+    private readonly IOptions<DataConfiguration> _dataConfiguration;
 
     private readonly VotesListModel _viewModel = new();
 
@@ -24,15 +24,15 @@ public partial class VotesList
 
     public VotesList(
         DatabaseContext databaseContext,
-        IOptions<ApplicationConfiguration> configuration)
+        IOptions<DataConfiguration> dataConfiguration)
     {
         _databaseContext = databaseContext;
-        _configuration = configuration;
+        _dataConfiguration = dataConfiguration;
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var candidate = _configuration.Value.Votings
+        var candidate = _dataConfiguration.Value.Votings
             .SelectMany(item => item.Candidates)
             .FirstOrDefault(item => item.Identifier == CandidateId);
 
@@ -45,9 +45,9 @@ public partial class VotesList
             .Where(item => item.CandidateId == CandidateId)
             .ToListAsync();
 
-        var voting = _configuration.Value.Votings.First(item => item.Candidates.Contains(candidate));
-        var brigades = _configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
-        var teams = _configuration.Value.Teams.ToDictionary(team => team.Identifier);
+        var voting = _dataConfiguration.Value.Votings.First(item => item.Candidates.Contains(candidate));
+        var brigades = _dataConfiguration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
+        var teams = _dataConfiguration.Value.Teams.ToDictionary(team => team.Identifier);
 
         _viewModel.Candidate = new VotesListModel.CandidateModel(
             CandidateName: candidate.Name,
@@ -57,7 +57,7 @@ public partial class VotesList
                 .Select(brigade => brigade.Name)],
             VotesQuantity: savedVotes.Count);
 
-        var participants = _configuration.Value.Participants.ToDictionary(item => item.Identifier);
+        var participants = _dataConfiguration.Value.Participants.ToDictionary(item => item.Identifier);
         _viewModel.Votes = [.. savedVotes
             .OrderBy(vote => vote.Identifier)
             .Select((vote, index) => new VotesListModel.VoteModel(

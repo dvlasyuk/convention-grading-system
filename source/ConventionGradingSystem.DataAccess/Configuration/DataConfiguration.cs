@@ -2,10 +2,8 @@ using ConventionGradingSystem.DataAccess.Configuration.Models;
 
 namespace ConventionGradingSystem.DataAccess.Configuration;
 
-public class ApplicationConfiguration
+public class DataConfiguration
 {
-    public string ConventionName { get; set; } = "Неизвестный слёт";
-
     public ICollection<Contest> Contests { get; } = [];
 
     public ICollection<Voting> Votings { get; } = [];

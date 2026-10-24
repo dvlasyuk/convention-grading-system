@@ -14,7 +14,7 @@ namespace ConventionGradingSystem.Host.Components.Administration.Votings.Pages;
 public partial class CandidatesList
 {
     private readonly DatabaseContext _databaseContext;
-    private readonly IOptions<ApplicationConfiguration> _configuration;
+    private readonly IOptions<DataConfiguration> _dataConfiguration;
 
     private readonly CandidatesListModel _viewModel = new();
 
@@ -23,15 +23,15 @@ public partial class CandidatesList
 
     public CandidatesList(
         DatabaseContext databaseContext,
-        IOptions<ApplicationConfiguration> configuration)
+        IOptions<DataConfiguration> dataConfiguration)
     {
         _databaseContext = databaseContext;
-        _configuration = configuration;
+        _dataConfiguration = dataConfiguration;
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var voting = _configuration.Value.Votings.FirstOrDefault(item => item.Identifier == VotingId);
+        var voting = _dataConfiguration.Value.Votings.FirstOrDefault(item => item.Identifier == VotingId);
         if (voting == null)
         {
             return;
@@ -53,8 +53,8 @@ public partial class CandidatesList
             CandidatesQuantity: voting.Candidates.Count,
             TotalVotesQuantity: savedVotes.Count);
 
-        var brigades = _configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
-        var teams = _configuration.Value.Teams.ToDictionary(team => team.Identifier);
+        var brigades = _dataConfiguration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
+        var teams = _dataConfiguration.Value.Teams.ToDictionary(team => team.Identifier);
 
         _viewModel.Candidates = [.. voting.Candidates
             .OrderBy(candidate => candidate.Identifier)

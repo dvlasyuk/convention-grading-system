@@ -7,18 +7,18 @@ namespace ConventionGradingSystem.Host.Components.Shared.Layouts.Sections;
 
 public partial class TeamsLayout
 {
-    private readonly IOptions<ApplicationConfiguration> _configuration;
+    private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly TeamsLayoutModel _viewModel = new();
 
-    public TeamsLayout(IOptions<ApplicationConfiguration> configuration)
+    public TeamsLayout(IOptions<DataConfiguration> dataConfiguration)
     {
-        _configuration = configuration;
+        _dataConfiguration = dataConfiguration;
     }
 
     protected override void OnInitialized()
     {
         _viewModel.TeamsSectionAvailable =
-            _configuration.Value.Teams.Count > 0 &&
-            _configuration.Value.Contests.Count > 0;
+            _dataConfiguration.Value.Teams.Count > 0 &&
+            _dataConfiguration.Value.Contests.Count > 0;
     }
 }

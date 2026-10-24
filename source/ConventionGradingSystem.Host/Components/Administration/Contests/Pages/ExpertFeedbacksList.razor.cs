@@ -15,7 +15,7 @@ namespace ConventionGradingSystem.Host.Components.Administration.Contests.Pages;
 public partial class ExpertFeedbacksList
 {
     private readonly DatabaseContext _databaseContext;
-    private readonly IOptions<ApplicationConfiguration> _configuration;
+    private readonly IOptions<DataConfiguration> _dataConfiguration;
 
     private readonly ExpertFeedbacksListModel _viewModel = new();
 
@@ -24,15 +24,15 @@ public partial class ExpertFeedbacksList
 
     public ExpertFeedbacksList(
         DatabaseContext databaseContext,
-        IOptions<ApplicationConfiguration> configuration)
+        IOptions<DataConfiguration> dataConfiguration)
     {
         _databaseContext = databaseContext;
-        _configuration = configuration;
+        _dataConfiguration = dataConfiguration;
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var contestEvent = _configuration.Value.Contests
+        var contestEvent = _dataConfiguration.Value.Contests
             .SelectMany(item => item.Events)
             .FirstOrDefault(item => item.Identifier == EventId);
 
@@ -46,7 +46,7 @@ public partial class ExpertFeedbacksList
             .Include(item => item.Grades)
             .ToListAsync();
 
-        var contest = _configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
+        var contest = _dataConfiguration.Value.Contests.First(item => item.Events.Contains(contestEvent));
         _viewModel.Event = new ExpertFeedbacksListModel.EventModel(
             EventName: contestEvent.Name,
             ContestName: contest.Name,
@@ -63,7 +63,7 @@ public partial class ExpertFeedbacksList
                             .Sum(grade => grade.GradeValue) /
                         (float)feedbacks.Count))]);
 
-        var experts = _configuration.Value.Experts.ToDictionary(item => item.Identifier);
+        var experts = _dataConfiguration.Value.Experts.ToDictionary(item => item.Identifier);
         _viewModel.Feedbacks = [.. feedbacks
             .OrderBy(feedback => feedback.Identifier)
             .Select((feedback, index) => new ExpertFeedbacksListModel.FeedbackModel(

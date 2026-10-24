@@ -15,8 +15,8 @@ public static class RegistrationExtensions
         string configurationSection,
         string connectionString)
     {
-        services.AddOptions<ApplicationConfiguration>().BindConfiguration(configurationSection);
-        services.AddSingleton<IValidateOptions<ApplicationConfiguration>, ApplicationConfigurationValidator>();
+        services.AddOptions<DataConfiguration>().BindConfiguration(configurationSection);
+        services.AddSingleton<IValidateOptions<DataConfiguration>, DataConfigurationValidator>();
 
         services.AddDbContextPool<DatabaseContext>((provider, builder) =>
         {

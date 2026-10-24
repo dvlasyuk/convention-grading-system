@@ -14,7 +14,7 @@ namespace ConventionGradingSystem.Host.Components.Administration.Contests.Pages;
 public partial class EventsList
 {
     private readonly DatabaseContext _databaseContext;
-    private readonly IOptions<ApplicationConfiguration> _configuration;
+    private readonly IOptions<DataConfiguration> _dataConfiguration;
 
     private readonly EventsListModel _viewModel = new();
 
@@ -23,15 +23,15 @@ public partial class EventsList
 
     public EventsList(
         DatabaseContext databaseContext,
-        IOptions<ApplicationConfiguration> configuration)
+        IOptions<DataConfiguration> dataConfiguration)
     {
         _databaseContext = databaseContext;
-        _configuration = configuration;
+        _dataConfiguration = dataConfiguration;
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var contest = _configuration.Value.Contests.FirstOrDefault(item => item.Identifier == ContestId);
+        var contest = _dataConfiguration.Value.Contests.FirstOrDefault(item => item.Identifier == ContestId);
         if (contest == null)
         {
             return;
@@ -62,7 +62,7 @@ public partial class EventsList
             ExpertFeedbacksQuantity: expertFeedbacks.Count,
             ParticipantFeedbacksQuantity: participantFeedbacks.Count);
 
-        var brigades = _configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
+        var brigades = _dataConfiguration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
         _viewModel.Events = [.. contest.Events
             .OrderBy(@event => @event.Identifier)
             .Select((@event, index) => new EventsListModel.EventModel(

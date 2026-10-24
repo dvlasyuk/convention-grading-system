@@ -15,7 +15,7 @@ namespace ConventionGradingSystem.Host.Components.Grading.Contests.Pages;
 public partial class ParticipantFeedbackForm
 {
     private readonly DatabaseContext _databaseContext;
-    private readonly IOptions<ApplicationConfiguration> _configuration;
+    private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly NavigationManager _navigationManager;
     private readonly ProtectedLocalStorage _localStorage;
 
@@ -28,19 +28,19 @@ public partial class ParticipantFeedbackForm
 
     public ParticipantFeedbackForm(
         DatabaseContext databaseContext,
-        IOptions<ApplicationConfiguration> configuration,
+        IOptions<DataConfiguration> dataConfiguration,
         NavigationManager navigationManager,
         ProtectedLocalStorage localStorage)
     {
         _databaseContext = databaseContext;
-        _configuration = configuration;
+        _dataConfiguration = dataConfiguration;
         _navigationManager = navigationManager;
         _localStorage = localStorage;
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var contestEvent = _configuration.Value.Contests
+        var contestEvent = _dataConfiguration.Value.Contests
             .SelectMany(@event => @event.Events)
             .FirstOrDefault(@event => @event.Identifier == EventId);
 
@@ -52,7 +52,7 @@ public partial class ParticipantFeedbackForm
         var result = await _localStorage.GetAsync<string>(GetLocalStorageKey());
         _viewModel.IsFormDisabled = result.Success;
 
-        var contest = _configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
+        var contest = _dataConfiguration.Value.Contests.First(item => item.Events.Contains(contestEvent));
         _viewModel.Event = new ParticipantFeedbackFormModel.EventModel(
             EventName: contestEvent.Name,
             ContestName: contest.Name,
@@ -118,9 +118,9 @@ public partial class ParticipantFeedbackForm
             return Task.FromResult(Enumerable.Empty<ParticipantFeedbackFormModel.TeamModel>());
         }
 
-        return Task.FromResult<IEnumerable<ParticipantFeedbackFormModel.TeamModel>>([.. _configuration.Value.Teams
+        return Task.FromResult<IEnumerable<ParticipantFeedbackFormModel.TeamModel>>([.. _dataConfiguration.Value.Teams
             .Where(team => !_viewModel.Event!.BannedTeams.Contains(team.Identifier))
-            .Where(team => _configuration.Value.Participants
+            .Where(team => _dataConfiguration.Value.Participants
                 .Where(participant => participant.Team == team.Identifier)
                 .Where(participant =>
                     !_viewModel.Event!.RegisteredGrading ||
@@ -147,9 +147,9 @@ public partial class ParticipantFeedbackForm
             return Task.FromResult(Enumerable.Empty<ParticipantFeedbackFormModel.ParticipantModel>());
         }
 
-        return Task.FromResult<IEnumerable<ParticipantFeedbackFormModel.ParticipantModel>>([.. _configuration.Value.Teams
+        return Task.FromResult<IEnumerable<ParticipantFeedbackFormModel.ParticipantModel>>([.. _dataConfiguration.Value.Teams
             .Where(team => team.Identifier == _viewModel.SelectedTeam.Identifier)
-            .SelectMany(team => _configuration.Value.Participants
+            .SelectMany(team => _dataConfiguration.Value.Participants
                 .Where(participant => participant.Team == team.Identifier))
             .Where(participant =>
                 !_viewModel.Event!.RegisteredGrading ||

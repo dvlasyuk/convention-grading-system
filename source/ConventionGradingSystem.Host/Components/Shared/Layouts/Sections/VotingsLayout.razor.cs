@@ -7,16 +7,16 @@ namespace ConventionGradingSystem.Host.Components.Shared.Layouts.Sections;
 
 public partial class VotingsLayout
 {
-    private readonly IOptions<ApplicationConfiguration> _configuration;
+    private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly VotingsLayoutModel _viewModel = new();
 
-    public VotingsLayout(IOptions<ApplicationConfiguration> configuration)
+    public VotingsLayout(IOptions<DataConfiguration> dataConfiguration)
     {
-        _configuration = configuration;
+        _dataConfiguration = dataConfiguration;
     }
 
     protected override void OnInitialized()
     {
-        _viewModel.VotingsSectionAvailable = _configuration.Value.Votings.Count > 0;
+        _viewModel.VotingsSectionAvailable = _dataConfiguration.Value.Votings.Count > 0;
     }
 }

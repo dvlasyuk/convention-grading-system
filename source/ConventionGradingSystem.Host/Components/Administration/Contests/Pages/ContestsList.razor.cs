@@ -13,16 +13,16 @@ namespace ConventionGradingSystem.Host.Components.Administration.Contests.Pages;
 public partial class ContestsList
 {
     private readonly DatabaseContext _databaseContext;
-    private readonly IOptions<ApplicationConfiguration> _configuration;
+    private readonly IOptions<DataConfiguration> _dataConfiguration;
 
     private readonly ContestsListModel _viewModel = new();
 
     public ContestsList(
         DatabaseContext databaseContext,
-        IOptions<ApplicationConfiguration> configuration)
+        IOptions<DataConfiguration> dataConfiguration)
     {
         _databaseContext = databaseContext;
-        _configuration = configuration;
+        _dataConfiguration = dataConfiguration;
     }
 
     protected override async Task OnInitializedAsync()
@@ -30,7 +30,7 @@ public partial class ContestsList
         var expertFeedbacks = await _databaseContext.ExpertFeedbacks.ToListAsync();
         var participantFeedbacks = await _databaseContext.ParticipantFeedbacks.ToListAsync();
 
-        _viewModel.Contests = [.. _configuration.Value.Contests
+        _viewModel.Contests = [.. _dataConfiguration.Value.Contests
             .OrderBy(contest => contest.Identifier)
             .Select((contest, index) => new ContestsListModel.ContestModel(
                 Number: index + 1,

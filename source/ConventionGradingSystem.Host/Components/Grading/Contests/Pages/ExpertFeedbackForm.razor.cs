@@ -15,7 +15,7 @@ namespace ConventionGradingSystem.Host.Components.Grading.Contests.Pages;
 public partial class ExpertFeedbackForm
 {
     private readonly DatabaseContext _databaseContext;
-    private readonly IOptions<ApplicationConfiguration> _configuration;
+    private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly NavigationManager _navigationManager;
     private readonly ProtectedLocalStorage _localStorage;
 
@@ -27,19 +27,19 @@ public partial class ExpertFeedbackForm
 
     public ExpertFeedbackForm(
         DatabaseContext databaseContext,
-        IOptions<ApplicationConfiguration> configuration,
+        IOptions<DataConfiguration> dataConfiguration,
         NavigationManager navigationManager,
         ProtectedLocalStorage localStorage)
     {
         _databaseContext = databaseContext;
-        _configuration = configuration;
+        _dataConfiguration = dataConfiguration;
         _navigationManager = navigationManager;
         _localStorage = localStorage;
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var contestEvent = _configuration.Value.Contests
+        var contestEvent = _dataConfiguration.Value.Contests
             .SelectMany(@event => @event.Events)
             .FirstOrDefault(@event => @event.Identifier == EventId);
 
@@ -51,7 +51,7 @@ public partial class ExpertFeedbackForm
         var result = await _localStorage.GetAsync<string>(GetLocalStorageKey());
         _viewModel.IsFormDisabled = result.Success;
 
-        var contest = _configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
+        var contest = _dataConfiguration.Value.Contests.First(item => item.Events.Contains(contestEvent));
         _viewModel.Event = new ExpertFeedbackFormModel.EventModel(
             EventName: contestEvent.Name,
             ContestName: contest.Name,
@@ -112,7 +112,7 @@ public partial class ExpertFeedbackForm
             return Task.FromResult(Enumerable.Empty<ExpertFeedbackFormModel.ExpertModel>());
         }
 
-        return Task.FromResult<IEnumerable<ExpertFeedbackFormModel.ExpertModel>>([.. _configuration.Value.Experts
+        return Task.FromResult<IEnumerable<ExpertFeedbackFormModel.ExpertModel>>([.. _dataConfiguration.Value.Experts
             .Where(expert => expert.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
             .Select(expert => new ExpertFeedbackFormModel.ExpertModel(
                 Identifier: expert.Identifier,

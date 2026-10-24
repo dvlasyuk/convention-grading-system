@@ -16,7 +16,7 @@ namespace ConventionGradingSystem.Host.Components.Grading.Votings.Pages;
 public partial class ParticipantVotingForm
 {
     private readonly DatabaseContext _databaseContext;
-    private readonly IOptions<ApplicationConfiguration> _configuration;
+    private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly NavigationManager _navigationManager;
     private readonly ProtectedLocalStorage _localStorage;
 
@@ -32,19 +32,19 @@ public partial class ParticipantVotingForm
 
     public ParticipantVotingForm(
         DatabaseContext databaseContext,
-        IOptions<ApplicationConfiguration> configuration,
+        IOptions<DataConfiguration> dataConfiguration,
         NavigationManager navigationManager,
         ProtectedLocalStorage localStorage)
     {
         _databaseContext = databaseContext;
-        _configuration = configuration;
+        _dataConfiguration = dataConfiguration;
         _navigationManager = navigationManager;
         _localStorage = localStorage;
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var voting = _configuration.Value.Votings.FirstOrDefault(item => item.Identifier == VotingId);
+        var voting = _dataConfiguration.Value.Votings.FirstOrDefault(item => item.Identifier == VotingId);
         if (voting == null)
         {
             return;
@@ -98,7 +98,7 @@ public partial class ParticipantVotingForm
             return Task.FromResult(Enumerable.Empty<ParticipantVotingFormModel.TeamModel>());
         }
 
-        return Task.FromResult<IEnumerable<ParticipantVotingFormModel.TeamModel>>([.. _configuration.Value.Teams
+        return Task.FromResult<IEnumerable<ParticipantVotingFormModel.TeamModel>>([.. _dataConfiguration.Value.Teams
             .Where(team => !_viewModel.Voting!.BannedTeams.Contains(team.Identifier))
             .Where(team => team.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
             .Select(team => new ParticipantVotingFormModel.TeamModel(
@@ -117,9 +117,9 @@ public partial class ParticipantVotingForm
             return Task.FromResult(Enumerable.Empty<ParticipantVotingFormModel.ParticipantModel>());
         }
 
-        return Task.FromResult<IEnumerable<ParticipantVotingFormModel.ParticipantModel>>([.. _configuration.Value.Teams
+        return Task.FromResult<IEnumerable<ParticipantVotingFormModel.ParticipantModel>>([.. _dataConfiguration.Value.Teams
             .Where(team => team.Identifier == _viewModel.SelectedTeam.Identifier)
-            .SelectMany(team => _configuration.Value.Participants
+            .SelectMany(team => _dataConfiguration.Value.Participants
                 .Where(participant => participant.Team == team.Identifier))
             .Where(participant => participant.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
             .Select(participant => new ParticipantVotingFormModel.ParticipantModel(

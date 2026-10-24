@@ -15,7 +15,7 @@ namespace ConventionGradingSystem.Host.Components.Grading.Contests.Pages;
 public partial class FacilitatorAttendanceForm
 {
     private readonly DatabaseContext _databaseContext;
-    private readonly IOptions<ApplicationConfiguration> _configuration;
+    private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly NavigationManager _navigationManager;
 
     private readonly FacilitatorAttendanceFormModel _viewModel = new();
@@ -25,17 +25,17 @@ public partial class FacilitatorAttendanceForm
 
     public FacilitatorAttendanceForm(
         DatabaseContext databaseContext,
-        IOptions<ApplicationConfiguration> configuration,
+        IOptions<DataConfiguration> dataConfiguration,
         NavigationManager navigationManager)
     {
         _databaseContext = databaseContext;
-        _configuration = configuration;
+        _dataConfiguration = dataConfiguration;
         _navigationManager = navigationManager;
     }
 
     protected override async Task OnInitializedAsync()
     {
-        var contestEvent = _configuration.Value.Contests
+        var contestEvent = _dataConfiguration.Value.Contests
             .SelectMany(@event => @event.Events)
             .FirstOrDefault(@event => @event.Identifier == EventId);
 
@@ -44,10 +44,10 @@ public partial class FacilitatorAttendanceForm
             return;
         }
 
-        var contest = _configuration.Value.Contests.First(item => item.Events.Contains(contestEvent));
-        var participants = _configuration.Value.Participants.ToDictionary(item => item.Identifier);
-        var brigades = _configuration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
-        var teams = _configuration.Value.Teams.ToDictionary(team => team.Identifier);
+        var contest = _dataConfiguration.Value.Contests.First(item => item.Events.Contains(contestEvent));
+        var participants = _dataConfiguration.Value.Participants.ToDictionary(item => item.Identifier);
+        var brigades = _dataConfiguration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
+        var teams = _dataConfiguration.Value.Teams.ToDictionary(team => team.Identifier);
 
         _viewModel.Event = new FacilitatorAttendanceFormModel.EventModel(
             EventName: contestEvent.Name,
