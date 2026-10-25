@@ -1,10 +1,11 @@
 namespace ConventionGradingSystem.Host.Components.Administration.Contests.Models;
 
-public record class ExpertFeedbacksListModel
+public record class ExpertFeedbacksListModel(
+    ExpertFeedbacksListModel.EventModel Event,
+    IReadOnlyCollection<ExpertFeedbacksListModel.FeedbackModel> Feedbacks,
+    string? SearchFilter)
 {
-    public EventModel? Event { get; set; }
-    public IEnumerable<FeedbackModel> Feedbacks { get; set; } = [];
-    public string? SearchFilter { get; set; }
+    public string? SearchFilter { get; set; } = SearchFilter;
 
     public record EventModel(
         string EventName,

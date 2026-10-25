@@ -12,7 +12,7 @@ public partial class MainLayout
     private readonly IOptions<ApplicationConfiguration> _applicationConfiguration;
     private readonly NavigationManager _navigationManager;
 
-    private readonly MainLayoutModel _viewModel = new();
+    private MainLayoutModel? _viewModel;
 
     public MainLayout(
         AuthenticationProvider authenticationProvider,
@@ -26,10 +26,12 @@ public partial class MainLayout
 
     protected override void OnInitialized()
     {
-        _viewModel.ConventionName = _applicationConfiguration.Value.ConventionName;
+        _viewModel = new(
+            ConventionName: _applicationConfiguration.Value.ConventionName,
+            IsDrawerOpen: false);
     }
 
-    private void ToogleDrawer() => _viewModel.IsDrawerOpen = !_viewModel.IsDrawerOpen;
+    private void ToogleDrawer() => _viewModel!.IsDrawerOpen = !_viewModel!.IsDrawerOpen;
 
     private async Task OnSignOutFromSystem()
     {

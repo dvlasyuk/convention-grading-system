@@ -11,7 +11,15 @@ public partial class SignInForm
     private readonly AuthenticationProvider _authenticationProvider;
     private readonly NavigationManager _navigationManager;
 
-    private readonly SignInFormModel _viewModel = new();
+    private readonly SignInFormModel _viewModel = new(
+        Form: new SignInFormModel.FormModel(
+            EnteredSecret: null),
+        Input: new SignInFormModel.PasswordInputModel(
+            IsPasswordShowed: false,
+            InputType: InputType.Password,
+            InputIcon: Icons.Material.Filled.VisibilityOff),
+        IsFormValid: false);
+
     private MudForm? _formSelector;
 
     public SignInForm(
@@ -30,23 +38,23 @@ public partial class SignInForm
             return;
         }
 
-        await _authenticationProvider.SignIn(_viewModel.EnteredSecret!);
+        await _authenticationProvider.SignIn(_viewModel.Form.EnteredSecret!);
         _navigationManager.NavigateTo(_navigationManager.Uri, true);
     }
 
     private void ShowPassword()
     {
-        if (_viewModel.IsPasswordShowed)
+        if (_viewModel.Input.IsPasswordShowed)
         {
-            _viewModel.PasswordInputIcon = Icons.Material.Filled.VisibilityOff;
-            _viewModel.PasswordInputType = InputType.Password;
+            _viewModel.Input.InputIcon = Icons.Material.Filled.VisibilityOff;
+            _viewModel.Input.InputType = InputType.Password;
         }
         else
         {
-            _viewModel.PasswordInputIcon = Icons.Material.Filled.Visibility;
-            _viewModel.PasswordInputType = InputType.Text;
+            _viewModel.Input.InputIcon = Icons.Material.Filled.Visibility;
+            _viewModel.Input.InputType = InputType.Text;
         }
 
-        _viewModel.IsPasswordShowed = !_viewModel.IsPasswordShowed;
+        _viewModel.Input.IsPasswordShowed = !_viewModel.Input.IsPasswordShowed;
     }
 }

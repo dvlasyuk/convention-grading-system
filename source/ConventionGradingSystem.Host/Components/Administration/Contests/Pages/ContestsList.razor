@@ -3,14 +3,21 @@
 @using ConventionGradingSystem.Host.Components.Administration.Contests.Models
 @using ConventionGradingSystem.Host.Components.Shared.Components
 @using ConventionGradingSystem.Host.Components.Shared.Models
+@using ConventionGradingSystem.Host.Components.Shared.Pages
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
+@inherits BasePage<ContestsListModel>
+
 <FeaturePageView Feature="@ApplicationFeature.Contests">
+<ContentPageView LoadingStatus="@LoadingStatus"
+                 LoadingError="@LoadingError"
+                 ContentType="@ContentType.Table"
+                 DefaultPageTitle="Конкурсы мероприятий">
 
 <PageTitle>Конкурсы мероприятий</PageTitle>
 
-<MudTable Items="@_viewModel.Contests"
+<MudTable Items="@ViewModel.Contests"
           Filter="@FilterRecords"
           Breakpoint="@Breakpoint.None"
           Hover="true">
@@ -18,7 +25,7 @@
     <ToolBarContent>
         <MudText Typo="@Typo.h6">Конкурсы мероприятий</MudText>
         <MudSpacer />
-        <MudTextField @bind-Value="@_viewModel.SearchFilter"
+        <MudTextField @bind-Value="@ViewModel.SearchFilter"
                       MaxLength="50"
                       Clearable="true"
                       Placeholder="Поиск"
@@ -52,4 +59,5 @@
     </RowTemplate>
 </MudTable>
 
+</ContentPageView>
 </FeaturePageView>

@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Administration.Participants.Models;
+using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -15,8 +16,6 @@ public partial class TeamsList
     private readonly DatabaseContext _databaseContext;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
 
-    private readonly TeamsListModel _viewModel = new();
-
     public TeamsList(
         DatabaseContext databaseContext,
         IOptions<DataConfiguration> dataConfiguration)
@@ -25,10 +24,10 @@ public partial class TeamsList
         _dataConfiguration = dataConfiguration;
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task<ContentState<TeamsListModel>> LoadContent()
     {
         var attendanceMarks = await _databaseContext.AttendanceMarks.ToListAsync();
-        _viewModel.Teams = [.. _dataConfiguration.Value.Teams
+        var viewTeams = _dataConfiguration.Value.Teams
             .OrderBy(team => team.Identifier)
             .Select((team, index) => new TeamsListModel.TeamModel(
                 Number: index + 1,
@@ -65,14 +64,17 @@ public partial class TeamsList
                     .Where(participant => participant.Team == team.Identifier)
                     .SelectMany(participant => attendanceMarks
                         .Where(mark => mark.ParticipantId == participant.Identifier))
-                    .Count(mark => mark.SpecialMark)))];
+                    .Count(mark => mark.SpecialMark)))
+            .ToArray();
+
+        return new TeamsListModel(Teams: viewTeams, SearchFilter: null);
     }
 
     private bool FilterRecords(TeamsListModel.TeamModel team)
     {
-        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
-            team.Name.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
-            team.Identifier.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase);
+        return string.IsNullOrWhiteSpace(ViewModel.SearchFilter) ||
+            team.Name.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            team.Identifier.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase);
     }
 
     private static object SelectNameField(TeamsListModel.TeamModel team) => team.Name;

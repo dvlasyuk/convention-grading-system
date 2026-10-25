@@ -5,11 +5,18 @@
 @using ConventionGradingSystem.Host.Components.Shared.Components
 @using ConventionGradingSystem.Host.Components.Shared.Layouts
 @using ConventionGradingSystem.Host.Components.Shared.Models
+@using ConventionGradingSystem.Host.Components.Shared.Pages
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
+@inherits BasePage<FacilitatorAttendanceFormModel>
+
 <FeaturePageView Feature="@ApplicationFeature.Contests">
+<ContentPageView LoadingStatus="@LoadingStatus"
+                 LoadingError="@LoadingError"
+                 ContentType="@ContentType.TableForm"
+                 DefaultPageTitle="Форма посещаемости мероприятия">
 
 <AuthorizeView Roles="Administrator,Organizer">
     <NotAuthorized>
@@ -18,25 +25,12 @@
     </NotAuthorized>
     <Authorized>
 
-        @if (_viewModel.Event == null)
-        {
-            <PageTitle>Форма посещаемости неизвестного мероприятия</PageTitle>
-            <MudAlert Severity="@Severity.Warning">
-                Мероприятие с идентификатором <em>@EventId</em> <strong>не найдено</strong>. Если ты вводил адрес
-                страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то проверь не ошибся
-                ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь корректность этой
-                ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы
-                системы, то это ошибка - обратись, пожалуйста, к разработчикам
-            </MudAlert>
-            return;
-        }
+        <PageTitle>Форма посещаемости мероприятия @ViewModel.Event.EventName</PageTitle>
 
-        <PageTitle>Форма посещаемости мероприятия @_viewModel.Event.EventName</PageTitle>
-
-        @if (!_viewModel.Event.AttendanceControl)
+        @if (!ViewModel.Event.AttendanceControl)
         {
             <MudAlert Severity="@Severity.Warning">
-                Посещаемость мероприятий конкурса <strong>@_viewModel.Event.ContestName</strong> не контролируется. Если
+                Посещаемость мероприятий конкурса <strong>@ViewModel.Event.ContestName</strong> не контролируется. Если
                 ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
                 проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
                 корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
@@ -46,13 +40,13 @@
         }
 
         <MudAlert Severity="@Severity.Info">
-            Приветствуем тебя, проводящий! Ты можешь отметить участников своего мероприятия <strong>@_viewModel.Event.EventName</strong>
-            в рамка конкурса мероприятий <strong>@_viewModel.Event.ContestName</strong>. Отметь участников, которые
+            Приветствуем тебя, проводящий! Ты можешь отметить участников своего мероприятия <strong>@ViewModel.Event.EventName</strong>
+            в рамка конкурса мероприятий <strong>@ViewModel.Event.ContestName</strong>. Отметь участников, которые
             посетили мероприятие, отметь особо хорошо себя показавших участников, если хочешь, и нажми кнопку
             <em>Обновить данные</em>
         </MudAlert>
 
-        <MudTable Items="@_viewModel.Event.Participants"
+        <MudTable Items="@ViewModel.Event.Participants"
                   Filter="@FilterRecords"
                   Breakpoint="@Breakpoint.None"
                   Hover="true"
@@ -61,7 +55,7 @@
             <ToolBarContent>
                 <MudText Typo="@Typo.h6">Участники мероприятия</MudText>
                 <MudSpacer />
-                <MudTextField @bind-Value="@_viewModel.SearchFilter"
+                <MudTextField @bind-Value="@ViewModel.SearchFilter"
                               MaxLength="50"
                               Clearable="true"
                               Placeholder="Поиск"
@@ -82,13 +76,13 @@
                 <MudTd>@rowContext.Brigade</MudTd>
                 <MudTd>@rowContext.Team</MudTd>
                 <MudTd>
-                    <MudCheckBox @bind-Value="@(_viewModel.AttendanceMarks[rowContext.Identifier])"
+                    <MudCheckBox @bind-Value="@(ViewModel.Form.AttendanceMarks[rowContext.Identifier])"
                                  Label="Посещение"
                                  Color="@Color.Success"
                                  UnCheckedColor="@Color.Error" />
                 </MudTd>
                 <MudTd>
-                    <MudCheckBox @bind-Value="@(_viewModel.SpecialMarks[rowContext.Identifier])"
+                    <MudCheckBox @bind-Value="@(ViewModel.Form.SpecialMarks[rowContext.Identifier])"
                                  Label="Отличие"
                                  Color="@Color.Primary"
                                  UnCheckedColor="@Color.Default" />
@@ -112,4 +106,5 @@
     </Authorized>
 </AuthorizeView>
 
+</ContentPageView>
 </FeaturePageView>

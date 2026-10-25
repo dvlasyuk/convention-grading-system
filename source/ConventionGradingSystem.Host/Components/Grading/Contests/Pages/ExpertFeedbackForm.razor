@@ -5,11 +5,18 @@
 @using ConventionGradingSystem.Host.Components.Shared.Components
 @using ConventionGradingSystem.Host.Components.Shared.Layouts
 @using ConventionGradingSystem.Host.Components.Shared.Models
+@using ConventionGradingSystem.Host.Components.Shared.Pages
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
+@inherits BasePage<ExpertFeedbackFormModel>
+
 <FeaturePageView Feature="@ApplicationFeature.Contests">
+<ContentPageView LoadingStatus="@LoadingStatus"
+                 LoadingError="@LoadingError"
+                 ContentType="@ContentType.Form"
+                 DefaultPageTitle="Форма отзыва о мероприятии">
 
 <AuthorizeView Roles="Administrator,Expert">
     <NotAuthorized>
@@ -18,25 +25,12 @@
     </NotAuthorized>
     <Authorized>
 
-        @if (_viewModel.Event == null)
-        {
-            <PageTitle>Форма отзыва о неизвестном мероприятии</PageTitle>
-            <MudAlert Severity="@Severity.Warning">
-                Мероприятие с идентификатором <em>@EventId</em> <strong>не найдено</strong>. Если ты вводил адрес
-                страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то проверь не ошибся
-                ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь корректность этой
-                ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы
-                системы, то это ошибка - обратись, пожалуйста, к разработчикам
-            </MudAlert>
-            return;
-        }
+        <PageTitle>Форма отзыва о мероприятии @ViewModel.Event.EventName</PageTitle>
 
-        <PageTitle>Форма отзыва о мероприятии @_viewModel.Event.EventName</PageTitle>
-
-        @if (!_viewModel.Event.IsGraded)
+        @if (!ViewModel.Event.IsGraded)
         {
             <MudAlert Severity="@Severity.Warning">
-                Мероприятия конкурса <strong>@_viewModel.Event.ContestName</strong> не оцениваются экспертами. Если
+                Мероприятия конкурса <strong>@ViewModel.Event.ContestName</strong> не оцениваются экспертами. Если
                 ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
                 проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
                 корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
@@ -45,26 +39,26 @@
             return;
         }
 
-        @if (_viewModel.IsFormDisabled)
+        @if (ViewModel.IsFormDisabled)
         {
             <MudAlert Severity="@Severity.Info">
-                Твой отзыв о мероприятии <strong>@_viewModel.Event.EventName</strong> в рамка конкурса мероприятий
-                <strong>@_viewModel.Event.ContestName</strong> принят. Спасибо большое за участие!
+                Твой отзыв о мероприятии <strong>@ViewModel.Event.EventName</strong> в рамка конкурса мероприятий
+                <strong>@ViewModel.Event.ContestName</strong> принят. Спасибо большое за участие!
             </MudAlert>
             return;
         }
 
         <MudAlert Severity="@Severity.Info">
-            Приветствуем тебя, эксперт! Ты можешь свой отзыв о мероприятии <strong>@_viewModel.Event.EventName</strong>
-            в рамка конкурса мероприятий <strong>@_viewModel.Event.ContestName</strong>. Оцени мероприятие по приведённым
+            Приветствуем тебя, эксперт! Ты можешь свой отзыв о мероприятии <strong>@ViewModel.Event.EventName</strong>
+            в рамка конкурса мероприятий <strong>@ViewModel.Event.ContestName</strong>. Оцени мероприятие по приведённым
             критериям, оставь дополнительный комментарий, если хочешь, и нажми кнопку <em>Отправить</em>
         </MudAlert>
 
         <MudPaper Class="mt-3 pa-3">
-            <MudForm @ref="@_formSelector" @bind-IsValid="@_viewModel.IsFormValid">
+            <MudForm @ref="@_formSelector" @bind-IsValid="@ViewModel.IsFormValid">
 
                 <MudAutocomplete T="@ExpertFeedbackFormModel.ExpertModel"
-                                 @bind-Value="@_viewModel.SelectedExpert"
+                                 @bind-Value="@ViewModel.Form.SelectedExpert"
                                  SearchFunc="@SearchExpert"
                                  Required="true"
                                  ResetValueOnEmptyText="true"
@@ -75,12 +69,12 @@
                                  AdornmentIcon="@Icons.Material.Filled.Search"
                                  Class="my-3" />
 
-                @foreach (var criterion in _viewModel.Event.Criterions)
+                @foreach (var criterion in ViewModel.Event.Criterions)
                 {
                     <MudPaper Outlined="true" Class="mt-3 pa-3">
                         <MudText Typo="@Typo.subtitle1">@criterion.Name</MudText>
                         <MudText Typo="@Typo.subtitle2">@criterion.Description</MudText>
-                        <MudSlider @bind-Value="@_viewModel.SelectedGrades[criterion.Identifier]"
+                        <MudSlider @bind-Value="@ViewModel.Form.SelectedGrades[criterion.Identifier]"
                                    Min="@criterion.MinimalGrade"
                                    Max="@criterion.MaximalGrade"
                                    TickMarks="true"
@@ -92,7 +86,7 @@
                 }
 
                 <MudTextField T="@string"
-                              @bind-Value="@_viewModel.EnteredNote"
+                              @bind-Value="@ViewModel.Form.EnteredNote"
                               Label="Оставь любой дополнительный комментарий"
                               Variant="@Variant.Outlined"
                               Lines="3"
@@ -100,7 +94,7 @@
 
                 <MudDivider />
                 <MudButton OnClick="@ProcessForm"
-                           Disabled="@(!_viewModel.IsFormValid)"
+                           Disabled="@(!ViewModel.IsFormValid)"
                            Variant="@Variant.Outlined"
                            Size="@Size.Large"
                            Color="@Color.Primary"
@@ -114,4 +108,5 @@
     </Authorized>
 </AuthorizeView>
 
+</ContentPageView>
 </FeaturePageView>

@@ -19,15 +19,15 @@
 <MudPaper Class="mt-3 pa-3">
     <MudForm @ref="@_formSelector" @bind-IsValid="@_viewModel.IsFormValid">
         <MudTextField T="@string"
-                      @bind-Value="@_viewModel.EnteredSecret"
+                      @bind-Value="@_viewModel.Form.EnteredSecret"
                       OnAdornmentClick="@ShowPassword"
                       Required="true"
                       Label="Введи секретную фразу"
                       RequiredError="Секретная фраза обязательна"
-                      InputType="@_viewModel.PasswordInputType"
+                      InputType="@_viewModel.Input.InputType"
                       Variant="@Variant.Outlined"
                       Adornment="@Adornment.End"
-                      AdornmentIcon="@_viewModel.PasswordInputIcon"
+                      AdornmentIcon="@_viewModel.Input.InputIcon"
                       Class="my-3" />
 
         <MudButton OnClick="@SignInToSystem"

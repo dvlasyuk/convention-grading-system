@@ -4,6 +4,7 @@ using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.DataAccess.Database.Entities;
 using ConventionGradingSystem.Host.Components.Grading.Votings.Models;
+using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
@@ -19,8 +20,6 @@ public partial class ParticipantVotingForm
     private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly NavigationManager _navigationManager;
     private readonly ProtectedLocalStorage _localStorage;
-
-    private readonly ParticipantVotingFormModel _viewModel = new();
 
     private MudForm? _formSelector;
     private MudAutocomplete<ParticipantVotingFormModel.ParticipantModel>? _participantSelector;
@@ -42,18 +41,15 @@ public partial class ParticipantVotingForm
         _localStorage = localStorage;
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task<ContentState<ParticipantVotingFormModel>> LoadContent()
     {
         var voting = _dataConfiguration.Value.Votings.FirstOrDefault(item => item.Identifier == VotingId);
         if (voting == null)
         {
-            return;
+            return Shared.Models.LoadingError.VotingNotFound;
         }
 
-        var result = await _localStorage.GetAsync<string>(GetLocalStorageKey());
-        _viewModel.IsFormDisabled = result.Success;
-
-        _viewModel.Voting = new ParticipantVotingFormModel.VotingModel(
+        var viewVoting = new ParticipantVotingFormModel.VotingModel(
             Name: voting.Name,
             BrigadeFriendlyVoting: voting.BrigadeFriendlyVoting,
             TeamFriendlyVoting: voting.TeamFriendlyVoting,
@@ -66,22 +62,33 @@ public partial class ParticipantVotingForm
                     Brigades: [.. candidate.Brigades],
                     Teams: [.. candidate.Teams]))]);
 
-        _viewModel.SelectedCandidates = new ParticipantVotingFormModel.CandidateModel?[_viewModel.Voting.VotesQuantity];
+        var viewSelectedCandidates = new ParticipantVotingFormModel.CandidateModel?[viewVoting.VotesQuantity];
+
+        var result = await _localStorage.GetAsync<string>(GetLocalStorageKey());
+        return new ParticipantVotingFormModel(
+            Voting: viewVoting,
+            Form: new ParticipantVotingFormModel.FormModel(
+                SelectedTeam: null,
+                SelectedParticipant: null,
+                SelectedCandidates: viewSelectedCandidates,
+                EnteredNote: null),
+            IsFormDisabled: result.Success,
+            IsFormValid: false);
     }
 
     private async Task ProcessForm()
     {
         await _formSelector!.ValidateAsync();
-        if (!_viewModel.IsFormValid)
+        if (!ViewModel.IsFormValid)
         {
             return;
         }
 
-        _databaseContext.ParticipantVotes.AddRange(_viewModel.SelectedCandidates.Select(candidate => new ParticipantVote
+        _databaseContext.ParticipantVotes.AddRange(ViewModel.Form.SelectedCandidates.Select(candidate => new ParticipantVote
         {
-            ParticipantId = _viewModel.SelectedParticipant!.Identifier,
+            ParticipantId = ViewModel.Form.SelectedParticipant!.Identifier,
             CandidateId = candidate!.Identifer,
-            Note = _viewModel.EnteredNote,
+            Note = ViewModel.Form.EnteredNote,
             ReceivedAt = DateTimeOffset.Now
         }));
 
@@ -99,7 +106,7 @@ public partial class ParticipantVotingForm
         }
 
         return Task.FromResult<IEnumerable<ParticipantVotingFormModel.TeamModel>>([.. _dataConfiguration.Value.Teams
-            .Where(team => !_viewModel.Voting!.BannedTeams.Contains(team.Identifier))
+            .Where(team => !ViewModel.Voting!.BannedTeams.Contains(team.Identifier))
             .Where(team => team.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
             .Select(team => new ParticipantVotingFormModel.TeamModel(
                 Identifier: team.Identifier,
@@ -112,13 +119,13 @@ public partial class ParticipantVotingForm
         {
             return Task.FromResult(Enumerable.Empty<ParticipantVotingFormModel.ParticipantModel>());
         }
-        if (_viewModel.SelectedTeam == null)
+        if (ViewModel.Form.SelectedTeam == null)
         {
             return Task.FromResult(Enumerable.Empty<ParticipantVotingFormModel.ParticipantModel>());
         }
 
         return Task.FromResult<IEnumerable<ParticipantVotingFormModel.ParticipantModel>>([.. _dataConfiguration.Value.Teams
-            .Where(team => team.Identifier == _viewModel.SelectedTeam.Identifier)
+            .Where(team => team.Identifier == ViewModel.Form.SelectedTeam.Identifier)
             .SelectMany(team => _dataConfiguration.Value.Participants
                 .Where(participant => participant.Team == team.Identifier))
             .Where(participant => participant.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
@@ -137,18 +144,18 @@ public partial class ParticipantVotingForm
         }
 
         var friendlyBrigadeSelected =
-            !string.IsNullOrWhiteSpace(_viewModel.SelectedParticipant!.Brigade) &&
-            value.Brigades.Contains(_viewModel.SelectedParticipant!.Brigade);
+            !string.IsNullOrWhiteSpace(ViewModel.Form.SelectedParticipant!.Brigade) &&
+            value.Brigades.Contains(ViewModel.Form.SelectedParticipant!.Brigade);
 
-        if (!_viewModel.Voting!.BrigadeFriendlyVoting && friendlyBrigadeSelected)
+        if (!ViewModel.Voting!.BrigadeFriendlyVoting && friendlyBrigadeSelected)
         {
             return "Нельзя голосовать за кандидата, связанного с твоим отрядом";
         }
-        if (!_viewModel.Voting!.TeamFriendlyVoting && value.Teams.Contains(_viewModel.SelectedParticipant!.Team))
+        if (!ViewModel.Voting!.TeamFriendlyVoting && value.Teams.Contains(ViewModel.Form.SelectedParticipant!.Team))
         {
             return "Нельзя голосовать за кандидата, связанного с твоей командой";
         }
-        if (index > 0 && _viewModel.SelectedCandidates.Take(index).Contains(value))
+        if (index > 0 && ViewModel.Form.SelectedCandidates.Take(index).Contains(value))
         {
             return "Нельзя дважды проголосовать за одного и того же кандидата";
         }
@@ -179,7 +186,7 @@ public partial class ParticipantVotingForm
 
     private bool DisableCandidateSelector(int index)
     {
-        if (_viewModel.SelectedParticipant == null)
+        if (ViewModel.Form.SelectedParticipant == null)
         {
             return true;
         }
@@ -188,7 +195,7 @@ public partial class ParticipantVotingForm
             return false;
         }
 
-        return _viewModel.SelectedCandidates[index - 1] == null;
+        return ViewModel.Form.SelectedCandidates[index - 1] == null;
     }
 
     private string GetLocalStorageKey() => $"AudienceVoting-{VotingId}";

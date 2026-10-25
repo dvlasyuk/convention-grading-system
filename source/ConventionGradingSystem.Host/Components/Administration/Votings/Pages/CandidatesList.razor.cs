@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Administration.Votings.Models;
+using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -16,8 +17,6 @@ public partial class CandidatesList
     private readonly DatabaseContext _databaseContext;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
 
-    private readonly CandidatesListModel _viewModel = new();
-
     [Parameter]
     public string? VotingId { get; set; }
 
@@ -29,12 +28,12 @@ public partial class CandidatesList
         _dataConfiguration = dataConfiguration;
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task<ContentState<CandidatesListModel>> LoadContent()
     {
         var voting = _dataConfiguration.Value.Votings.FirstOrDefault(item => item.Identifier == VotingId);
         if (voting == null)
         {
-            return;
+            return Shared.Models.LoadingError.VotingNotFound;
         }
 
         var candidateIds = voting.Candidates
@@ -45,7 +44,7 @@ public partial class CandidatesList
             .Where(item => candidateIds.Contains(item.CandidateId))
             .ToListAsync();
 
-        _viewModel.Voting = new CandidatesListModel.VotingModel(
+        var viewVoting = new CandidatesListModel.VotingModel(
             Name: voting.Name,
             BrigadeFriendlyVoting: voting.BrigadeFriendlyVoting,
             TeamFriendlyVoting: voting.TeamFriendlyVoting,
@@ -56,7 +55,7 @@ public partial class CandidatesList
         var brigades = _dataConfiguration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
         var teams = _dataConfiguration.Value.Teams.ToDictionary(team => team.Identifier);
 
-        _viewModel.Candidates = [.. voting.Candidates
+        var viewCandidates = voting.Candidates
             .OrderBy(candidate => candidate.Identifier)
             .Select((candidate, index) => new CandidatesListModel.CandidateModel(
                 Number: index + 1,
@@ -70,15 +69,21 @@ public partial class CandidatesList
                     .Select(team => team.Name)],
                 VotesQuantity: savedVotes
                     .Count(vote => vote.CandidateId == candidate.Identifier),
-                VotesListLink: $"/administration/candidates/{candidate.Identifier}/votes"))];
+                VotesListLink: $"/administration/candidates/{candidate.Identifier}/votes"))
+            .ToArray();
+
+        return new CandidatesListModel(
+            Voting: viewVoting,
+            Candidates: viewCandidates,
+            SearchFilter: null);
     }
 
     private bool FilterRecords(CandidatesListModel.CandidateModel voting)
     {
-        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
-            voting.Name.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
-            voting.Brigades.Any(brigade => brigade.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase)) ||
-            voting.Identifier.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase);
+        return string.IsNullOrWhiteSpace(ViewModel.SearchFilter) ||
+            voting.Name.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            voting.Brigades.Any(brigade => brigade.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase)) ||
+            voting.Identifier.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase);
     }
 
     private static object SelectNameField(CandidatesListModel.CandidateModel voting) => voting.Name;

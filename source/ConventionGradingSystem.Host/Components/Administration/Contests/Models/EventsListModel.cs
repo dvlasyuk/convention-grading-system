@@ -1,10 +1,11 @@
 namespace ConventionGradingSystem.Host.Components.Administration.Contests.Models;
 
-public record class EventsListModel
+public record class EventsListModel(
+    EventsListModel.ContestModel Contest,
+    IReadOnlyCollection<EventsListModel.EventModel> Events,
+    string? SearchFilter)
 {
-    public ContestModel? Contest { get; set; }
-    public IEnumerable<EventModel> Events { get; set; } = [];
-    public string? SearchFilter { get; set; }
+    public string? SearchFilter { get; set; } = SearchFilter;
 
     public record ContestModel(
         string Name,

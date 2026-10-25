@@ -4,6 +4,7 @@ using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.DataAccess.Database.Entities;
 using ConventionGradingSystem.Host.Components.Grading.Contests.Models;
+using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -18,8 +19,6 @@ public partial class FacilitatorAttendanceForm
     private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly NavigationManager _navigationManager;
 
-    private readonly FacilitatorAttendanceFormModel _viewModel = new();
-
     [Parameter]
     public string? EventId { get; set; }
 
@@ -33,7 +32,7 @@ public partial class FacilitatorAttendanceForm
         _navigationManager = navigationManager;
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task<ContentState<FacilitatorAttendanceFormModel>> LoadContent()
     {
         var contestEvent = _dataConfiguration.Value.Contests
             .SelectMany(@event => @event.Events)
@@ -41,7 +40,7 @@ public partial class FacilitatorAttendanceForm
 
         if (contestEvent == null)
         {
-            return;
+            return Shared.Models.LoadingError.EventNotFound;
         }
 
         var contest = _dataConfiguration.Value.Contests.First(item => item.Events.Contains(contestEvent));
@@ -49,7 +48,7 @@ public partial class FacilitatorAttendanceForm
         var brigades = _dataConfiguration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
         var teams = _dataConfiguration.Value.Teams.ToDictionary(team => team.Identifier);
 
-        _viewModel.Event = new FacilitatorAttendanceFormModel.EventModel(
+        var viewEvent = new FacilitatorAttendanceFormModel.EventModel(
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             AttendanceControl: contest.AttendanceControl,
@@ -67,13 +66,22 @@ public partial class FacilitatorAttendanceForm
             .Where(item => item.EventId == EventId)
             .ToListAsync();
 
-        foreach (var participant in _viewModel.Event.Participants)
+        var viewAttendanceMarks = new Dictionary<string, bool>();
+        var viewSpecialMarks = new Dictionary<string, bool>();
+        foreach (var participant in viewEvent.Participants)
         {
-            _viewModel.AttendanceMarks.Add(participant.Identifier, savedAttendanceMarks.Any(mark => mark.ParticipantId == participant.Identifier));
-            _viewModel.SpecialMarks.Add(participant.Identifier, savedAttendanceMarks.Any(mark =>
+            viewAttendanceMarks.Add(participant.Identifier, savedAttendanceMarks.Any(mark => mark.ParticipantId == participant.Identifier));
+            viewSpecialMarks.Add(participant.Identifier, savedAttendanceMarks.Any(mark =>
                 mark.ParticipantId == participant.Identifier &&
                 mark.SpecialMark));
         }
+
+        return new FacilitatorAttendanceFormModel(
+            Event: viewEvent,
+            Form: new FacilitatorAttendanceFormModel.FormModel(
+                AttendanceMarks: viewAttendanceMarks,
+                SpecialMarks: viewSpecialMarks),
+            SearchFilter: null);
     }
 
     private async Task ProcessForm()
@@ -82,30 +90,30 @@ public partial class FacilitatorAttendanceForm
             .Where(item => item.EventId == EventId)
             .ToListAsync();
 
-        foreach (var particiapntId in _viewModel.AttendanceMarks.Keys)
+        foreach (var particiapntId in ViewModel.Form.AttendanceMarks.Keys)
         {
             var savedMark = savedAttendanceMarks.FirstOrDefault(mark => mark.ParticipantId == particiapntId);
             if (savedMark == null)
             {
-                if (_viewModel.AttendanceMarks[particiapntId])
+                if (ViewModel.Form.AttendanceMarks[particiapntId])
                 {
                     _databaseContext.AttendanceMarks.Add(new AttendanceMark
                     {
                         ParticipantId = particiapntId,
                         EventId = EventId!,
-                        SpecialMark = _viewModel.SpecialMarks[particiapntId]
+                        SpecialMark = ViewModel.Form.SpecialMarks[particiapntId]
                     });
                 }
 
                 continue;
             }
 
-            if (!_viewModel.AttendanceMarks[particiapntId])
+            if (!ViewModel.Form.AttendanceMarks[particiapntId])
             {
                 _databaseContext.AttendanceMarks.Remove(savedMark);
             }
 
-            savedMark.SpecialMark = _viewModel.SpecialMarks[particiapntId];
+            savedMark.SpecialMark = ViewModel.Form.SpecialMarks[particiapntId];
             _databaseContext.AttendanceMarks.Update(savedMark);
         }
 
@@ -115,10 +123,10 @@ public partial class FacilitatorAttendanceForm
 
     private bool FilterRecords(FacilitatorAttendanceFormModel.ParticipantModel participant)
     {
-        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
-            participant.Name.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
-            participant.Team.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
-            (participant.Brigade?.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
+        return string.IsNullOrWhiteSpace(ViewModel.SearchFilter) ||
+            participant.Name.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            participant.Team.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            (participant.Brigade?.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 
     private static object SelectNameField(FacilitatorAttendanceFormModel.ParticipantModel participant) => participant.Name;

@@ -1,10 +1,11 @@
 namespace ConventionGradingSystem.Host.Components.Administration.Votings.Models;
 
-public record class CandidatesListModel
+public record class CandidatesListModel(
+    CandidatesListModel.VotingModel Voting,
+    IReadOnlyCollection<CandidatesListModel.CandidateModel> Candidates,
+    string? SearchFilter)
 {
-    public VotingModel? Voting { get; set; }
-    public IEnumerable<CandidateModel> Candidates { get; set; } = [];
-    public string? SearchFilter { get; set; }
+    public string? SearchFilter { get; set; } = SearchFilter;
 
     public record VotingModel(
         string Name,

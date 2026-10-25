@@ -1,0 +1,241 @@
+﻿@using ConventionGradingSystem.Host.Components.Shared.Models
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+
+@switch (LoadingStatus)
+{
+    case LoadingStatus.Loading:
+
+        @if (DefaultPageTitle is not null)
+        {
+            <PageTitle>@DefaultPageTitle</PageTitle>
+        }
+
+        @switch (ContentType)
+        {
+            case ContentType.Default:
+
+                <MudText Typo="@Typo.h6">
+                    <MudSkeleton SkeletonType="@SkeletonType.Text" />
+                </MudText>
+
+                <MudText Class="mt-3">
+                    <MudSkeleton SkeletonType="@SkeletonType.Text" />
+                    <MudSkeleton SkeletonType="@SkeletonType.Text" />
+                    <MudSkeleton SkeletonType="@SkeletonType.Text" />
+                    <MudSkeleton SkeletonType="@SkeletonType.Text" />
+                </MudText>
+
+                <MudText Class="mt-3">
+                    <MudSkeleton SkeletonType="@SkeletonType.Text" />
+                    <MudSkeleton SkeletonType="@SkeletonType.Text" />
+                    <MudSkeleton SkeletonType="@SkeletonType.Text" />
+                </MudText>
+
+                break;
+
+            case ContentType.Table:
+
+                <MudTable Items="@(new object[5])"
+                        Breakpoint="@Breakpoint.None"
+                        Hover="true">
+
+                    <ToolBarContent>
+                        <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Width="30%" />
+                        <MudSpacer />
+                        <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Width="50%" />
+                    </ToolBarContent>
+
+                    <HeaderContent>
+                        <MudTh width="10%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                        <MudTh width="30%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                        <MudTh width="20%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                        <MudTh width="20%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                        <MudTh width="20%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                    </HeaderContent>
+
+                    <RowTemplate>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                    </RowTemplate>
+                </MudTable>
+
+                break;
+
+            case ContentType.TableWithCard:
+
+                <MudPaper Class="mb-3">
+                    <MudExpansionPanel>
+                        <TitleContent>
+                            <MudText><MudSkeleton SkeletonType="@SkeletonType.Text"  Width="30%" /></MudText>
+                        </TitleContent>
+                        <ChildContent>
+                            <MudText><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudText>
+                            <MudText><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudText>
+                            <MudText><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudText>
+                        </ChildContent>
+                    </MudExpansionPanel>
+                </MudPaper>
+
+                <MudTable Items="@(new object[5])"
+                        Breakpoint="@Breakpoint.None"
+                        Hover="true">
+
+                    <ToolBarContent>
+                        <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Width="30%" />
+                        <MudSpacer />
+                        <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Width="50%" />
+                    </ToolBarContent>
+
+                    <HeaderContent>
+                        <MudTh width="10%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                        <MudTh width="30%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                        <MudTh width="20%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                        <MudTh width="20%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                        <MudTh width="20%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                    </HeaderContent>
+
+                    <RowTemplate>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                    </RowTemplate>
+                </MudTable>
+
+                break;
+
+            case ContentType.Form:
+
+                <MudPaper Class="pa-3">
+                    <MudSkeleton SkeletonType="@SkeletonType.Text" />
+                </MudPaper>
+
+                <MudPaper Class="mt-3 pa-3">
+                    <MudPaper Outlined="true" Class="my-3 pa-3"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudPaper>
+                    <MudPaper Outlined="true" Class="my-3 pa-3"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudPaper>
+                    <MudPaper Outlined="true" Class="my-3 pa-3"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudPaper>
+                    <MudPaper Outlined="true" Class="my-3 pa-3"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudPaper>
+                    <MudDivider />
+                    <MudPaper Outlined="true" Class="my-3 pa-3"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudPaper>
+                </MudPaper>
+
+                break;
+
+            case ContentType.TableForm:
+
+                <MudPaper Class="pa-3 mb-3">
+                    <MudSkeleton SkeletonType="@SkeletonType.Text" />
+                </MudPaper>
+
+                <MudTable Items="@(new object[5])"
+                        Breakpoint="@Breakpoint.None"
+                        Hover="true">
+
+                    <ToolBarContent>
+                        <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Width="30%" />
+                        <MudSpacer />
+                        <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Width="50%" />
+                    </ToolBarContent>
+
+                    <HeaderContent>
+                        <MudTh width="10%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                        <MudTh width="30%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                        <MudTh width="20%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                        <MudTh width="20%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                        <MudTh width="20%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
+                    </HeaderContent>
+
+                    <RowTemplate>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
+                    </RowTemplate>
+                </MudTable>
+
+                <MudPaper Class="mt-3 pa-3">
+                    <MudPaper Outlined="true" Class="pa-3"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudPaper>
+                </MudPaper>
+
+                break;
+        }
+
+        break;
+
+    case LoadingStatus.Loaded:
+
+        if (ChildContent is not null)
+        {
+            @ChildContent
+        }
+
+        break;
+
+    case LoadingStatus.Error:
+
+        switch (LoadingError ?? Models.LoadingError.Unknown)
+        {
+            case Models.LoadingError.Unknown:
+                <PageTitle>Неизвестная ошибка</PageTitle>
+                <MudAlert Severity="@Severity.Error">
+                    В процессе загрузки данных произошла неизвестная ошибка. Если ты вводил адрес страницы в адресную
+                    строку браузера вручную или вставлял скопированную ссылку, то проверь не ошибся ли ты при вводе или
+                    копировании. Если ты переходил по прямой ссылке, то проверь корректность этой ссылки или попроси
+                    сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы системы, то это
+                    ошибка - обратись, пожалуйста, к разработчикам
+                </MudAlert>
+                break;
+
+            case Models.LoadingError.ContestNotFound:
+                <PageTitle>Неизвестный конкурс мероприятий</PageTitle>
+                <MudAlert Severity="@Severity.Warning">
+                    Конкурс мероприятий <strong>не найден</strong>. Если ты вводил адрес страницы в адресную строку
+                    браузера вручную или вставлял скопированную ссылку, то проверь не ошибся ли ты при вводе или
+                    копировании. Если ты переходил по прямой ссылке, то проверь корректность этой ссылки или попроси
+                    сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы системы, то это
+                    ошибка - обратись, пожалуйста, к разработчикам
+                </MudAlert>
+                break;
+
+            case Models.LoadingError.EventNotFound:
+                <PageTitle>Неизвестное мероприятие</PageTitle>
+                <MudAlert Severity="@Severity.Warning">
+                    Мероприятие <strong>не найдено</strong>. Если ты вводил адрес страницы в адресную строку
+                    браузера вручную или вставлял скопированную ссылку, то проверь не ошибся ли ты при вводе или
+                    копировании. Если ты переходил по прямой ссылке, то проверь корректность этой ссылки или попроси
+                    сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы системы, то это
+                    ошибка - обратись, пожалуйста, к разработчикам
+                </MudAlert>
+                break;
+
+            case Models.LoadingError.VotingNotFound:
+                <PageTitle>Неизвестное зрительское голосование</PageTitle>
+                <MudAlert Severity="@Severity.Warning">
+                    Зрительское голосование <strong>не найдено</strong>. Если ты вводил адрес страницы в адресную строку
+                    браузера вручную или вставлял скопированную ссылку, то проверь не ошибся ли ты при вводе или
+                    копировании. Если ты переходил по прямой ссылке, то проверь корректность этой ссылки или попроси
+                    сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы системы, то это
+                    ошибка - обратись, пожалуйста, к разработчикам
+                </MudAlert>
+                break;
+
+            case Models.LoadingError.CandidateNotFound:
+                <PageTitle>Неизвестный кандидат голосования</PageTitle>
+                <MudAlert Severity="@Severity.Warning">
+                    Кандидат голосования <strong>не найден</strong>. Если ты вводил адрес страницы в адресную строку
+                    браузера вручную или вставлял скопированную ссылку, то проверь не ошибся ли ты при вводе или
+                    копировании. Если ты переходил по прямой ссылке, то проверь корректность этой ссылки или попроси
+                    сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы системы, то это
+                    ошибка - обратись, пожалуйста, к разработчикам
+                </MudAlert>
+                break;
+        }
+
+        break;
+}

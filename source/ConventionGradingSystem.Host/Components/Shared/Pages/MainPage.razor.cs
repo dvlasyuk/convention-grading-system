@@ -8,15 +8,15 @@ namespace ConventionGradingSystem.Host.Components.Shared.Pages;
 public partial class MainPage
 {
     private readonly IOptions<ApplicationConfiguration> _applicationConfiguration;
-    private readonly MainPageModel _viewModel = new();
 
     public MainPage(IOptions<ApplicationConfiguration> applicationConfiguration)
     {
         _applicationConfiguration = applicationConfiguration;
     }
 
-    protected override void OnInitialized()
+    protected override Task<ContentState<MainPageModel>> LoadContent()
     {
-        _viewModel.ConventionName = _applicationConfiguration.Value.ConventionName;
+        var viewModel = new MainPageModel(_applicationConfiguration.Value.ConventionName);
+        return Task.FromResult<ContentState<MainPageModel>>(viewModel);
     }
 }

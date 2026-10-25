@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Administration.Votings.Models;
+using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -15,8 +16,6 @@ public partial class VotingsList
     private readonly DatabaseContext _databaseContext;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
 
-    private readonly VotingsListModel _viewModel = new();
-
     public VotingsList(
         DatabaseContext databaseContext,
         IOptions<DataConfiguration> dataConfiguration)
@@ -25,10 +24,10 @@ public partial class VotingsList
         _dataConfiguration = dataConfiguration;
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task<ContentState<VotingsListModel>> LoadContent()
     {
         var savedVotes = await _databaseContext.ParticipantVotes.ToListAsync();
-        _viewModel.Votings = [.. _dataConfiguration.Value.Votings
+        var viewVotings = _dataConfiguration.Value.Votings
             .OrderBy(voting => voting.Identifier)
             .Select((voting, index) => new VotingsListModel.VotingModel(
                 Number: index + 1,
@@ -38,14 +37,17 @@ public partial class VotingsList
                 TotalVotesQuantity: voting.Candidates.Sum(candidate =>
                     savedVotes.Count(vote => vote.CandidateId == candidate.Identifier)),
                 CandidatesListLink: $"/administration/votings/{voting.Identifier}/candidates",
-                ParticipantVotingFormLink: $"/grading/votings/{voting.Identifier}/participant-voting"))];
+                ParticipantVotingFormLink: $"/grading/votings/{voting.Identifier}/participant-voting"))
+            .ToArray();
+
+        return new VotingsListModel(Votings: viewVotings, SearchFilter: null);
     }
 
     private bool FilterRecords(VotingsListModel.VotingModel voting)
     {
-        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
-            voting.Name.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
-            voting.Identifier.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase);
+        return string.IsNullOrWhiteSpace(ViewModel.SearchFilter) ||
+            voting.Name.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            voting.Identifier.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase);
     }
 
     private static object SelectNameField(VotingsListModel.VotingModel voting) => voting.Name;

@@ -1,9 +1,10 @@
 namespace ConventionGradingSystem.Host.Components.Administration.Participants.Models;
 
-public record class TeamsListModel
+public record class TeamsListModel(
+    IReadOnlyCollection<TeamsListModel.TeamModel> Teams,
+    string? SearchFilter)
 {
-    public IEnumerable<TeamModel> Teams { get; set; } = [];
-    public string? SearchFilter { get; set; }
+    public string? SearchFilter { get; set; } = SearchFilter;
 
     public record TeamModel(
         int Number,

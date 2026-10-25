@@ -4,6 +4,7 @@ using System.Globalization;
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Administration.Contests.Models;
+using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -17,8 +18,6 @@ public partial class ParticipantFeedbacksList
     private readonly DatabaseContext _databaseContext;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
 
-    private readonly ParticipantFeedbacksListModel _viewModel = new();
-
     [Parameter]
     public string? EventId { get; set; }
 
@@ -30,7 +29,7 @@ public partial class ParticipantFeedbacksList
         _dataConfiguration = dataConfiguration;
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task<ContentState<ParticipantFeedbacksListModel>> LoadContent()
     {
         var contestEvent = _dataConfiguration.Value.Contests
             .SelectMany(item => item.Events)
@@ -38,7 +37,7 @@ public partial class ParticipantFeedbacksList
 
         if (contestEvent == null)
         {
-            return;
+            return Shared.Models.LoadingError.EventNotFound;
         }
 
         var feedbacks = await _databaseContext.ParticipantFeedbacks
@@ -50,7 +49,7 @@ public partial class ParticipantFeedbacksList
         var brigades = _dataConfiguration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
         var teams = _dataConfiguration.Value.Teams.ToDictionary(team => team.Identifier);
 
-        _viewModel.Event = new ParticipantFeedbacksListModel.EventModel(
+        var viewEvent = new ParticipantFeedbacksListModel.EventModel(
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             IsGraded: contest.ParticipantCriterions.Count > 0,
@@ -70,7 +69,7 @@ public partial class ParticipantFeedbacksList
                         (float)feedbacks.Count))]);
 
         var participants = _dataConfiguration.Value.Participants.ToDictionary(item => item.Identifier);
-        _viewModel.Feedbacks = [.. feedbacks
+        var viewFeedbacks = feedbacks
             .OrderBy(feedback => feedback.Identifier)
             .Select((feedback, index) => new ParticipantFeedbacksListModel.FeedbackModel(
                 Number: index + 1,
@@ -83,16 +82,22 @@ public partial class ParticipantFeedbacksList
                     grade => grade.CriterionId,
                     grade => grade.GradeValue),
                 Note: feedback.Note,
-                ReceivedAt: feedback.ReceivedAt.ToString(new CultureInfo("ru-RU"))))];
+                ReceivedAt: feedback.ReceivedAt.ToString(new CultureInfo("ru-RU"))))
+            .ToArray();
+
+        return new ParticipantFeedbacksListModel(
+            Event: viewEvent,
+            Feedbacks: viewFeedbacks,
+            SearchFilter: null);
     }
 
     private bool FilterRecords(ParticipantFeedbacksListModel.FeedbackModel feedback)
     {
-        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
-            feedback.ParticipantName.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
-            feedback.ParticipantTeam.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
-            (feedback.ParticipantBrigade?.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
-            (feedback.Note?.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
+        return string.IsNullOrWhiteSpace(ViewModel.SearchFilter) ||
+            feedback.ParticipantName.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            feedback.ParticipantTeam.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            (feedback.ParticipantBrigade?.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ?? false) ||
+            (feedback.Note?.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 
     private static object SelectNameField(ParticipantFeedbacksListModel.FeedbackModel feedback) => feedback.ParticipantName;

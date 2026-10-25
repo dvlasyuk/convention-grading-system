@@ -3,6 +3,7 @@ using System.Globalization;
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Grading.Contests.Models;
+using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
@@ -19,7 +20,6 @@ public partial class ParticipantFeedbackForm
     private readonly NavigationManager _navigationManager;
     private readonly ProtectedLocalStorage _localStorage;
 
-    private readonly ParticipantFeedbackFormModel _viewModel = new();
     private MudForm? _formSelector;
     private MudAutocomplete<ParticipantFeedbackFormModel.ParticipantModel>? _participantSelector;
 
@@ -38,7 +38,7 @@ public partial class ParticipantFeedbackForm
         _localStorage = localStorage;
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task<ContentState<ParticipantFeedbackFormModel>> LoadContent()
     {
         var contestEvent = _dataConfiguration.Value.Contests
             .SelectMany(@event => @event.Events)
@@ -46,14 +46,11 @@ public partial class ParticipantFeedbackForm
 
         if (contestEvent == null)
         {
-            return;
+            return Shared.Models.LoadingError.EventNotFound;
         }
 
-        var result = await _localStorage.GetAsync<string>(GetLocalStorageKey());
-        _viewModel.IsFormDisabled = result.Success;
-
         var contest = _dataConfiguration.Value.Contests.First(item => item.Events.Contains(contestEvent));
-        _viewModel.Event = new ParticipantFeedbackFormModel.EventModel(
+        var viewEvent = new ParticipantFeedbackFormModel.EventModel(
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             IsGraded: contest.ParticipantCriterions.Count > 0,
@@ -70,16 +67,28 @@ public partial class ParticipantFeedbackForm
                     MinimalGrade: criterion.MinimalGrade,
                     MaximalGrade: criterion.MaximalGrade))]);
 
-        foreach (var criterion in _viewModel.Event.Criterions)
+        var viewSelectedGrades = new Dictionary<string, int>();
+        foreach (var criterion in viewEvent.Criterions)
         {
-            _viewModel.SelectedGrades.Add(criterion.Identifier, criterion.MaximalGrade);
+            viewSelectedGrades.Add(criterion.Identifier, criterion.MaximalGrade);
         }
+
+        var result = await _localStorage.GetAsync<string>(GetLocalStorageKey());
+        return new ParticipantFeedbackFormModel(
+            Event: viewEvent,
+            Form: new ParticipantFeedbackFormModel.FormModel(
+                SelectedTeam: null,
+                SelectedParticipant: null,
+                SelectedGrades: viewSelectedGrades,
+                EnteredNote: null),
+            IsFormDisabled: result.Success,
+            IsFormValid: false);
     }
 
     private async Task ProcessForm()
     {
         await _formSelector!.ValidateAsync();
-        if (!_viewModel.IsFormValid)
+        if (!ViewModel.IsFormValid)
         {
             return;
         }
@@ -87,17 +96,17 @@ public partial class ParticipantFeedbackForm
         var feedback = new DataAccess.Database.Entities.ParticipantFeedback
         {
             EventId = EventId!,
-            ParticipantId = _viewModel.SelectedParticipant!.Identifier,
-            Note = _viewModel.EnteredNote,
+            ParticipantId = ViewModel.Form.SelectedParticipant!.Identifier,
+            Note = ViewModel.Form.EnteredNote,
             ReceivedAt = DateTimeOffset.Now
         };
 
-        foreach (var criterionId in _viewModel.SelectedGrades.Keys)
+        foreach (var criterionId in ViewModel.Form.SelectedGrades.Keys)
         {
             feedback.Grades.Add(new DataAccess.Database.Entities.ParticipantGrade
             {
                 CriterionId = criterionId,
-                GradeValue = _viewModel.SelectedGrades[criterionId]
+                GradeValue = ViewModel.Form.SelectedGrades[criterionId]
             });
         }
 
@@ -119,16 +128,16 @@ public partial class ParticipantFeedbackForm
         }
 
         return Task.FromResult<IEnumerable<ParticipantFeedbackFormModel.TeamModel>>([.. _dataConfiguration.Value.Teams
-            .Where(team => !_viewModel.Event!.BannedTeams.Contains(team.Identifier))
+            .Where(team => !ViewModel.Event!.BannedTeams.Contains(team.Identifier))
             .Where(team => _dataConfiguration.Value.Participants
                 .Where(participant => participant.Team == team.Identifier)
                 .Where(participant =>
-                    !_viewModel.Event!.RegisteredGrading ||
-                    _viewModel.Event!.Participants.Contains(participant.Identifier))
+                    !ViewModel.Event!.RegisteredGrading ||
+                    ViewModel.Event!.Participants.Contains(participant.Identifier))
                 .Where(participant =>
-                    _viewModel.Event!.FriendlyGrading ||
+                    ViewModel.Event!.FriendlyGrading ||
                     string.IsNullOrWhiteSpace(participant.Brigade) ||
-                    !_viewModel.Event!.Brigades.Contains(participant.Brigade))
+                    !ViewModel.Event!.Brigades.Contains(participant.Brigade))
                 .Any())
             .Where(team => team.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
             .Select(team => new ParticipantFeedbackFormModel.TeamModel(
@@ -142,22 +151,22 @@ public partial class ParticipantFeedbackForm
         {
             return Task.FromResult(Enumerable.Empty<ParticipantFeedbackFormModel.ParticipantModel>());
         }
-        if (_viewModel.SelectedTeam == null)
+        if (ViewModel.Form.SelectedTeam == null)
         {
             return Task.FromResult(Enumerable.Empty<ParticipantFeedbackFormModel.ParticipantModel>());
         }
 
         return Task.FromResult<IEnumerable<ParticipantFeedbackFormModel.ParticipantModel>>([.. _dataConfiguration.Value.Teams
-            .Where(team => team.Identifier == _viewModel.SelectedTeam.Identifier)
+            .Where(team => team.Identifier == ViewModel.Form.SelectedTeam.Identifier)
             .SelectMany(team => _dataConfiguration.Value.Participants
                 .Where(participant => participant.Team == team.Identifier))
             .Where(participant =>
-                !_viewModel.Event!.RegisteredGrading ||
-                _viewModel.Event!.Participants.Contains(participant.Identifier))
+                !ViewModel.Event!.RegisteredGrading ||
+                ViewModel.Event!.Participants.Contains(participant.Identifier))
             .Where(participant =>
-                _viewModel.Event!.FriendlyGrading ||
+                ViewModel.Event!.FriendlyGrading ||
                 string.IsNullOrWhiteSpace(participant.Brigade) ||
-                !_viewModel.Event!.Brigades.Contains(participant.Brigade))
+                !ViewModel.Event!.Brigades.Contains(participant.Brigade))
             .Where(participant => participant.Name.Contains(value, StringComparison.OrdinalIgnoreCase))
             .Select(participant => new ParticipantFeedbackFormModel.ParticipantModel(
                 Identifier: participant.Identifier,

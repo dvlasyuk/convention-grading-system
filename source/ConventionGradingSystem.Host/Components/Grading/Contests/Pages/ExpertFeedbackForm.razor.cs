@@ -3,6 +3,7 @@ using System.Globalization;
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Grading.Contests.Models;
+using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
@@ -19,7 +20,6 @@ public partial class ExpertFeedbackForm
     private readonly NavigationManager _navigationManager;
     private readonly ProtectedLocalStorage _localStorage;
 
-    private readonly ExpertFeedbackFormModel _viewModel = new();
     private MudForm? _formSelector;
 
     [Parameter]
@@ -37,7 +37,7 @@ public partial class ExpertFeedbackForm
         _localStorage = localStorage;
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task<ContentState<ExpertFeedbackFormModel>> LoadContent()
     {
         var contestEvent = _dataConfiguration.Value.Contests
             .SelectMany(@event => @event.Events)
@@ -45,14 +45,11 @@ public partial class ExpertFeedbackForm
 
         if (contestEvent == null)
         {
-            return;
+            return Shared.Models.LoadingError.EventNotFound;
         }
 
-        var result = await _localStorage.GetAsync<string>(GetLocalStorageKey());
-        _viewModel.IsFormDisabled = result.Success;
-
         var contest = _dataConfiguration.Value.Contests.First(item => item.Events.Contains(contestEvent));
-        _viewModel.Event = new ExpertFeedbackFormModel.EventModel(
+        var viewEvent = new ExpertFeedbackFormModel.EventModel(
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             IsGraded: contest.ExpertCriterions.Count > 0,
@@ -64,16 +61,27 @@ public partial class ExpertFeedbackForm
                     MinimalGrade: criterion.MinimalGrade,
                     MaximalGrade: criterion.MaximalGrade))]);
 
-        foreach (var criterion in _viewModel.Event.Criterions)
+        var viewSelectedGrades = new Dictionary<string, int>();
+        foreach (var criterion in viewEvent.Criterions)
         {
-            _viewModel.SelectedGrades.Add(criterion.Identifier, criterion.MaximalGrade);
+            viewSelectedGrades.Add(criterion.Identifier, criterion.MaximalGrade);
         }
+
+        var result = await _localStorage.GetAsync<string>(GetLocalStorageKey());
+        return new ExpertFeedbackFormModel(
+            Event: viewEvent,
+            Form: new ExpertFeedbackFormModel.FormModel(
+                SelectedExpert: null,
+                SelectedGrades: viewSelectedGrades,
+                EnteredNote: null),
+            IsFormDisabled: result.Success,
+            IsFormValid: false);
     }
 
     private async Task ProcessForm()
     {
         await _formSelector!.ValidateAsync();
-        if (!_viewModel.IsFormValid)
+        if (!ViewModel.IsFormValid)
         {
             return;
         }
@@ -81,17 +89,17 @@ public partial class ExpertFeedbackForm
         var feedback = new DataAccess.Database.Entities.ExpertFeedback
         {
             EventId = EventId!,
-            ExpertId = _viewModel.SelectedExpert!.Identifier,
-            Note = _viewModel.EnteredNote,
+            ExpertId = ViewModel.Form.SelectedExpert!.Identifier,
+            Note = ViewModel.Form.EnteredNote,
             ReceivedAt = DateTimeOffset.Now
         };
 
-        foreach (var criterionId in _viewModel.SelectedGrades.Keys)
+        foreach (var criterionId in ViewModel.Form.SelectedGrades.Keys)
         {
             feedback.Grades.Add(new DataAccess.Database.Entities.ExpertGrade
             {
                 CriterionId = criterionId,
-                GradeValue = _viewModel.SelectedGrades[criterionId]
+                GradeValue = ViewModel.Form.SelectedGrades[criterionId]
             });
         }
 

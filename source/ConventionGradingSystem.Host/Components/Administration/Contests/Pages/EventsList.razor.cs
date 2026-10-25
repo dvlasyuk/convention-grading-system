@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Administration.Contests.Models;
+using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -16,8 +17,6 @@ public partial class EventsList
     private readonly DatabaseContext _databaseContext;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
 
-    private readonly EventsListModel _viewModel = new();
-
     [Parameter]
     public string? ContestId { get; set; }
 
@@ -29,12 +28,12 @@ public partial class EventsList
         _dataConfiguration = dataConfiguration;
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task<ContentState<EventsListModel>> LoadContent()
     {
         var contest = _dataConfiguration.Value.Contests.FirstOrDefault(item => item.Identifier == ContestId);
         if (contest == null)
         {
-            return;
+            return Shared.Models.LoadingError.ContestNotFound;
         }
 
         var eventIds = contest.Events
@@ -51,7 +50,7 @@ public partial class EventsList
             .Include(item => item.Grades)
             .ToListAsync();
 
-        _viewModel.Contest = new EventsListModel.ContestModel(
+        var viewContest = new EventsListModel.ContestModel(
             Name: contest.Name,
             RegisteredGrading: contest.RegisteredGrading,
             FriendlyGrading: contest.FriendlyGrading,
@@ -63,7 +62,7 @@ public partial class EventsList
             ParticipantFeedbacksQuantity: participantFeedbacks.Count);
 
         var brigades = _dataConfiguration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
-        _viewModel.Events = [.. contest.Events
+        var viewEvents = contest.Events
             .OrderBy(@event => @event.Identifier)
             .Select((@event, index) => new EventsListModel.EventModel(
                 Number: index + 1,
@@ -102,14 +101,20 @@ public partial class EventsList
                 ExpertFeedbacksListLink: $"/administration/events/{@event.Identifier}/expert-feedbacks",
                 ParticipantFeedbackFormLink: $"/grading/events/{@event.Identifier}/participant-feedback",
                 ParticipantFeedbacksListLink: $"/administration/events/{@event.Identifier}/participant-feedbacks",
-                FacilitatorAttendanceFormLink: $"/grading/events/{@event.Identifier}/facilitator-attendance"))];
+                FacilitatorAttendanceFormLink: $"/grading/events/{@event.Identifier}/facilitator-attendance"))
+            .ToArray();
+
+        return new EventsListModel(
+            Contest: viewContest,
+            Events: viewEvents,
+            SearchFilter: null);
     }
 
     private bool FilterRecords(EventsListModel.EventModel contestEvent)
     {
-        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
-            contestEvent.Name.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
-            contestEvent.Identifier.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase);
+        return string.IsNullOrWhiteSpace(ViewModel.SearchFilter) ||
+            contestEvent.Name.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            contestEvent.Identifier.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase);
     }
 
     private static object SelectNameField(EventsListModel.EventModel contestEvent) => contestEvent.Name;

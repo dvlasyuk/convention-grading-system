@@ -8,7 +8,7 @@ namespace ConventionGradingSystem.Host.Components.Shared.Layouts;
 public partial class BaseLayout
 {
     private readonly IOptions<ApplicationConfiguration> _applicationConfiguration;
-    private readonly BaseLayoutModel _viewModel = new();
+    private BaseLayoutModel? _viewModel;
 
     public BaseLayout(IOptions<ApplicationConfiguration> applicationConfiguration)
     {
@@ -17,6 +17,6 @@ public partial class BaseLayout
 
     protected override void OnInitialized()
     {
-        _viewModel.ConventionName = _applicationConfiguration.Value.ConventionName;
+        _viewModel = new(_applicationConfiguration.Value.ConventionName);
     }
 }

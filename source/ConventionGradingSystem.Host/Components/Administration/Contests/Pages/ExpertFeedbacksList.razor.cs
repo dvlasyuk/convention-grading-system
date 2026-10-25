@@ -4,6 +4,7 @@ using System.Globalization;
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Administration.Contests.Models;
+using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -17,8 +18,6 @@ public partial class ExpertFeedbacksList
     private readonly DatabaseContext _databaseContext;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
 
-    private readonly ExpertFeedbacksListModel _viewModel = new();
-
     [Parameter]
     public string? EventId { get; set; }
 
@@ -30,7 +29,7 @@ public partial class ExpertFeedbacksList
         _dataConfiguration = dataConfiguration;
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task<ContentState<ExpertFeedbacksListModel>> LoadContent()
     {
         var contestEvent = _dataConfiguration.Value.Contests
             .SelectMany(item => item.Events)
@@ -38,7 +37,7 @@ public partial class ExpertFeedbacksList
 
         if (contestEvent == null)
         {
-            return;
+            return Shared.Models.LoadingError.EventNotFound;
         }
 
         var feedbacks = await _databaseContext.ExpertFeedbacks
@@ -47,7 +46,7 @@ public partial class ExpertFeedbacksList
             .ToListAsync();
 
         var contest = _dataConfiguration.Value.Contests.First(item => item.Events.Contains(contestEvent));
-        _viewModel.Event = new ExpertFeedbacksListModel.EventModel(
+        var viewEvent = new ExpertFeedbacksListModel.EventModel(
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             IsGraded: contest.ExpertCriterions.Count > 0,
@@ -64,7 +63,7 @@ public partial class ExpertFeedbacksList
                         (float)feedbacks.Count))]);
 
         var experts = _dataConfiguration.Value.Experts.ToDictionary(item => item.Identifier);
-        _viewModel.Feedbacks = [.. feedbacks
+        var viewFeedbacks = feedbacks
             .OrderBy(feedback => feedback.Identifier)
             .Select((feedback, index) => new ExpertFeedbacksListModel.FeedbackModel(
                 Number: index + 1,
@@ -73,14 +72,20 @@ public partial class ExpertFeedbacksList
                     grade => grade.CriterionId,
                     grade => grade.GradeValue),
                 Note: feedback.Note,
-                ReceivedAt: feedback.ReceivedAt.ToString(new CultureInfo("ru-RU"))))];
+                ReceivedAt: feedback.ReceivedAt.ToString(new CultureInfo("ru-RU"))))
+            .ToArray();
+
+        return new ExpertFeedbacksListModel(
+            Event: viewEvent,
+            Feedbacks: viewFeedbacks,
+            SearchFilter: null);
     }
 
     private bool FilterRecords(ExpertFeedbacksListModel.FeedbackModel feedback)
     {
-        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
-            feedback.ExpertName.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
-            (feedback.Note?.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
+        return string.IsNullOrWhiteSpace(ViewModel.SearchFilter) ||
+            feedback.ExpertName.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            (feedback.Note?.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ?? false);
     }
 
     private static object SelectNameField(ExpertFeedbacksListModel.FeedbackModel feedback) => feedback.ExpertName;

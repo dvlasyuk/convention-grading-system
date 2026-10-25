@@ -24,7 +24,7 @@
                                OnClick="@ToogleDrawer" />
 
                 <MudImage Src="favicon-32.png" Class="ml-5" />
-                <MudText Typo="@Typo.h6" Class="ml-2">Система оценивания слёта <strong>@_viewModel.ConventionName</strong></MudText>
+                <MudText Typo="@Typo.h6" Class="ml-2">Система оценивания слёта <strong>@_viewModel!.ConventionName</strong></MudText>
 
                 <MudSpacer />
                 <MudIconButton title="Выйти из системы"
@@ -33,7 +33,7 @@
                                OnClick="@OnSignOutFromSystem" />
             </MudAppBar>
 
-            <MudDrawer ClipMode="@DrawerClipMode.Docked" Width="300px" @bind-Open="@_viewModel.IsDrawerOpen">
+            <MudDrawer ClipMode="@DrawerClipMode.Docked" Width="300px" @bind-Open="@_viewModel!.IsDrawerOpen">
                 <MudDrawerHeader>
                     <MudText Typo="@Typo.subtitle1">Главное меню</MudText>
                 </MudDrawerHeader>

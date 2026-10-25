@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Administration.Contests.Models;
+using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -15,8 +16,6 @@ public partial class ContestsList
     private readonly DatabaseContext _databaseContext;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
 
-    private readonly ContestsListModel _viewModel = new();
-
     public ContestsList(
         DatabaseContext databaseContext,
         IOptions<DataConfiguration> dataConfiguration)
@@ -25,12 +24,12 @@ public partial class ContestsList
         _dataConfiguration = dataConfiguration;
     }
 
-    protected override async Task OnInitializedAsync()
+    protected override async Task<ContentState<ContestsListModel>> LoadContent()
     {
         var expertFeedbacks = await _databaseContext.ExpertFeedbacks.ToListAsync();
         var participantFeedbacks = await _databaseContext.ParticipantFeedbacks.ToListAsync();
 
-        _viewModel.Contests = [.. _dataConfiguration.Value.Contests
+        var viewContests = _dataConfiguration.Value.Contests
             .OrderBy(contest => contest.Identifier)
             .Select((contest, index) => new ContestsListModel.ContestModel(
                 Number: index + 1,
@@ -41,14 +40,17 @@ public partial class ContestsList
                     expertFeedbacks.Count(feedback => feedback.EventId == @event.Identifier)),
                 ParticiapntFeedbaksQuantity: contest.Events.Sum(@event =>
                     participantFeedbacks.Count(feedback => feedback.EventId == @event.Identifier)),
-                EventsListLink: $"/administration/contests/{contest.Identifier}/events"))];
+                EventsListLink: $"/administration/contests/{contest.Identifier}/events"))
+            .ToArray();
+
+        return new ContestsListModel(Contests: viewContests, SearchFilter: null);
     }
 
     private bool FilterRecords(ContestsListModel.ContestModel contest)
     {
-        return string.IsNullOrWhiteSpace(_viewModel.SearchFilter) ||
-            contest.Name.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
-            contest.Identifier.Contains(_viewModel.SearchFilter, StringComparison.OrdinalIgnoreCase);
+        return string.IsNullOrWhiteSpace(ViewModel.SearchFilter) ||
+            contest.Name.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase) ||
+            contest.Identifier.Contains(ViewModel.SearchFilter, StringComparison.OrdinalIgnoreCase);
     }
 
     private static object SelectNameField(ContestsListModel.ContestModel contest) => contest.Name;

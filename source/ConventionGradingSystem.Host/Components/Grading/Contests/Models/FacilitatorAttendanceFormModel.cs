@@ -1,12 +1,11 @@
 namespace ConventionGradingSystem.Host.Components.Grading.Contests.Models;
 
-public record class FacilitatorAttendanceFormModel
+public record class FacilitatorAttendanceFormModel(
+    FacilitatorAttendanceFormModel.EventModel Event,
+    FacilitatorAttendanceFormModel.FormModel Form,
+    string? SearchFilter)
 {
-    public EventModel? Event { get; set; }
-    public string? SearchFilter { get; set; }
-
-    public Dictionary<string, bool> AttendanceMarks { get; } = [];
-    public Dictionary<string, bool> SpecialMarks { get; } = [];
+    public string? SearchFilter { get; set; } = SearchFilter;
 
     public record EventModel(
         string EventName,
@@ -19,4 +18,8 @@ public record class FacilitatorAttendanceFormModel
         string Name,
         string? Brigade,
         string Team);
+
+    public record FormModel(
+        Dictionary<string, bool> AttendanceMarks,
+        Dictionary<string, bool> SpecialMarks);
 }

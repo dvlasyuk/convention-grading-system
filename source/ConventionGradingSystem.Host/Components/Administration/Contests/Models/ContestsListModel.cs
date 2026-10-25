@@ -1,9 +1,10 @@
 namespace ConventionGradingSystem.Host.Components.Administration.Contests.Models;
 
-public record class ContestsListModel
+public record class ContestsListModel(
+    IReadOnlyCollection<ContestsListModel.ContestModel> Contests,
+    string? SearchFilter)
 {
-    public IEnumerable<ContestModel> Contests { get; set; } = [];
-    public string? SearchFilter { get; set; }
+    public string? SearchFilter { get; set; } = SearchFilter;
 
     public record ContestModel(
         int Number,

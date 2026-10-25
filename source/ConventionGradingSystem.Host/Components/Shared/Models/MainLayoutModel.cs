@@ -1,7 +1,8 @@
 namespace ConventionGradingSystem.Host.Components.Shared.Models;
 
-public record class MainLayoutModel
+public record class MainLayoutModel(
+    string ConventionName,
+    bool IsDrawerOpen)
 {
-    public string ConventionName { get; set; } = string.Empty;
-    public bool IsDrawerOpen { get; set; }
+    public bool IsDrawerOpen { get; set; } = IsDrawerOpen;
 }
