@@ -4,114 +4,114 @@
 @using ConventionGradingSystem.Host.Components.Grading.Contests.Models
 @using ConventionGradingSystem.Host.Components.Shared.Components
 @using ConventionGradingSystem.Host.Components.Shared.Layouts
-@using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
+@using ConventionGradingSystem.Host.Components.Shared.Models
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
-<LayoutView Layout="@typeof(ContestsLayout)">
+<FeaturePageView Feature="@ApplicationFeature.Contests">
 
-    <AuthorizeView Roles="Administrator,Expert">
-        <NotAuthorized>
-            <PageTitle>Вход в систему</PageTitle>
-            <SignInForm />
-        </NotAuthorized>
-        <Authorized>
+<AuthorizeView Roles="Administrator,Expert">
+    <NotAuthorized>
+        <PageTitle>Вход в систему</PageTitle>
+        <SignInForm />
+    </NotAuthorized>
+    <Authorized>
 
-            @if (_viewModel.Event == null)
-            {
-                <PageTitle>Форма отзыва о неизвестном мероприятии</PageTitle>
-                <MudAlert Severity="@Severity.Warning">
-                    Мероприятие с идентификатором <em>@EventId</em> <strong>не найдено</strong>. Если ты вводил адрес
-                    страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то проверь не ошибся
-                    ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь корректность этой
-                    ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы
-                    системы, то это ошибка - обратись, пожалуйста, к разработчикам
-                </MudAlert>
-                return;
-            }
-
-            <PageTitle>Форма отзыва о мероприятии @_viewModel.Event.EventName</PageTitle>
-
-            @if (!_viewModel.Event.IsGraded)
-            {
-                <MudAlert Severity="@Severity.Warning">
-                    Мероприятия конкурса <strong>@_viewModel.Event.ContestName</strong> не оцениваются экспертами. Если
-                    ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
-                    проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
-                    корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
-                    с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
-                </MudAlert>
-                return;
-            }
-
-            @if (_viewModel.IsFormDisabled)
-            {
-                <MudAlert Severity="@Severity.Info">
-                    Твой отзыв о мероприятии <strong>@_viewModel.Event.EventName</strong> в рамка конкурса мероприятий
-                    <strong>@_viewModel.Event.ContestName</strong> принят. Спасибо большое за участие!
-                </MudAlert>
-                return;
-            }
-
-            <MudAlert Severity="@Severity.Info">
-                Приветствуем тебя, эксперт! Ты можешь свой отзыв о мероприятии <strong>@_viewModel.Event.EventName</strong>
-                в рамка конкурса мероприятий <strong>@_viewModel.Event.ContestName</strong>. Оцени мероприятие по приведённым
-                критериям, оставь дополнительный комментарий, если хочешь, и нажми кнопку <em>Отправить</em>
+        @if (_viewModel.Event == null)
+        {
+            <PageTitle>Форма отзыва о неизвестном мероприятии</PageTitle>
+            <MudAlert Severity="@Severity.Warning">
+                Мероприятие с идентификатором <em>@EventId</em> <strong>не найдено</strong>. Если ты вводил адрес
+                страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то проверь не ошибся
+                ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь корректность этой
+                ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда с другой страницы
+                системы, то это ошибка - обратись, пожалуйста, к разработчикам
             </MudAlert>
+            return;
+        }
 
-            <MudPaper Class="mt-3 pa-3">
-                <MudForm @ref="@_formSelector" @bind-IsValid="@_viewModel.IsFormValid">
+        <PageTitle>Форма отзыва о мероприятии @_viewModel.Event.EventName</PageTitle>
 
-                    <MudAutocomplete T="@ExpertFeedbackFormModel.ExpertModel"
-                                     @bind-Value="@_viewModel.SelectedExpert"
-                                     SearchFunc="@SearchExpert"
-                                     Required="true"
-                                     ResetValueOnEmptyText="true"
-                                     Label="Выбери себя"
-                                     RequiredError="Выбор эксперта обязателен"
-                                     Variant="@Variant.Outlined"
-                                     Adornment="@Adornment.End"
-                                     AdornmentIcon="@Icons.Material.Filled.Search"
-                                     Class="my-3" />
+        @if (!_viewModel.Event.IsGraded)
+        {
+            <MudAlert Severity="@Severity.Warning">
+                Мероприятия конкурса <strong>@_viewModel.Event.ContestName</strong> не оцениваются экспертами. Если
+                ты вводил адрес страницы в адресную строку браузера вручную или вставлял скопированную ссылку, то
+                проверь не ошибся ли ты при вводе или копировании. Если ты переходил по прямой ссылке, то проверь
+                корректность этой ссылки или попроси сделать это того, кто её тебе предоставил. Если ты попал сюда
+                с другой страницы системы, то это ошибка - обратись, пожалуйста, к разработчикам
+            </MudAlert>
+            return;
+        }
 
-                    @foreach (var criterion in _viewModel.Event.Criterions)
-                    {
-                        <MudPaper Outlined="true" Class="mt-3 pa-3">
-                            <MudText Typo="@Typo.subtitle1">@criterion.Name</MudText>
-                            <MudText Typo="@Typo.subtitle2">@criterion.Description</MudText>
-                            <MudSlider @bind-Value="@_viewModel.SelectedGrades[criterion.Identifier]"
-                                       Min="@criterion.MinimalGrade"
-                                       Max="@criterion.MaximalGrade"
-                                       TickMarks="true"
-                                       TickMarkLabels="@GetSliderLabels(criterion)"
-                                       ValueLabel="true"
-                                       Variant="@Variant.Outlined"
-                                       Class="mt-3 mb-5" />
-                        </MudPaper>
-                    }
+        @if (_viewModel.IsFormDisabled)
+        {
+            <MudAlert Severity="@Severity.Info">
+                Твой отзыв о мероприятии <strong>@_viewModel.Event.EventName</strong> в рамка конкурса мероприятий
+                <strong>@_viewModel.Event.ContestName</strong> принят. Спасибо большое за участие!
+            </MudAlert>
+            return;
+        }
 
-                    <MudTextField T="@string"
-                                  @bind-Value="@_viewModel.EnteredNote"
-                                  Label="Оставь любой дополнительный комментарий"
-                                  Variant="@Variant.Outlined"
-                                  Lines="3"
-                                  Class="my-3" />
+        <MudAlert Severity="@Severity.Info">
+            Приветствуем тебя, эксперт! Ты можешь свой отзыв о мероприятии <strong>@_viewModel.Event.EventName</strong>
+            в рамка конкурса мероприятий <strong>@_viewModel.Event.ContestName</strong>. Оцени мероприятие по приведённым
+            критериям, оставь дополнительный комментарий, если хочешь, и нажми кнопку <em>Отправить</em>
+        </MudAlert>
 
-                    <MudDivider />
-                    <MudButton OnClick="@ProcessForm"
-                               Disabled="@(!_viewModel.IsFormValid)"
-                               Variant="@Variant.Outlined"
-                               Size="@Size.Large"
-                               Color="@Color.Primary"
-                               StartIcon="@Icons.Material.Filled.Send"
-                               Class="mt-3">
-                        Проголосовать
-                    </MudButton>
-                </MudForm>
-            </MudPaper>
+        <MudPaper Class="mt-3 pa-3">
+            <MudForm @ref="@_formSelector" @bind-IsValid="@_viewModel.IsFormValid">
 
-        </Authorized>
-    </AuthorizeView>
+                <MudAutocomplete T="@ExpertFeedbackFormModel.ExpertModel"
+                                 @bind-Value="@_viewModel.SelectedExpert"
+                                 SearchFunc="@SearchExpert"
+                                 Required="true"
+                                 ResetValueOnEmptyText="true"
+                                 Label="Выбери себя"
+                                 RequiredError="Выбор эксперта обязателен"
+                                 Variant="@Variant.Outlined"
+                                 Adornment="@Adornment.End"
+                                 AdornmentIcon="@Icons.Material.Filled.Search"
+                                 Class="my-3" />
 
-</LayoutView>
+                @foreach (var criterion in _viewModel.Event.Criterions)
+                {
+                    <MudPaper Outlined="true" Class="mt-3 pa-3">
+                        <MudText Typo="@Typo.subtitle1">@criterion.Name</MudText>
+                        <MudText Typo="@Typo.subtitle2">@criterion.Description</MudText>
+                        <MudSlider @bind-Value="@_viewModel.SelectedGrades[criterion.Identifier]"
+                                   Min="@criterion.MinimalGrade"
+                                   Max="@criterion.MaximalGrade"
+                                   TickMarks="true"
+                                   TickMarkLabels="@GetSliderLabels(criterion)"
+                                   ValueLabel="true"
+                                   Variant="@Variant.Outlined"
+                                   Class="mt-3 mb-5" />
+                    </MudPaper>
+                }
+
+                <MudTextField T="@string"
+                              @bind-Value="@_viewModel.EnteredNote"
+                              Label="Оставь любой дополнительный комментарий"
+                              Variant="@Variant.Outlined"
+                              Lines="3"
+                              Class="my-3" />
+
+                <MudDivider />
+                <MudButton OnClick="@ProcessForm"
+                           Disabled="@(!_viewModel.IsFormValid)"
+                           Variant="@Variant.Outlined"
+                           Size="@Size.Large"
+                           Color="@Color.Primary"
+                           StartIcon="@Icons.Material.Filled.Send"
+                           Class="mt-3">
+                    Проголосовать
+                </MudButton>
+            </MudForm>
+        </MudPaper>
+
+    </Authorized>
+</AuthorizeView>
+
+</FeaturePageView>

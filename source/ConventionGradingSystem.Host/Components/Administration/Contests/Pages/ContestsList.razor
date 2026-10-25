@@ -1,54 +1,55 @@
 @page "/administration/contests"
 
 @using ConventionGradingSystem.Host.Components.Administration.Contests.Models
-@using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
+@using ConventionGradingSystem.Host.Components.Shared.Components
+@using ConventionGradingSystem.Host.Components.Shared.Models
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
-<LayoutView Layout="@typeof(ContestsLayout)">
+<FeaturePageView Feature="@ApplicationFeature.Contests">
 
-    <PageTitle>Конкурсы мероприятий</PageTitle>
+<PageTitle>Конкурсы мероприятий</PageTitle>
 
-    <MudTable Items="@_viewModel.Contests"
-              Filter="@FilterRecords"
-              Breakpoint="@Breakpoint.None"
-              Hover="true">
+<MudTable Items="@_viewModel.Contests"
+          Filter="@FilterRecords"
+          Breakpoint="@Breakpoint.None"
+          Hover="true">
 
-        <ToolBarContent>
-            <MudText Typo="@Typo.h6">Конкурсы мероприятий</MudText>
-            <MudSpacer />
-            <MudTextField @bind-Value="@_viewModel.SearchFilter"
-                          MaxLength="50"
-                          Clearable="true"
-                          Placeholder="Поиск"
-                          Adornment="@Adornment.Start"
-                          AdornmentIcon="@Icons.Material.Filled.Search" />
-        </ToolBarContent>
+    <ToolBarContent>
+        <MudText Typo="@Typo.h6">Конкурсы мероприятий</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="@_viewModel.SearchFilter"
+                      MaxLength="50"
+                      Clearable="true"
+                      Placeholder="Поиск"
+                      Adornment="@Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" />
+    </ToolBarContent>
 
-        <HeaderContent>
-            <MudTh>#</MudTh>
-            <MudTh><MudTableSortLabel T="@ContestsListModel.ContestModel" SortBy="@SelectNameField">Название конкурса</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@ContestsListModel.ContestModel" SortBy="@SelectEventsField">Количество мероприятий</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@ContestsListModel.ContestModel" SortBy="@SelectExpertField">Количество отзывов экспертов</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@ContestsListModel.ContestModel" SortBy="@SelectParticipantField">Количество отзывов участников</MudTableSortLabel></MudTh>
-            <MudTh>Действия</MudTh>
-        </HeaderContent>
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh><MudTableSortLabel T="@ContestsListModel.ContestModel" SortBy="@SelectNameField">Название конкурса</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="@ContestsListModel.ContestModel" SortBy="@SelectEventsField">Количество мероприятий</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="@ContestsListModel.ContestModel" SortBy="@SelectExpertField">Количество отзывов экспертов</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="@ContestsListModel.ContestModel" SortBy="@SelectParticipantField">Количество отзывов участников</MudTableSortLabel></MudTh>
+        <MudTh>Действия</MudTh>
+    </HeaderContent>
 
-        <RowTemplate>
-            <MudTd>@context.Number</MudTd>
-            <MudTd>@context.Name</MudTd>
-            <MudTd>@context.EventsQuantity</MudTd>
-            <MudTd>@context.ExpertFeedbaksQuantity</MudTd>
-            <MudTd>@context.ParticiapntFeedbaksQuantity</MudTd>
-            <MudTd>
-                <MudButton Href="@context.EventsListLink"
-                           Variant="@Variant.Outlined"
-                           Color="@Color.Primary"
-                           StartIcon="@Icons.Material.Filled.Info">
-                    Детали
-                </MudButton>
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
+    <RowTemplate>
+        <MudTd>@context.Number</MudTd>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>@context.EventsQuantity</MudTd>
+        <MudTd>@context.ExpertFeedbaksQuantity</MudTd>
+        <MudTd>@context.ParticiapntFeedbaksQuantity</MudTd>
+        <MudTd>
+            <MudButton Href="@context.EventsListLink"
+                       Variant="@Variant.Outlined"
+                       Color="@Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Info">
+                Детали
+            </MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
 
-</LayoutView>
+</FeaturePageView>

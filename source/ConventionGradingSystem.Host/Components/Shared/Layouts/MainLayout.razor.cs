@@ -27,10 +27,6 @@ public partial class MainLayout
     protected override void OnInitialized()
     {
         _viewModel.ConventionName = _applicationConfiguration.Value.ConventionName;
-
-        _viewModel.ContestsSectionAvailable = _applicationConfiguration.Value.ContestsFeatureEnabled;
-        _viewModel.VotingsSectionAvailable = _applicationConfiguration.Value.VotingsFeatureEnabled;
-        _viewModel.TeamsSectionAvailable = _applicationConfiguration.Value.TeamsFeatureEnabled;
     }
 
     private void ToogleDrawer() => _viewModel.IsDrawerOpen = !_viewModel.IsDrawerOpen;

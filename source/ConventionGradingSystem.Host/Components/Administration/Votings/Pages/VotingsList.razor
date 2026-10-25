@@ -1,59 +1,60 @@
 @page "/administration/votings"
 
 @using ConventionGradingSystem.Host.Components.Administration.Votings.Models
-@using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
+@using ConventionGradingSystem.Host.Components.Shared.Components
+@using ConventionGradingSystem.Host.Components.Shared.Models
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
-<LayoutView Layout="@typeof(VotingsLayout)">
+<FeaturePageView Feature="@ApplicationFeature.Votings">
 
-    <PageTitle>Зрительские голосования</PageTitle>
+<PageTitle>Зрительские голосования</PageTitle>
 
-    <MudTable Items="@_viewModel.Votings"
-              Filter="@FilterRecords"
-              Breakpoint="@Breakpoint.None"
-              Hover="true">
+<MudTable Items="@_viewModel.Votings"
+          Filter="@FilterRecords"
+          Breakpoint="@Breakpoint.None"
+          Hover="true">
 
-        <ToolBarContent>
-            <MudText Typo="@Typo.h6">Зрительские голосования</MudText>
-            <MudSpacer />
-            <MudTextField @bind-Value="@_viewModel.SearchFilter"
-                          MaxLength="50"
-                          Clearable="true"
-                          Placeholder="Поиск"
-                          Adornment="@Adornment.Start"
-                          AdornmentIcon="@Icons.Material.Filled.Search" />
-        </ToolBarContent>
+    <ToolBarContent>
+        <MudText Typo="@Typo.h6">Зрительские голосования</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="@_viewModel.SearchFilter"
+                      MaxLength="50"
+                      Clearable="true"
+                      Placeholder="Поиск"
+                      Adornment="@Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" />
+    </ToolBarContent>
 
-        <HeaderContent>
-            <MudTh>#</MudTh>
-            <MudTh><MudTableSortLabel T="@VotingsListModel.VotingModel" SortBy="@SelectNameField">Название голосования</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@VotingsListModel.VotingModel" SortBy="@SelectCandidatesField">Количество кандидатов</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@VotingsListModel.VotingModel" SortBy="@SelectVotesField">Общее количество голосов</MudTableSortLabel></MudTh>
-            <MudTh>Действия</MudTh>
-        </HeaderContent>
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh><MudTableSortLabel T="@VotingsListModel.VotingModel" SortBy="@SelectNameField">Название голосования</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="@VotingsListModel.VotingModel" SortBy="@SelectCandidatesField">Количество кандидатов</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="@VotingsListModel.VotingModel" SortBy="@SelectVotesField">Общее количество голосов</MudTableSortLabel></MudTh>
+        <MudTh>Действия</MudTh>
+    </HeaderContent>
 
-        <RowTemplate>
-            <MudTd>@context.Number</MudTd>
-            <MudTd>@context.Name</MudTd>
-            <MudTd>@context.CandidatesQuantity</MudTd>
-            <MudTd>@context.TotalVotesQuantity</MudTd>
-            <MudTd>
-                <MudButton Href="@context.CandidatesListLink"
-                           Variant="@Variant.Outlined"
-                           Color="@Color.Primary"
-                           StartIcon="@Icons.Material.Filled.Info">
-                    Детали
-                </MudButton>
-                <MudButton Href="@context.ParticipantVotingFormLink"
-                           Variant="@Variant.Outlined"
-                           Color="@Color.Secondary"
-                           StartIcon="@Icons.Material.Filled.QrCode"
-                           Class="ml-3">
-                    Форма голосования
-                </MudButton>
-            </MudTd>
-        </RowTemplate>
-    </MudTable>
+    <RowTemplate>
+        <MudTd>@context.Number</MudTd>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>@context.CandidatesQuantity</MudTd>
+        <MudTd>@context.TotalVotesQuantity</MudTd>
+        <MudTd>
+            <MudButton Href="@context.CandidatesListLink"
+                       Variant="@Variant.Outlined"
+                       Color="@Color.Primary"
+                       StartIcon="@Icons.Material.Filled.Info">
+                Детали
+            </MudButton>
+            <MudButton Href="@context.ParticipantVotingFormLink"
+                       Variant="@Variant.Outlined"
+                       Color="@Color.Secondary"
+                       StartIcon="@Icons.Material.Filled.QrCode"
+                       Class="ml-3">
+                Форма голосования
+            </MudButton>
+        </MudTd>
+    </RowTemplate>
+</MudTable>
 
-</LayoutView>
+</FeaturePageView>

@@ -1,5 +1,7 @@
 @page "/"
 
+@using ConventionGradingSystem.Host.Components.Shared.Components
+@using ConventionGradingSystem.Host.Components.Shared.Models
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
@@ -15,30 +17,27 @@
 
 <MudList T="@string" Dense="true" Class="mt-3">
 
-    @if (_viewModel.ContestsSectionAvailable)
-    {
+    <FeatureView Feature="@ApplicationFeature.Contests">
         <MudListItem Href="/administration/contests" Icon="@Icons.Material.Filled.Star">
-            Раздел <MudLink Href="/administration/contests">Конкурсы мероприятий</MudLink> содержит всю необходимую информацию
-            о конкурсах, в рамках которых проводимые мероприятия оцениваются экспертами и/или участниками
+            Раздел <MudLink Href="/administration/contests">Конкурсы мероприятий</MudLink> содержит всю необходимую
+            информацию о конкурсах, в рамках которых проводимые мероприятия оцениваются экспертами и/или участниками
             слёта по настроенным критериям
         </MudListItem>
-    }
+    </FeatureView>
 
-    @if (_viewModel.VotingsSectionAvailable)
-    {
+    <FeatureView Feature="@ApplicationFeature.Votings">
         <MudListItem Href="/administration/votings" Icon="@Icons.Material.Filled.HowToVote">
             В разделе <MudLink Href="/administration/votings">Зрительские голосования</MudLink> ты найдёшь всю требуемую
             информацию о конкурсах зрительских симпатий, в рамках которых участники слёта голосуют за
             понравившихся им участников конкурсов
         </MudListItem>
-    }
+    </FeatureView>
 
-    @if (_viewModel.TeamsSectionAvailable)
-    {
+    <FeatureView Feature="@ApplicationFeature.Teams">
         <MudListItem Href="/administration/teams" Icon="@Icons.Material.Filled.Groups">
             В разделе <MudLink Href="/administration/teams">Команды участников</MudLink> собрана информация о регистрации и
             посещении участниками слёта мероприятий, которую можно использовать в рамках системы мотивации
         </MudListItem>
-    }
+    </FeatureView>
 
 </MudList>

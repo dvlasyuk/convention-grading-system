@@ -1,49 +1,50 @@
 @page "/administration/teams"
 
 @using ConventionGradingSystem.Host.Components.Administration.Participants.Models
-@using ConventionGradingSystem.Host.Components.Shared.Layouts.Sections
+@using ConventionGradingSystem.Host.Components.Shared.Components
+@using ConventionGradingSystem.Host.Components.Shared.Models
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
-<LayoutView Layout="@typeof(TeamsLayout)">
+<FeaturePageView Feature="@ApplicationFeature.Teams">
 
-    <PageTitle>Команды участников</PageTitle>
+<PageTitle>Команды участников</PageTitle>
 
-    <MudTable Items="@_viewModel.Teams"
-              Filter="@FilterRecords"
-              Breakpoint="@Breakpoint.None"
-              Hover="true">
+<MudTable Items="@_viewModel.Teams"
+          Filter="@FilterRecords"
+          Breakpoint="@Breakpoint.None"
+          Hover="true">
 
-        <ToolBarContent>
-            <MudText Typo="@Typo.h6">Команды участников</MudText>
-            <MudSpacer />
-            <MudTextField @bind-Value="@_viewModel.SearchFilter"
-                          MaxLength="50"
-                          Clearable="true"
-                          Placeholder="Поиск"
-                          Adornment="@Adornment.Start"
-                          AdornmentIcon="@Icons.Material.Filled.Search" />
-        </ToolBarContent>
+    <ToolBarContent>
+        <MudText Typo="@Typo.h6">Команды участников</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="@_viewModel.SearchFilter"
+                      MaxLength="50"
+                      Clearable="true"
+                      Placeholder="Поиск"
+                      Adornment="@Adornment.Start"
+                      AdornmentIcon="@Icons.Material.Filled.Search" />
+    </ToolBarContent>
 
-        <HeaderContent>
-            <MudTh>#</MudTh>
-            <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectNameField">Название команды</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectMembersField">Количество участников</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectRegistrationsField">Количество регистраций</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectAttendancesField">Количество посещений</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectAbsencesField">Количество пропусков</MudTableSortLabel></MudTh>
-            <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectSpecialMarksField">Особые отметки</MudTableSortLabel></MudTh>
-        </HeaderContent>
+    <HeaderContent>
+        <MudTh>#</MudTh>
+        <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectNameField">Название команды</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectMembersField">Количество участников</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectRegistrationsField">Количество регистраций</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectAttendancesField">Количество посещений</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectAbsencesField">Количество пропусков</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectSpecialMarksField">Особые отметки</MudTableSortLabel></MudTh>
+    </HeaderContent>
 
-        <RowTemplate>
-            <MudTd>@context.Number</MudTd>
-            <MudTd>@context.Name</MudTd>
-            <MudTd>@context.MembersQuantity</MudTd>
-            <MudTd>@context.RegistrationsQuantity</MudTd>
-            <MudTd>@context.AttendancesQuantity</MudTd>
-            <MudTd>@context.AbsencesQuantity</MudTd>
-            <MudTd>@context.SpecialMarksQuantity</MudTd>
-        </RowTemplate>
-    </MudTable>
+    <RowTemplate>
+        <MudTd>@context.Number</MudTd>
+        <MudTd>@context.Name</MudTd>
+        <MudTd>@context.MembersQuantity</MudTd>
+        <MudTd>@context.RegistrationsQuantity</MudTd>
+        <MudTd>@context.AttendancesQuantity</MudTd>
+        <MudTd>@context.AbsencesQuantity</MudTd>
+        <MudTd>@context.SpecialMarksQuantity</MudTd>
+    </RowTemplate>
+</MudTable>
 
-</LayoutView>
+</FeaturePageView>

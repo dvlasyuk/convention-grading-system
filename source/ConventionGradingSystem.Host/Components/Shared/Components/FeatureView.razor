@@ -1,0 +1,10 @@
+﻿@inherits BaseFeatureView
+
+@if (IsFeatureEnabled)
+{
+    @(ChildContent ?? Enabled)
+}
+else if (Disabled is not null)
+{
+    @Disabled
+}
