@@ -4,6 +4,7 @@
 @using ConventionGradingSystem.Host.Components.Shared.Components
 @using ConventionGradingSystem.Host.Components.Shared.Models
 @using ConventionGradingSystem.Host.Components.Shared.Pages
+@using ConventionGradingSystem.Host.Services
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
@@ -32,7 +33,7 @@
             <MudText>Общее число кандидатов в голосовании <strong>@ViewModel.Voting.CandidatesQuantity</strong></MudText>
             <MudText>Общее число голосов, отданных зрителями: <strong>@ViewModel.Voting.TotalVotesQuantity</strong></MudText>
             <MudDivider Class="mt-3" />
-            <MudButton Href="@($"/grading/votings/{VotingId}/participant-voting")"
+            <MudButton Href="@NavigationHelper.Grading.ParticipantVotingForm(VotingId!)"
                        Variant="@Variant.Outlined"
                        Color="@Color.Secondary"
                        StartIcon="@Icons.Material.Filled.QrCode"
@@ -87,7 +88,7 @@
         </MudTd>
         <MudTd>@context.VotesQuantity</MudTd>
         <MudTd>
-            <MudButton Href="@context.VotesListLink"
+            <MudButton Href="@NavigationHelper.Administration.VotesList(context.Identifier)"
                        Variant="@Variant.Outlined"
                        Color="@Color.Primary"
                        StartIcon="@Icons.Material.Filled.Info">

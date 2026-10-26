@@ -35,9 +35,7 @@ public partial class VotingsList
                 Name: voting.Name,
                 CandidatesQuantity: voting.Candidates.Count,
                 TotalVotesQuantity: voting.Candidates.Sum(candidate =>
-                    savedVotes.Count(vote => vote.CandidateId == candidate.Identifier)),
-                CandidatesListLink: $"/administration/votings/{voting.Identifier}/candidates",
-                ParticipantVotingFormLink: $"/grading/votings/{voting.Identifier}/participant-voting"))
+                    savedVotes.Count(vote => vote.CandidateId == candidate.Identifier))))
             .ToArray();
 
         return new VotingsListModel(Votings: viewVotings, SearchFilter: null);

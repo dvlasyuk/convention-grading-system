@@ -5,6 +5,7 @@ using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.DataAccess.Database.Entities;
 using ConventionGradingSystem.Host.Components.Grading.Contests.Models;
 using ConventionGradingSystem.Host.Components.Shared.Models;
+using ConventionGradingSystem.Host.Services;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -118,7 +119,9 @@ public partial class FacilitatorAttendanceForm
         }
 
         await _databaseContext.SaveChangesAsync();
-        _navigationManager.NavigateTo($"/grading/events/{EventId}/facilitator-attendance", true);
+        _navigationManager.NavigateTo(
+            uri: NavigationHelper.Grading.FacilitatorAttendanceForm(EventId!),
+            forceLoad: true);
     }
 
     private bool FilterRecords(FacilitatorAttendanceFormModel.ParticipantModel participant)

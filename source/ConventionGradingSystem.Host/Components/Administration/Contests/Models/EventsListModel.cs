@@ -27,10 +27,5 @@ public record class EventsListModel(
         int ParticipantFeedbacksQuantity,
         float ExpertGrade,
         float ParticipantGrade,
-        float TotalGrade,
-        string ExpertFeedbackFormLink,
-        string ExpertFeedbacksListLink,
-        string ParticipantFeedbackFormLink,
-        string ParticipantFeedbacksListLink,
-        string FacilitatorAttendanceFormLink);
+        float TotalGrade);
 }

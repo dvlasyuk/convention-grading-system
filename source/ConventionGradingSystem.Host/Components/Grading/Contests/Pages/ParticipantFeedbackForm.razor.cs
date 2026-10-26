@@ -4,6 +4,7 @@ using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Grading.Contests.Models;
 using ConventionGradingSystem.Host.Components.Shared.Models;
+using ConventionGradingSystem.Host.Services;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
@@ -117,7 +118,9 @@ public partial class ParticipantFeedbackForm
             key: GetLocalStorageKey(),
             value: DateTime.UtcNow.ToString(new CultureInfo("ru-RU")));
 
-        _navigationManager.NavigateTo($"/grading/events/{EventId}/participant-feedback", true);
+        _navigationManager.NavigateTo(
+            uri: NavigationHelper.Grading.ParticipantFeedbackForm(EventId!),
+            forceLoad: true);
     }
 
     private Task<IEnumerable<ParticipantFeedbackFormModel.TeamModel>> SearchTeam(string value, CancellationToken token)

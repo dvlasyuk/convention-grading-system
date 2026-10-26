@@ -96,12 +96,7 @@ public partial class EventsList
                         .Where(feedback => feedback.EventId == @event.Identifier)
                         .SelectMany(feedback => feedback.Grades)
                         .GroupBy(grade => grade.CriterionId)
-                        .Sum(group => group.Sum(grade => grade.GradeValue) / (float)group.Count()),
-                ExpertFeedbackFormLink: $"/grading/events/{@event.Identifier}/expert-feedback",
-                ExpertFeedbacksListLink: $"/administration/events/{@event.Identifier}/expert-feedbacks",
-                ParticipantFeedbackFormLink: $"/grading/events/{@event.Identifier}/participant-feedback",
-                ParticipantFeedbacksListLink: $"/administration/events/{@event.Identifier}/participant-feedbacks",
-                FacilitatorAttendanceFormLink: $"/grading/events/{@event.Identifier}/facilitator-attendance"))
+                        .Sum(group => group.Sum(grade => grade.GradeValue) / (float)group.Count())))
             .ToArray();
 
         return new EventsListModel(

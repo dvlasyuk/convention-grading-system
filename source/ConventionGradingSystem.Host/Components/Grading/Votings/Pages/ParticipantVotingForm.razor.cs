@@ -5,6 +5,7 @@ using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.DataAccess.Database.Entities;
 using ConventionGradingSystem.Host.Components.Grading.Votings.Models;
 using ConventionGradingSystem.Host.Components.Shared.Models;
+using ConventionGradingSystem.Host.Services;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
@@ -95,7 +96,9 @@ public partial class ParticipantVotingForm
         await _databaseContext.SaveChangesAsync();
         await _localStorage.SetAsync(GetLocalStorageKey(), DateTime.UtcNow.ToString(new CultureInfo("ru-RU")));
 
-        _navigationManager.NavigateTo($"/grading/votings/{VotingId}/participant-voting", true);
+        _navigationManager.NavigateTo(
+            uri: NavigationHelper.Grading.ParticipantVotingForm(VotingId!),
+            forceLoad: true);
     }
 
     private Task<IEnumerable<ParticipantVotingFormModel.TeamModel>> SearchTeam(string value, CancellationToken token)

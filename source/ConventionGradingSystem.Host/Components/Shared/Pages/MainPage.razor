@@ -2,6 +2,7 @@
 
 @using ConventionGradingSystem.Host.Components.Shared.Components
 @using ConventionGradingSystem.Host.Components.Shared.Models
+@using ConventionGradingSystem.Host.Services
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
@@ -24,25 +25,26 @@
 <MudList T="@string" Dense="true" Class="mt-3">
 
     <FeatureView Feature="@ApplicationFeature.Contests">
-        <MudListItem Href="/administration/contests" Icon="@Icons.Material.Filled.Star">
-            Раздел <MudLink Href="/administration/contests">Конкурсы мероприятий</MudLink> содержит всю необходимую
-            информацию о конкурсах, в рамках которых проводимые мероприятия оцениваются экспертами и/или участниками
-            слёта по настроенным критериям
+        <MudListItem Href="@NavigationHelper.Administration.ContestsList()" Icon="@Icons.Material.Filled.Star">
+            Раздел <MudLink Href="@NavigationHelper.Administration.ContestsList()">Конкурсы мероприятий</MudLink>
+            содержит всю необходимую информацию о конкурсах, в рамках которых проводимые мероприятия оцениваются
+            экспертами и/или участниками слёта по настроенным критериям
         </MudListItem>
     </FeatureView>
 
     <FeatureView Feature="@ApplicationFeature.Votings">
-        <MudListItem Href="/administration/votings" Icon="@Icons.Material.Filled.HowToVote">
-            В разделе <MudLink Href="/administration/votings">Зрительские голосования</MudLink> ты найдёшь всю требуемую
-            информацию о конкурсах зрительских симпатий, в рамках которых участники слёта голосуют за
-            понравившихся им участников конкурсов
+        <MudListItem Href="@NavigationHelper.Administration.VotingsList()" Icon="@Icons.Material.Filled.HowToVote">
+            В разделе <MudLink Href="@NavigationHelper.Administration.VotingsList()">Зрительские голосования</MudLink>
+            ты найдёшь всю требуемую информацию о конкурсах зрительских симпатий, в рамках которых участники слёта
+            голосуют за понравившихся им участников конкурсов
         </MudListItem>
     </FeatureView>
 
     <FeatureView Feature="@ApplicationFeature.Teams">
-        <MudListItem Href="/administration/teams" Icon="@Icons.Material.Filled.Groups">
-            В разделе <MudLink Href="/administration/teams">Команды участников</MudLink> собрана информация о регистрации и
-            посещении участниками слёта мероприятий, которую можно использовать в рамках системы мотивации
+        <MudListItem Href="@NavigationHelper.Administration.TeamsList()" Icon="@Icons.Material.Filled.Groups">
+            В разделе <MudLink Href="@NavigationHelper.Administration.TeamsList()">Команды участников</MudLink> собрана
+            информация о регистрации и посещении участниками слёта мероприятий, которую можно использовать в рамках
+            системы мотивации
         </MudListItem>
     </FeatureView>
 

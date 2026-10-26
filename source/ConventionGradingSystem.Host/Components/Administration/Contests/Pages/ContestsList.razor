@@ -4,6 +4,7 @@
 @using ConventionGradingSystem.Host.Components.Shared.Components
 @using ConventionGradingSystem.Host.Components.Shared.Models
 @using ConventionGradingSystem.Host.Components.Shared.Pages
+@using ConventionGradingSystem.Host.Services
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
@@ -49,7 +50,7 @@
         <MudTd>@context.ExpertFeedbaksQuantity</MudTd>
         <MudTd>@context.ParticiapntFeedbaksQuantity</MudTd>
         <MudTd>
-            <MudButton Href="@context.EventsListLink"
+            <MudButton Href="@NavigationHelper.Administration.EventsList(context.Identifier)"
                        Variant="@Variant.Outlined"
                        Color="@Color.Primary"
                        StartIcon="@Icons.Material.Filled.Info">

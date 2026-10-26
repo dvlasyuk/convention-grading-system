@@ -11,7 +11,5 @@ public record class VotingsListModel(
         string Identifier,
         string Name,
         int CandidatesQuantity,
-        int TotalVotesQuantity,
-        string CandidatesListLink,
-        string ParticipantVotingFormLink);
+        int TotalVotesQuantity);
 }

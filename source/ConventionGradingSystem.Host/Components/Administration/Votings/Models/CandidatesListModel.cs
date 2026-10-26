@@ -21,6 +21,5 @@ public record class CandidatesListModel(
         string Name,
         IReadOnlyCollection<string> Brigades,
         IReadOnlyCollection<string> Teams,
-        int VotesQuantity,
-        string VotesListLink);
+        int VotesQuantity);
 }

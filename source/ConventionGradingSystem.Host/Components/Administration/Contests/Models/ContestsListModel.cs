@@ -12,6 +12,5 @@ public record class ContestsListModel(
         string Name,
         int EventsQuantity,
         int ExpertFeedbaksQuantity,
-        int ParticiapntFeedbaksQuantity,
-        string EventsListLink);
+        int ParticiapntFeedbaksQuantity);
 }

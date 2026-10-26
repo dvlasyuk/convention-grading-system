@@ -39,8 +39,7 @@ public partial class ContestsList
                 ExpertFeedbaksQuantity: contest.Events.Sum(@event =>
                     expertFeedbacks.Count(feedback => feedback.EventId == @event.Identifier)),
                 ParticiapntFeedbaksQuantity: contest.Events.Sum(@event =>
-                    participantFeedbacks.Count(feedback => feedback.EventId == @event.Identifier)),
-                EventsListLink: $"/administration/contests/{contest.Identifier}/events"))
+                    participantFeedbacks.Count(feedback => feedback.EventId == @event.Identifier))))
             .ToArray();
 
         return new ContestsListModel(Contests: viewContests, SearchFilter: null);

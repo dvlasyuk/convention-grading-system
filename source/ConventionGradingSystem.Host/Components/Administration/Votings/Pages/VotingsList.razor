@@ -4,6 +4,7 @@
 @using ConventionGradingSystem.Host.Components.Shared.Components
 @using ConventionGradingSystem.Host.Components.Shared.Models
 @using ConventionGradingSystem.Host.Components.Shared.Pages
+@using ConventionGradingSystem.Host.Services
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
@@ -47,13 +48,13 @@
         <MudTd>@context.CandidatesQuantity</MudTd>
         <MudTd>@context.TotalVotesQuantity</MudTd>
         <MudTd>
-            <MudButton Href="@context.CandidatesListLink"
+            <MudButton Href="@NavigationHelper.Administration.CandidatesList(context.Identifier)"
                        Variant="@Variant.Outlined"
                        Color="@Color.Primary"
                        StartIcon="@Icons.Material.Filled.Info">
                 Детали
             </MudButton>
-            <MudButton Href="@context.ParticipantVotingFormLink"
+            <MudButton Href="@NavigationHelper.Grading.ParticipantVotingForm(context.Identifier)"
                        Variant="@Variant.Outlined"
                        Color="@Color.Secondary"
                        StartIcon="@Icons.Material.Filled.QrCode"

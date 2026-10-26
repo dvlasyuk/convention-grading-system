@@ -4,6 +4,7 @@
 @using ConventionGradingSystem.Host.Components.Shared.Components
 @using ConventionGradingSystem.Host.Components.Shared.Models
 @using ConventionGradingSystem.Host.Components.Shared.Pages
+@using ConventionGradingSystem.Host.Services
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
@@ -48,7 +49,7 @@
             }
 
             <MudDivider Class="mt-3" />
-            <MudButton Href="@($"/grading/events/{EventId}/participant-feedback")"
+            <MudButton Href="@NavigationHelper.Grading.ParticipantFeedbackForm(EventId!)"
                        Variant="@Variant.Outlined"
                        Color="@Color.Secondary"
                        StartIcon="@Icons.Material.Filled.QrCode"
