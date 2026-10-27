@@ -63,9 +63,9 @@ public class AuthenticationProvider : AuthenticationStateProvider
         {
             role = AuthenticationConstants.AdministratorRole;
         }
-        else if (string.Equals(hashedSecret, _configuration.OrganizerSecretHash, StringComparison.Ordinal))
+        else if (string.Equals(hashedSecret, _configuration.FacilitatorSecretHash, StringComparison.Ordinal))
         {
-            role = AuthenticationConstants.OrganizerRole;
+            role = AuthenticationConstants.FacilitatorRole;
         }
         else if (string.Equals(hashedSecret, _configuration.ExpertSecretHash, StringComparison.Ordinal))
         {

@@ -19,7 +19,7 @@
                  ContentType="@ContentType.TableForm"
                  DefaultPageTitle="Форма посещаемости мероприятия">
 
-<AuthorizeView Roles="@AuthenticationConstants.AdministratorAndOrganizerRoles">
+<AuthorizeView Roles="@AuthenticationConstants.AdministratorAndFacilitatorRoles">
     <NotAuthorized>
         <PageTitle>Вход в систему</PageTitle>
         <SignInForm />

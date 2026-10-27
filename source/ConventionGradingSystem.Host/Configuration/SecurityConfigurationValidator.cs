@@ -19,13 +19,13 @@ public class SecurityConfigurationValidator : IValidateOptions<SecurityConfigura
             failureMessages.Add("Для секретной фразы администратора задан хэш, превышающий 100 символов");
         }
 
-        if (string.IsNullOrEmpty(options.OrganizerSecretHash))
+        if (string.IsNullOrEmpty(options.FacilitatorSecretHash))
         {
-            failureMessages.Add("Для секретной фразы организатора задан пустой хэш");
+            failureMessages.Add("Для секретной фразы проводящего мероприятие задан пустой хэш");
         }
-        else if (options.OrganizerSecretHash.Length > 100)
+        else if (options.FacilitatorSecretHash.Length > 100)
         {
-            failureMessages.Add("Для секретной фразы организатора задан хэш, превышающий 100 символов");
+            failureMessages.Add("Для секретной фразы проводящего мероприятие задан хэш, превышающий 100 символов");
         }
 
         if (string.IsNullOrEmpty(options.ExpertSecretHash))
