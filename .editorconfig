@@ -409,26 +409,6 @@ dotnet_naming_symbols.type_parameter.applicable_accessibilities = *
 dotnet_naming_style.type_parameter.capitalization = pascal_case
 dotnet_naming_style.type_parameter.required_prefix = T
 
-# Private Constant Field Member
-dotnet_naming_rule.private_constant_field_member.severity = warning
-dotnet_naming_rule.private_constant_field_member.symbols = private_constant_field_member
-dotnet_naming_rule.private_constant_field_member.style = private_constant_field_member
-dotnet_naming_symbols.private_constant_field_member.applicable_kinds = field
-dotnet_naming_symbols.private_constant_field_member.applicable_accessibilities = private
-dotnet_naming_symbols.private_constant_field_member.required_modifiers = const
-dotnet_naming_style.private_constant_field_member.capitalization = all_upper
-dotnet_naming_style.private_constant_field_member.word_separator = _
-
-# Other Constant Field Member
-dotnet_naming_rule.constant_field_member.severity = warning
-dotnet_naming_rule.constant_field_member.symbols = constant_field_member
-dotnet_naming_rule.constant_field_member.style = constant_field_member
-dotnet_naming_symbols.constant_field_member.applicable_kinds = field
-dotnet_naming_symbols.constant_field_member.applicable_accessibilities = *
-dotnet_naming_symbols.constant_field_member.required_modifiers = const
-dotnet_naming_style.constant_field_member.capitalization = all_upper
-dotnet_naming_style.constant_field_member.word_separator = _
-
 # Private Field Member
 dotnet_naming_rule.private_field_member.severity = warning
 dotnet_naming_rule.private_field_member.symbols = private_field_member
@@ -461,16 +441,6 @@ dotnet_naming_rule.member_parameter.style = member_parameter
 dotnet_naming_symbols.member_parameter.applicable_kinds = parameter
 dotnet_naming_symbols.member_parameter.applicable_accessibilities = *
 dotnet_naming_style.member_parameter.capitalization = camel_case
-
-# Local Constant
-dotnet_naming_rule.local_constant.severity = warning
-dotnet_naming_rule.local_constant.symbols = local_constant
-dotnet_naming_rule.local_constant.style = local_constant
-dotnet_naming_symbols.local_constant.applicable_kinds = local
-dotnet_naming_symbols.local_constant.applicable_accessibilities = *
-dotnet_naming_symbols.local_constant.required_modifiers = const
-dotnet_naming_style.local_constant.capitalization = all_upper
-dotnet_naming_style.local_constant.word_separator = _
 
 # Local Variable
 dotnet_naming_rule.local_variable.severity = warning

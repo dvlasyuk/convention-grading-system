@@ -8,7 +8,7 @@
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
-<AuthorizeView Roles="Administrator">
+<AuthorizeView Roles="@AuthenticationConstants.AdministratorRole">
     <Authorized>
 
         <MudThemeProvider IsDarkMode="true" />

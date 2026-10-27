@@ -6,6 +6,7 @@
 @using ConventionGradingSystem.Host.Components.Shared.Layouts
 @using ConventionGradingSystem.Host.Components.Shared.Models
 @using ConventionGradingSystem.Host.Components.Shared.Pages
+@using ConventionGradingSystem.Host.Services
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
@@ -18,7 +19,7 @@
                  ContentType="@ContentType.Form"
                  DefaultPageTitle="Форма отзыва о мероприятии">
 
-<AuthorizeView Roles="Administrator,Expert">
+<AuthorizeView Roles="@AuthenticationConstants.AdministratorAndExpertRoles">
     <NotAuthorized>
         <PageTitle>Вход в систему</PageTitle>
         <SignInForm />

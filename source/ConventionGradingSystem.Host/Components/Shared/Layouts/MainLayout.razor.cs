@@ -1,5 +1,6 @@
 using ConventionGradingSystem.Host.Components.Shared.Models;
 using ConventionGradingSystem.Host.Configuration;
+using ConventionGradingSystem.Host.Services;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;

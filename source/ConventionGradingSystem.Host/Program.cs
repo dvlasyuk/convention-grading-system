@@ -1,6 +1,7 @@
 using ConventionGradingSystem.DataAccess;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Configuration;
+using ConventionGradingSystem.Host.Services;
 
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.EntityFrameworkCore;

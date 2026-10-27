@@ -9,10 +9,13 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 using Microsoft.Extensions.Options;
 
-namespace ConventionGradingSystem.Host;
+namespace ConventionGradingSystem.Host.Services;
 
 public class AuthenticationProvider : AuthenticationStateProvider
 {
+    private const string _authenticationType = "ConventonGradingSystem";
+    private const string _localStorageKey = "Identity";
+
     private readonly SecurityConfiguration _configuration;
     private readonly ProtectedLocalStorage _localStorage;
 
@@ -31,7 +34,7 @@ public class AuthenticationProvider : AuthenticationStateProvider
 
         try
         {
-            var result = await _localStorage.GetAsync<string>("Identity");
+            var result = await _localStorage.GetAsync<string>(_localStorageKey);
             if (result.Success && result.Value != null)
             {
                 principal = CreatePrincipal(result.Value);
@@ -58,22 +61,22 @@ public class AuthenticationProvider : AuthenticationStateProvider
         string? role = null;
         if (string.Equals(hashedSecret, _configuration.AdministratorSecretHash, StringComparison.Ordinal))
         {
-            role = "Administrator";
+            role = AuthenticationConstants.AdministratorRole;
         }
         else if (string.Equals(hashedSecret, _configuration.OrganizerSecretHash, StringComparison.Ordinal))
         {
-            role = "Organizer";
+            role = AuthenticationConstants.OrganizerRole;
         }
         else if (string.Equals(hashedSecret, _configuration.ExpertSecretHash, StringComparison.Ordinal))
         {
-            role = "Expert";
+            role = AuthenticationConstants.ExpertRole;
         }
 
         var principal = new ClaimsPrincipal();
         if (role != null)
         {
             principal = CreatePrincipal(role);
-            await _localStorage.SetAsync("Identity", role);
+            await _localStorage.SetAsync(_localStorageKey, role);
         }
 
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
@@ -81,7 +84,7 @@ public class AuthenticationProvider : AuthenticationStateProvider
 
     public async Task SignOut()
     {
-        await _localStorage.DeleteAsync("Identity");
+        await _localStorage.DeleteAsync(_localStorageKey);
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new ClaimsPrincipal())));
     }
 
@@ -93,6 +96,6 @@ public class AuthenticationProvider : AuthenticationStateProvider
                 new(ClaimTypes.Name, role),
                 new(ClaimTypes.Role, role)
             },
-            authenticationType: "ConventonGradingSystem"));
+            authenticationType: _authenticationType));
     }
 }
