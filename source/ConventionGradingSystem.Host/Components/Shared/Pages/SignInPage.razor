@@ -1,0 +1,64 @@
+﻿@page "/sign-in"
+@layout BaseLayout
+
+@using ConventionGradingSystem.Host.Components.Shared.Components
+@using ConventionGradingSystem.Host.Components.Shared.Layouts
+@using ConventionGradingSystem.Host.Components.Shared.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+
+@inherits BasePage<SignInPageModel>
+
+<ContentPageView LoadingStatus="@LoadingStatus"
+                 LoadingError="@LoadingError"
+                 ContentType="@ContentType.Form"
+                 DefaultPageTitle="Вход в систему">
+
+<PageTitle>Вход в систему</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <MudAlert Severity="@Severity.Warning">
+            Приветствуем тебя! Ты уже подтвердил, что ты важный пирожочек. Если ты считаешь, что ты более важный
+            пирожочек, то введи секретную фразу в поле ниже, если знаешь её
+        </MudAlert>
+    </Authorized>
+    <NotAuthorized>
+        <MudAlert Severity="@Severity.Info">
+            Приветствуем тебя! Чтобы получить доступ к некоторым страницам, нужно быть важным пирожочком. Пожалуйста,
+            подтверди это, введя секретную фразу в поле ниже
+        </MudAlert>
+    </NotAuthorized>
+</AuthorizeView>
+
+<MudPaper Class="mt-3 pa-3">
+    <MudForm @ref="@_formSelector" @bind-IsValid="@ViewModel.IsFormValid">
+        <MudTextField T="@string"
+                      @bind-Value="@ViewModel.Form.EnteredSecret"
+                      @bind-Value:after="@ClearError"
+                      OnAdornmentClick="@ShowPassword"
+                      Validation="@((string value) => CheckError())"
+                      Immediate="true"
+                      Required="true"
+                      Label="Введи секретную фразу"
+                      RequiredError="Секретная фраза обязательна"
+                      InputType="@ViewModel.Input.InputType"
+                      Variant="@Variant.Outlined"
+                      Adornment="@Adornment.End"
+                      AdornmentIcon="@ViewModel.Input.InputIcon"
+                      Class="my-3" />
+
+        <MudButton OnClick="@SignInToSystem"
+                   Disabled="@(!ViewModel.IsFormValid)"
+                   Variant="@Variant.Outlined"
+                   Size="@Size.Large"
+                   Color="@Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Login"
+                   Class="mt-3">
+            Войти в систему
+        </MudButton>
+    </MudForm>
+</MudPaper>
+
+</ContentPageView>

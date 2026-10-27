@@ -5,6 +5,7 @@
 ## [Unreleased]
 
 ### Изменено
+- Встраиваемая форма входа в систему заменена на выделенную страницу
 - Относительные пути к страницами приложения:
   - Путь изменён: `/contests` -> `/administration/contests`
   - Путь изменён: `/contests/{contestId}` -> `/administration/contests/{contestId}/events`

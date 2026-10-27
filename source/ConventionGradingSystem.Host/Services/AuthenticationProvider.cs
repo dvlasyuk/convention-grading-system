@@ -27,26 +27,20 @@ public class AuthenticationProvider : AuthenticationStateProvider
         _localStorage = localStorage;
     }
 
-    [SuppressMessage("Design", "CA1031: Do not catch general exception types")]
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         var principal = new ClaimsPrincipal();
 
-        try
+        var result = await _localStorage.GetAsync<string>(_localStorageKey);
+        if (result is { Success: true, Value: not null })
         {
-            var result = await _localStorage.GetAsync<string>(_localStorageKey);
-            if (result.Success && result.Value != null)
-            {
-                principal = CreatePrincipal(result.Value);
-            }
+            principal = CreatePrincipal(result.Value);
         }
-        catch
-        { }
 
         return new AuthenticationState(principal);
     }
 
-    public async Task SignIn(string secretPhrase)
+    public async Task<bool> SignIn(string secretPhrase)
     {
         ArgumentNullException.ThrowIfNull(secretPhrase);
 
@@ -73,13 +67,15 @@ public class AuthenticationProvider : AuthenticationStateProvider
         }
 
         var principal = new ClaimsPrincipal();
-        if (role != null)
+        if (role is not null)
         {
             principal = CreatePrincipal(role);
             await _localStorage.SetAsync(_localStorageKey, role);
         }
 
         NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(principal)));
+
+        return role is not null;
     }
 
     public async Task SignOut()
@@ -91,11 +87,9 @@ public class AuthenticationProvider : AuthenticationStateProvider
     private static ClaimsPrincipal CreatePrincipal(string role)
     {
         return new ClaimsPrincipal(new ClaimsIdentity(
-            claims: new List<Claim>
-            {
+            claims: [
                 new(ClaimTypes.Name, role),
-                new(ClaimTypes.Role, role)
-            },
+                new(ClaimTypes.Role, role)],
             authenticationType: _authenticationType));
     }
 }

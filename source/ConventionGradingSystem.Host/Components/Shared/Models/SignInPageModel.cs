@@ -2,12 +2,14 @@ using MudBlazor;
 
 namespace ConventionGradingSystem.Host.Components.Shared.Models;
 
-public record class SignInFormModel(
-    SignInFormModel.FormModel Form,
-    SignInFormModel.PasswordInputModel Input,
-    bool IsFormValid)
+public record SignInPageModel(
+    SignInPageModel.FormModel Form,
+    SignInPageModel.PasswordInputModel Input,
+    bool IsFormValid,
+    bool IsSignInFailed)
 {
     public bool IsFormValid { get; set; } = IsFormValid;
+    public bool IsSignInFailed { get; set; } = IsSignInFailed;
 
     public record FormModel(string? EnteredSecret)
     {

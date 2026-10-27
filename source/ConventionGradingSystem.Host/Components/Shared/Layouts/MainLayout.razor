@@ -5,7 +5,6 @@
 @using ConventionGradingSystem.Host.Services
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Routing
-@using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
 <AuthorizeView Roles="@AuthenticationConstants.AdministratorRole">
@@ -75,9 +74,8 @@
     </Authorized>
 
     <NotAuthorized>
-        <PageTitle>Вход в систему</PageTitle>
         <LayoutView Layout="@typeof(BaseLayout)">
-            <SignInForm />
+            <UnathorizedView />
         </LayoutView>
     </NotAuthorized>
 

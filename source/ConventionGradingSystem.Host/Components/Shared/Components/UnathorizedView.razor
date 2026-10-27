@@ -1,0 +1,12 @@
+﻿@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+
+@if (IsUserAuthenticated)
+{
+    <PageTitle>Доступ запрещён</PageTitle>
+    <MudAlert Severity="@Severity.Warning">
+        Приветствуем тебя! Чтобы получить доступ к этой странице, нужно быть важным пирожочком. А ты, похоже,
+        недостаточно важный. Если ты уверен, что ты более важный пирожочек, то выйди из системы и попробуй
+        зайти заново, введя подходящую секретную фразу
+    </MudAlert>
+}

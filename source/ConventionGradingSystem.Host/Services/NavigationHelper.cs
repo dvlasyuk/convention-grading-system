@@ -3,10 +3,14 @@ using System.Diagnostics.CodeAnalysis;
 namespace ConventionGradingSystem.Host.Services;
 
 [SuppressMessage("Design", "CA1024:Use properties where appropriate")]
+[SuppressMessage("Design", "CA1054:URI-like parameters should not be strings")]
 [SuppressMessage("Naming", "CA1724:Type names should not match namespaces")]
 public static class NavigationHelper
 {
     public static string MainPage() => "/";
+    public static string SignInPage(string? returnUri = null) => !string.IsNullOrEmpty(returnUri)
+        ? $"/sign-in?return_uri={returnUri}"
+        : "/sign-in";
 
     public static class Administration
     {

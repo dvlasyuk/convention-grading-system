@@ -21,8 +21,7 @@
 
 <AuthorizeView Roles="@AuthenticationConstants.AdministratorAndFacilitatorRoles">
     <NotAuthorized>
-        <PageTitle>Вход в систему</PageTitle>
-        <SignInForm />
+        <UnathorizedView />
     </NotAuthorized>
     <Authorized>
 
