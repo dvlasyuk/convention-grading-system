@@ -82,7 +82,7 @@ public partial class ParticipantFeedbacksList
                     grade => grade.CriterionId,
                     grade => grade.GradeValue),
                 Note: feedback.Note,
-                ReceivedAt: feedback.ReceivedAt.ToString(new CultureInfo("ru-RU"))))
+                ReceivedAt: feedback.ReceivedAt.ToString(CultureInfo.CurrentCulture)))
             .ToArray();
 
         return new ParticipantFeedbacksListModel(

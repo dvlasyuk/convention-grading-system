@@ -109,7 +109,7 @@ public partial class ExpertFeedbackForm
         await _databaseContext.SaveChangesAsync();
         await _localStorage.SetAsync(
             key: GetLocalStorageKey(),
-            value: DateTime.UtcNow.ToString(new CultureInfo("ru-RU")));
+            value: DateTime.UtcNow.ToString(CultureInfo.InvariantCulture));
 
         _navigationManager.NavigateTo(
             uri: NavigationHelper.Grading.ExpertFeedbackForm(EventId!),
@@ -132,7 +132,7 @@ public partial class ExpertFeedbackForm
 
     private static string[] GetSliderLabels(ExpertFeedbackFormModel.CriterionModel criterion) => [.. Enumerable
         .Range(criterion.MinimalGrade, criterion.MaximalGrade)
-        .Select(label => label.ToString(new CultureInfo("ru-RU")))];
+        .Select(label => label.ToString(CultureInfo.CurrentCulture))];
 
     private string GetLocalStorageKey() => $"ExpertFeedback-{EventId}";
 }

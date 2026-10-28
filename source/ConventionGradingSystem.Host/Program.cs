@@ -1,9 +1,12 @@
+using System.Globalization;
+
 using ConventionGradingSystem.DataAccess;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Configuration;
 using ConventionGradingSystem.Host.Services;
 
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -13,6 +16,8 @@ namespace ConventionGradingSystem.Host;
 
 public static class Program
 {
+    private const string _applicationCulture = "ru-RU";
+
     public static void Main(string[] arguments)
     {
         var applicationBuilder = WebApplication.CreateBuilder(arguments);
@@ -39,6 +44,13 @@ public static class Program
         using var migrationScope = application.Services.CreateScope();
         var databaseContext = migrationScope.ServiceProvider.GetRequiredService<DatabaseContext>();
         databaseContext.Database.Migrate();
+
+        application.UseRequestLocalization(options =>
+        {
+            options.DefaultRequestCulture = new RequestCulture(_applicationCulture);
+            options.SupportedCultures = [new CultureInfo(_applicationCulture)];
+            options.SupportedUICultures = [new CultureInfo(_applicationCulture)];
+        });
 
         application.UseStaticFiles();
         application.UseRouting();
