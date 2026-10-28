@@ -9,6 +9,8 @@ namespace ConventionGradingSystem.Host.Components.Shared.Layouts;
 
 public partial class MainLayout
 {
+    public const string HeaderActionsSection = "HeaderActionsSection";
+
     private readonly AuthenticationProvider _authenticationProvider;
     private readonly IOptions<ApplicationConfiguration> _applicationConfiguration;
     private readonly NavigationManager _navigationManager;
@@ -17,12 +19,12 @@ public partial class MainLayout
 
     public MainLayout(
         AuthenticationProvider authenticationProvider,
-        IOptions<ApplicationConfiguration> applicationConfiguration,
-        NavigationManager navigationManager)
+        NavigationManager navigationManager,
+        IOptions<ApplicationConfiguration> applicationConfiguration)
     {
         _authenticationProvider = authenticationProvider;
-        _applicationConfiguration = applicationConfiguration;
         _navigationManager = navigationManager;
+        _applicationConfiguration = applicationConfiguration;
     }
 
     protected override void OnInitialized()
@@ -34,7 +36,7 @@ public partial class MainLayout
 
     private void ToogleDrawer() => _viewModel!.IsDrawerOpen = !_viewModel!.IsDrawerOpen;
 
-    private async Task OnSignOutFromSystem()
+    private async Task SignOutFromSystem()
     {
         await _authenticationProvider.SignOut();
         _navigationManager.NavigateTo(_navigationManager.Uri, true);

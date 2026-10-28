@@ -1,13 +1,14 @@
 @page "/"
 
 @using ConventionGradingSystem.Host.Components.Shared.Components
+@using ConventionGradingSystem.Host.Components.Shared.Layouts
 @using ConventionGradingSystem.Host.Components.Shared.Models
 @using ConventionGradingSystem.Host.Services
-@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Sections
 @using Microsoft.AspNetCore.Components.Web
 @using MudBlazor
 
-@attribute [Authorize(Roles = @AuthenticationConstants.AdministratorRole)]
 @inherits BasePage<MainPageModel>
 
 <ContentPageView LoadingStatus="@LoadingStatus"
@@ -17,39 +18,91 @@
 
 <PageTitle>Главная страница</PageTitle>
 
-<MudText Typo="@Typo.h6">Приветствуем тебя, важный пирожочек!</MudText>
-<MudText Class="mt-3">
-    Добро пожаловать в систему оценивания cлёта <strong>@ViewModel.ConventionName</strong>. Для получения
-    интересующей тебя информации ты можешь воспользоваться главным меню, которое доступно по кнопке
-    в левом верхнем углу
-</MudText>
+<SectionContent SectionName="@MainLayout.HeaderActionsSection">
+    <AuthorizeView>
+        <NotAuthorized>
+            <MudIconButton title="Войти в систему"
+                           Icon="@Icons.Material.Filled.Login"
+                           Variant="@Variant.Outlined"
+                           OnClick="@SignInIntoSystem" />
+        </NotAuthorized>
+    </AuthorizeView>
+</SectionContent>
 
-<MudList T="@string" Dense="true" Class="mt-3">
+<AuthorizeView>
+    <Authorized>
 
-    <FeatureView Feature="@ApplicationFeature.Contests">
-        <MudListItem Href="@NavigationHelper.Administration.ContestsList()" Icon="@Icons.Material.Filled.Star">
-            Раздел <MudLink Href="@NavigationHelper.Administration.ContestsList()">Конкурсы мероприятий</MudLink>
-            содержит всю необходимую информацию о конкурсах, в рамках которых проводимые мероприятия оцениваются
-            экспертами и/или участниками слёта по настроенным критериям
-        </MudListItem>
-    </FeatureView>
+        @if (context.User.IsInRole(AuthenticationConstants.AdministratorRole))
+        {
+            <MudText Typo="@Typo.h6">Приветствуем тебя, важный пирожочек!</MudText>
+            <MudText Class="mt-3">
+                Добро пожаловать в систему оценивания cлёта <strong>@ViewModel.ConventionName</strong>. Для получения
+                интересующей тебя информации ты можешь воспользоваться главным меню, которое доступно по кнопке
+                в левом верхнем углу
+            </MudText>
 
-    <FeatureView Feature="@ApplicationFeature.Votings">
-        <MudListItem Href="@NavigationHelper.Administration.VotingsList()" Icon="@Icons.Material.Filled.HowToVote">
-            В разделе <MudLink Href="@NavigationHelper.Administration.VotingsList()">Зрительские голосования</MudLink>
-            ты найдёшь всю требуемую информацию о конкурсах зрительских симпатий, в рамках которых участники слёта
-            голосуют за понравившихся им участников конкурсов
-        </MudListItem>
-    </FeatureView>
+            <MudList T="@string" Dense="true" Class="mt-3">
 
-    <FeatureView Feature="@ApplicationFeature.Teams">
-        <MudListItem Href="@NavigationHelper.Administration.TeamsList()" Icon="@Icons.Material.Filled.Groups">
-            В разделе <MudLink Href="@NavigationHelper.Administration.TeamsList()">Команды участников</MudLink> собрана
-            информация о регистрации и посещении участниками слёта мероприятий, которую можно использовать в рамках
-            системы мотивации
-        </MudListItem>
-    </FeatureView>
+                <FeatureView Feature="@ApplicationFeature.Contests">
+                    <MudListItem Href="@NavigationHelper.Administration.ContestsList()" Icon="@Icons.Material.Filled.Star">
+                        Раздел <MudLink Href="@NavigationHelper.Administration.ContestsList()">Конкурсы мероприятий</MudLink>
+                        содержит всю необходимую информацию о конкурсах, в рамках которых проводимые мероприятия оцениваются
+                        экспертами и/или участниками слёта по настроенным критериям
+                    </MudListItem>
+                </FeatureView>
 
-</MudList>
+                <FeatureView Feature="@ApplicationFeature.Votings">
+                    <MudListItem Href="@NavigationHelper.Administration.VotingsList()" Icon="@Icons.Material.Filled.HowToVote">
+                        В разделе <MudLink Href="@NavigationHelper.Administration.VotingsList()">Зрительские голосования</MudLink>
+                        ты найдёшь всю требуемую информацию о конкурсах зрительских симпатий, в рамках которых участники слёта
+                        голосуют за понравившихся им участников конкурсов
+                    </MudListItem>
+                </FeatureView>
+
+                <FeatureView Feature="@ApplicationFeature.Teams">
+                    <MudListItem Href="@NavigationHelper.Administration.TeamsList()" Icon="@Icons.Material.Filled.Groups">
+                        В разделе <MudLink Href="@NavigationHelper.Administration.TeamsList()">Команды участников</MudLink> собрана
+                        информация о регистрации и посещении участниками слёта мероприятий, которую можно использовать в рамках
+                        системы мотивации
+                    </MudListItem>
+                </FeatureView>
+
+            </MudList>
+        }
+
+        @if (context.User.IsInRole(AuthenticationConstants.FacilitatorRole))
+        {
+            <MudText Typo="@Typo.h6">Приветствуем тебя, проводящий!</MudText>
+            <MudText Class="mt-3">
+                Добро пожаловать в систему оценивания cлёта <strong>@ViewModel.ConventionName</strong>. Для оценки посещаемости
+                твоего мероприятия тебе необходимо иметь ссылку на форму посещаемости - ты можешь получить ссылку на нужную форму
+                у организаторов слёта. Если ты хочешь принять участие в зрительском голосовании, воспользуйся ссылкой на
+                форму голосования, которую предоставят организаторы этого голосования
+            </MudText>
+        }
+
+        @if (context.User.IsInRole(AuthenticationConstants.ExpertRole))
+        {
+            <MudText Typo="@Typo.h6">Приветствуем тебя, эксперт!</MudText>
+            <MudText Class="mt-3">
+                Добро пожаловать в систему оценивания cлёта <strong>@ViewModel.ConventionName</strong>. Для оценки мероприятия
+                в рамках конкурса мероприятий тебе необходимо иметь ссылку на форму оценки - ты можешь получить ссылку на нужную
+                форму у организаторов слёта. Если ты хочешь принять участие в зрительском голосовании, воспользуйся ссылкой на
+                форму голосования, которую предоставят организаторы этого голосования
+            </MudText>
+        }
+
+    </Authorized>
+    <NotAuthorized>
+        <MudText Typo="@Typo.h6">Приветствуем тебя!</MudText>
+        <MudText Class="mt-3">
+            Добро пожаловать в систему оценивания cлёта <strong>@ViewModel.ConventionName</strong>. Если ты участник, то здесь
+            ты сможешь оценить посещённое тобой мероприятие в рамках конкурса мероприятий или принять участие в зрительском
+            голосовании. Для первого тебе понадобится ссылка на форму оценки - ты можешь получить ссылку на нужную форму у
+            проводящих мероприятие. Для второго тебе понадобится ссылка на форму голосования, которую предоставят организаторы
+            этого голосования. Если же ты важный пирожочек, пожалуйста, войди в систему, чтобы получить больше информации
+        </MudText>
+    </NotAuthorized>
+</AuthorizeView>
 
 </ContentPageView>

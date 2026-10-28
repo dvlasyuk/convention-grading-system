@@ -1,16 +1,22 @@
 using ConventionGradingSystem.Host.Components.Shared.Models;
 using ConventionGradingSystem.Host.Configuration;
+using ConventionGradingSystem.Host.Services;
 
+using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Options;
 
 namespace ConventionGradingSystem.Host.Components.Shared.Pages;
 
 public partial class MainPage
 {
+    private readonly NavigationManager _navigationManager;
     private readonly IOptions<ApplicationConfiguration> _applicationConfiguration;
 
-    public MainPage(IOptions<ApplicationConfiguration> applicationConfiguration)
+    public MainPage(
+        NavigationManager navigationManager,
+        IOptions<ApplicationConfiguration> applicationConfiguration)
     {
+        _navigationManager = navigationManager;
         _applicationConfiguration = applicationConfiguration;
     }
 
@@ -18,5 +24,10 @@ public partial class MainPage
     {
         var viewModel = new MainPageModel(_applicationConfiguration.Value.ConventionName);
         return Task.FromResult<ContentState<MainPageModel>>(viewModel);
+    }
+
+    private async Task SignInIntoSystem()
+    {
+        _navigationManager.NavigateTo(NavigationHelper.SignInPage());
     }
 }

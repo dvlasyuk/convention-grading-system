@@ -5,6 +5,7 @@
 @using ConventionGradingSystem.Host.Services
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Sections
 @using MudBlazor
 
 <MudThemeProvider IsDarkMode="true" />
@@ -26,12 +27,14 @@
         <MudImage Src="favicon-32.png" Class="ml-5" />
         <MudText Typo="@Typo.h6" Class="ml-2">Система оценивания слёта <strong>@_viewModel!.ConventionName</strong></MudText>
 
+        <MudSpacer />
+        <SectionOutlet SectionName="@HeaderActionsSection" />
+
         <AuthorizeView>
-            <MudSpacer />
             <MudIconButton title="Выйти из системы"
                            Icon="@Icons.Material.Filled.Logout"
                            Variant="@Variant.Outlined"
-                           OnClick="@OnSignOutFromSystem" />
+                           OnClick="@SignOutFromSystem" />
         </AuthorizeView>
     </MudAppBar>
 
