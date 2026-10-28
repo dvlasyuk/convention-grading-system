@@ -1,0 +1,15 @@
+﻿@page "/not-found"
+@layout BaseLayout
+
+@using ConventionGradingSystem.Host.Components.Shared.Layouts
+@using Microsoft.AspNetCore.Components.Web
+@using MudBlazor
+
+<PageTitle>Страница не найдена</PageTitle>
+<MudAlert Severity="@Severity.Warning">
+    Запрошенная тобой страница не найдена. Если ты вводил её адрес в адресную строку браузера вручную
+    или вставлял скопированную ссылку, то проверь не ошибся ли ты при вводе или копировании. Если ты
+    переходил по прямой ссылке, то проверь корректность этой ссылки или попроси сделать это того, кто
+    её тебе предоставил. Если ты попал сюда с другой страницы системы, то это ошибка - обратись,
+    пожалуйста, к разработчикам
+</MudAlert>
