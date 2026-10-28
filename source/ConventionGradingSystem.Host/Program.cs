@@ -26,6 +26,7 @@ public static class Program
         applicationBuilder.Services.AddSingleton<IValidateOptions<ApplicationConfiguration>, ApplicationConfigurationValidator>();
         applicationBuilder.Services.AddSingleton<IValidateOptions<SecurityConfiguration>, SecurityConfigurationValidator>();
 
+        applicationBuilder.Services.AddCascadingAuthenticationState();
         applicationBuilder.Services.AddScoped<AuthenticationProvider>();
         applicationBuilder.Services.AddScoped<AuthenticationStateProvider, AuthenticationProvider>();
 

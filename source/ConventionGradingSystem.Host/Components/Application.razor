@@ -1,12 +1,15 @@
+@using ConventionGradingSystem.Host.Components.Shared.Components
 @using ConventionGradingSystem.Host.Components.Shared.Layouts
 @using ConventionGradingSystem.Host.Components.Shared.Pages
 @using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Routing
 
-<CascadingAuthenticationState>
-    <Router AppAssembly="@typeof(Program).Assembly" NotFoundPage="@typeof(NotFoundPage)">
-        <Found Context="routeData">
-            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        </Found>
-    </Router>
-</CascadingAuthenticationState>
+<Router AppAssembly="@typeof(Program).Assembly" NotFoundPage="@typeof(NotFoundPage)">
+    <Found Context="routeData">
+        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+            <NotAuthorized>
+                <UnathorizedView />
+            </NotAuthorized>
+        </AuthorizeRouteView>
+    </Found>
+</Router>
