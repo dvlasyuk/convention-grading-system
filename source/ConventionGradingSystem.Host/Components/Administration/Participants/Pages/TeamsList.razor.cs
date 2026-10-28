@@ -13,20 +13,22 @@ namespace ConventionGradingSystem.Host.Components.Administration.Participants.Pa
 [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance")]
 public partial class TeamsList
 {
-    private readonly DatabaseContext _databaseContext;
+    private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
 
     public TeamsList(
-        DatabaseContext databaseContext,
+        IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration)
     {
-        _databaseContext = databaseContext;
+        _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
     }
 
     protected override async Task<ContentState<TeamsListModel>> LoadContent()
     {
-        var attendanceMarks = await _databaseContext.AttendanceMarks.ToListAsync();
+        using var databaseContext = _databaseContextFactory.CreateDbContext();
+        var attendanceMarks = await databaseContext.AttendanceMarks.ToListAsync();
+
         var viewTeams = _dataConfiguration.Value.Teams
             .OrderBy(team => team.Identifier)
             .Select((team, index) => new TeamsListModel.TeamModel(

@@ -18,7 +18,7 @@ public static class RegistrationExtensions
         services.AddOptions<DataConfiguration>().BindConfiguration(configurationSection);
         services.AddSingleton<IValidateOptions<DataConfiguration>, DataConfigurationValidator>();
 
-        services.AddDbContextPool<DatabaseContext>((provider, builder) =>
+        services.AddDbContextFactory<DatabaseContext>((provider, builder) =>
         {
             var configuration = provider.GetRequiredService<IConfiguration>();
             builder

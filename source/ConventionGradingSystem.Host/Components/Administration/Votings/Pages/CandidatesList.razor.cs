@@ -14,17 +14,17 @@ namespace ConventionGradingSystem.Host.Components.Administration.Votings.Pages;
 [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance")]
 public partial class CandidatesList
 {
-    private readonly DatabaseContext _databaseContext;
+    private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
 
     [Parameter]
     public string? VotingId { get; set; }
 
     public CandidatesList(
-        DatabaseContext databaseContext,
+        IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration)
     {
-        _databaseContext = databaseContext;
+        _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
     }
 
@@ -40,7 +40,8 @@ public partial class CandidatesList
             .Select(item => item.Identifier)
             .ToList();
 
-        var savedVotes = await _databaseContext.ParticipantVotes
+        using var databaseContext = _databaseContextFactory.CreateDbContext();
+        var savedVotes = await databaseContext.ParticipantVotes
             .Where(item => candidateIds.Contains(item.CandidateId))
             .ToListAsync();
 

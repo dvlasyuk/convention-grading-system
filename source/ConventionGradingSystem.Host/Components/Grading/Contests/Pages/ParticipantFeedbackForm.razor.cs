@@ -8,6 +8,7 @@ using ConventionGradingSystem.Host.Services;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 using MudBlazor;
@@ -16,7 +17,7 @@ namespace ConventionGradingSystem.Host.Components.Grading.Contests.Pages;
 
 public partial class ParticipantFeedbackForm
 {
-    private readonly DatabaseContext _databaseContext;
+    private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly NavigationManager _navigationManager;
     private readonly ProtectedLocalStorage _localStorage;
@@ -28,12 +29,12 @@ public partial class ParticipantFeedbackForm
     public string? EventId { get; set; }
 
     public ParticipantFeedbackForm(
-        DatabaseContext databaseContext,
+        IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration,
         NavigationManager navigationManager,
         ProtectedLocalStorage localStorage)
     {
-        _databaseContext = databaseContext;
+        _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
         _navigationManager = navigationManager;
         _localStorage = localStorage;
@@ -111,9 +112,10 @@ public partial class ParticipantFeedbackForm
             });
         }
 
-        _databaseContext.ParticipantFeedbacks.Add(feedback);
+        using var databaseContext = _databaseContextFactory.CreateDbContext();
+        databaseContext.ParticipantFeedbacks.Add(feedback);
 
-        await _databaseContext.SaveChangesAsync();
+        await databaseContext.SaveChangesAsync();
         await _localStorage.SetAsync(
             key: GetLocalStorageKey(),
             value: DateTime.UtcNow.ToString(CultureInfo.InvariantCulture));

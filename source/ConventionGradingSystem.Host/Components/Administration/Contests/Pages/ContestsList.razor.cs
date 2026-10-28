@@ -13,21 +13,23 @@ namespace ConventionGradingSystem.Host.Components.Administration.Contests.Pages;
 [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance")]
 public partial class ContestsList
 {
-    private readonly DatabaseContext _databaseContext;
+    private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
 
     public ContestsList(
-        DatabaseContext databaseContext,
+        IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration)
     {
-        _databaseContext = databaseContext;
+        _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
     }
 
     protected override async Task<ContentState<ContestsListModel>> LoadContent()
     {
-        var expertFeedbacks = await _databaseContext.ExpertFeedbacks.ToListAsync();
-        var participantFeedbacks = await _databaseContext.ParticipantFeedbacks.ToListAsync();
+        using var databaseContext = _databaseContextFactory.CreateDbContext();
+
+        var expertFeedbacks = await databaseContext.ExpertFeedbacks.ToListAsync();
+        var participantFeedbacks = await databaseContext.ParticipantFeedbacks.ToListAsync();
 
         var viewContests = _dataConfiguration.Value.Contests
             .OrderBy(contest => contest.Identifier)

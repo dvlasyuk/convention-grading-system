@@ -13,20 +13,22 @@ namespace ConventionGradingSystem.Host.Components.Administration.Votings.Pages;
 [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance")]
 public partial class VotingsList
 {
-    private readonly DatabaseContext _databaseContext;
+    private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
 
     public VotingsList(
-        DatabaseContext databaseContext,
+        IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration)
     {
-        _databaseContext = databaseContext;
+        _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
     }
 
     protected override async Task<ContentState<VotingsListModel>> LoadContent()
     {
-        var savedVotes = await _databaseContext.ParticipantVotes.ToListAsync();
+        using var databaseContext = _databaseContextFactory.CreateDbContext();
+        var savedVotes = await databaseContext.ParticipantVotes.ToListAsync();
+
         var viewVotings = _dataConfiguration.Value.Votings
             .OrderBy(voting => voting.Identifier)
             .Select((voting, index) => new VotingsListModel.VotingModel(

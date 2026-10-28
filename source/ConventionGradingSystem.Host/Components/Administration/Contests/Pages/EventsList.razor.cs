@@ -14,17 +14,17 @@ namespace ConventionGradingSystem.Host.Components.Administration.Contests.Pages;
 [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance")]
 public partial class EventsList
 {
-    private readonly DatabaseContext _databaseContext;
+    private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
 
     [Parameter]
     public string? ContestId { get; set; }
 
     public EventsList(
-        DatabaseContext databaseContext,
+        IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration)
     {
-        _databaseContext = databaseContext;
+        _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
     }
 
@@ -40,12 +40,14 @@ public partial class EventsList
             .Select(item => item.Identifier)
             .ToList();
 
-        var expertFeedbacks = await _databaseContext.ExpertFeedbacks
+        using var databaseContext = _databaseContextFactory.CreateDbContext();
+
+        var expertFeedbacks = await databaseContext.ExpertFeedbacks
             .Where(item => eventIds.Contains(item.EventId))
             .Include(item => item.Grades)
             .ToListAsync();
 
-        var participantFeedbacks = await _databaseContext.ParticipantFeedbacks
+        var participantFeedbacks = await databaseContext.ParticipantFeedbacks
             .Where(item => eventIds.Contains(item.EventId))
             .Include(item => item.Grades)
             .ToListAsync();

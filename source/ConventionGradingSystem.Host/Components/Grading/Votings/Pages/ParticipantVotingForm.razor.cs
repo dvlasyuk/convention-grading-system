@@ -9,6 +9,7 @@ using ConventionGradingSystem.Host.Services;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 using MudBlazor;
@@ -17,7 +18,7 @@ namespace ConventionGradingSystem.Host.Components.Grading.Votings.Pages;
 
 public partial class ParticipantVotingForm
 {
-    private readonly DatabaseContext _databaseContext;
+    private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly NavigationManager _navigationManager;
     private readonly ProtectedLocalStorage _localStorage;
@@ -31,12 +32,12 @@ public partial class ParticipantVotingForm
     public string? VotingId { get; set; }
 
     public ParticipantVotingForm(
-        DatabaseContext databaseContext,
+        IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration,
         NavigationManager navigationManager,
         ProtectedLocalStorage localStorage)
     {
-        _databaseContext = databaseContext;
+        _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
         _navigationManager = navigationManager;
         _localStorage = localStorage;
@@ -85,7 +86,8 @@ public partial class ParticipantVotingForm
             return;
         }
 
-        _databaseContext.ParticipantVotes.AddRange(ViewModel.Form.SelectedCandidates.Select(candidate => new ParticipantVote
+        using var databaseContext = _databaseContextFactory.CreateDbContext();
+        databaseContext.ParticipantVotes.AddRange(ViewModel.Form.SelectedCandidates.Select(candidate => new ParticipantVote
         {
             ParticipantId = ViewModel.Form.SelectedParticipant!.Identifier,
             CandidateId = candidate!.Identifer,
@@ -93,7 +95,7 @@ public partial class ParticipantVotingForm
             ReceivedAt = DateTimeOffset.Now
         }));
 
-        await _databaseContext.SaveChangesAsync();
+        await databaseContext.SaveChangesAsync();
         await _localStorage.SetAsync(
             key: GetLocalStorageKey(),
             value: DateTime.UtcNow.ToString(CultureInfo.InvariantCulture));

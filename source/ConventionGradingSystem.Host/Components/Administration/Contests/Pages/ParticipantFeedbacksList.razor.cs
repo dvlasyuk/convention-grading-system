@@ -15,17 +15,17 @@ namespace ConventionGradingSystem.Host.Components.Administration.Contests.Pages;
 [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance")]
 public partial class ParticipantFeedbacksList
 {
-    private readonly DatabaseContext _databaseContext;
+    private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
 
     [Parameter]
     public string? EventId { get; set; }
 
     public ParticipantFeedbacksList(
-        DatabaseContext databaseContext,
+        IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration)
     {
-        _databaseContext = databaseContext;
+        _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
     }
 
@@ -40,7 +40,8 @@ public partial class ParticipantFeedbacksList
             return Shared.Models.LoadingError.EventNotFound;
         }
 
-        var feedbacks = await _databaseContext.ParticipantFeedbacks
+        using var databaseContext = _databaseContextFactory.CreateDbContext();
+        var feedbacks = await databaseContext.ParticipantFeedbacks
             .Where(item => item.EventId == EventId)
             .Include(item => item.Grades)
             .ToListAsync();

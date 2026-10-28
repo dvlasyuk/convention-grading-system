@@ -42,7 +42,9 @@ public static class Program
         var application = applicationBuilder.Build();
 
         using var migrationScope = application.Services.CreateScope();
-        var databaseContext = migrationScope.ServiceProvider.GetRequiredService<DatabaseContext>();
+        var databaseContextFactory = migrationScope.ServiceProvider.GetRequiredService<IDbContextFactory<DatabaseContext>>();
+
+        using var databaseContext = databaseContextFactory.CreateDbContext();
         databaseContext.Database.Migrate();
 
         application.UseRequestLocalization(options =>

@@ -8,6 +8,7 @@ using ConventionGradingSystem.Host.Services;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
 using MudBlazor;
@@ -16,7 +17,7 @@ namespace ConventionGradingSystem.Host.Components.Grading.Contests.Pages;
 
 public partial class ExpertFeedbackForm
 {
-    private readonly DatabaseContext _databaseContext;
+    private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly NavigationManager _navigationManager;
     private readonly ProtectedLocalStorage _localStorage;
@@ -27,12 +28,12 @@ public partial class ExpertFeedbackForm
     public string? EventId { get; set; }
 
     public ExpertFeedbackForm(
-        DatabaseContext databaseContext,
+        IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration,
         NavigationManager navigationManager,
         ProtectedLocalStorage localStorage)
     {
-        _databaseContext = databaseContext;
+        _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
         _navigationManager = navigationManager;
         _localStorage = localStorage;
@@ -104,9 +105,10 @@ public partial class ExpertFeedbackForm
             });
         }
 
-        _databaseContext.ExpertFeedbacks.Add(feedback);
+        using var databaseContext = _databaseContextFactory.CreateDbContext();
+        databaseContext.ExpertFeedbacks.Add(feedback);
 
-        await _databaseContext.SaveChangesAsync();
+        await databaseContext.SaveChangesAsync();
         await _localStorage.SetAsync(
             key: GetLocalStorageKey(),
             value: DateTime.UtcNow.ToString(CultureInfo.InvariantCulture));

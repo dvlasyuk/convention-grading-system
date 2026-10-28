@@ -16,7 +16,7 @@ namespace ConventionGradingSystem.Host.Components.Grading.Contests.Pages;
 [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance")]
 public partial class FacilitatorAttendanceForm
 {
-    private readonly DatabaseContext _databaseContext;
+    private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly NavigationManager _navigationManager;
 
@@ -24,11 +24,11 @@ public partial class FacilitatorAttendanceForm
     public string? EventId { get; set; }
 
     public FacilitatorAttendanceForm(
-        DatabaseContext databaseContext,
+        IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration,
         NavigationManager navigationManager)
     {
-        _databaseContext = databaseContext;
+        _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
         _navigationManager = navigationManager;
     }
@@ -63,7 +63,8 @@ public partial class FacilitatorAttendanceForm
                         : null,
                     Team: teams[participant.Team].Name))]);
 
-        var savedAttendanceMarks = await _databaseContext.AttendanceMarks
+        using var databaseContext = _databaseContextFactory.CreateDbContext();
+        var savedAttendanceMarks = await databaseContext.AttendanceMarks
             .Where(item => item.EventId == EventId)
             .ToListAsync();
 
@@ -87,7 +88,8 @@ public partial class FacilitatorAttendanceForm
 
     private async Task ProcessForm()
     {
-        var savedAttendanceMarks = await _databaseContext.AttendanceMarks
+        using var databaseContext = _databaseContextFactory.CreateDbContext();
+        var savedAttendanceMarks = await databaseContext.AttendanceMarks
             .Where(item => item.EventId == EventId)
             .ToListAsync();
 
@@ -98,7 +100,7 @@ public partial class FacilitatorAttendanceForm
             {
                 if (ViewModel.Form.AttendanceMarks[particiapntId])
                 {
-                    _databaseContext.AttendanceMarks.Add(new AttendanceMark
+                    databaseContext.AttendanceMarks.Add(new AttendanceMark
                     {
                         ParticipantId = particiapntId,
                         EventId = EventId!,
@@ -111,14 +113,14 @@ public partial class FacilitatorAttendanceForm
 
             if (!ViewModel.Form.AttendanceMarks[particiapntId])
             {
-                _databaseContext.AttendanceMarks.Remove(savedMark);
+                databaseContext.AttendanceMarks.Remove(savedMark);
             }
 
             savedMark.SpecialMark = ViewModel.Form.SpecialMarks[particiapntId];
-            _databaseContext.AttendanceMarks.Update(savedMark);
+            databaseContext.AttendanceMarks.Update(savedMark);
         }
 
-        await _databaseContext.SaveChangesAsync();
+        await databaseContext.SaveChangesAsync();
         _navigationManager.NavigateTo(
             uri: NavigationHelper.Grading.FacilitatorAttendanceForm(EventId!),
             forceLoad: true);
