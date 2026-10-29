@@ -2,6 +2,7 @@ using System.Globalization;
 
 using ConventionGradingSystem.DataAccess;
 using ConventionGradingSystem.DataAccess.Database;
+using ConventionGradingSystem.Host.Components;
 using ConventionGradingSystem.Host.Configuration;
 using ConventionGradingSystem.Host.Services;
 
@@ -22,9 +23,9 @@ public static class Program
     {
         var applicationBuilder = WebApplication.CreateBuilder(arguments);
 
-        applicationBuilder.Services.AddRazorPages();
-        applicationBuilder.Services.AddServerSideBlazor();
         applicationBuilder.Services.AddMudServices();
+        applicationBuilder.Services.AddRazorComponents()
+            .AddInteractiveServerComponents();
 
         applicationBuilder.Services.AddOptions<ApplicationConfiguration>().BindConfiguration("ApplicationConfiguration");
         applicationBuilder.Services.AddOptions<SecurityConfiguration>().BindConfiguration("SecurityConfiguration");
@@ -47,6 +48,7 @@ public static class Program
         using var databaseContext = databaseContextFactory.CreateDbContext();
         databaseContext.Database.Migrate();
 
+        application.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
         application.UseRequestLocalization(options =>
         {
             options.DefaultRequestCulture = new RequestCulture(_applicationCulture);
@@ -54,10 +56,11 @@ public static class Program
             options.SupportedUICultures = [new CultureInfo(_applicationCulture)];
         });
 
-        application.UseStaticFiles();
-        application.UseRouting();
-        application.MapBlazorHub();
-        application.MapFallbackToPage("/Application");
+        application.UseAntiforgery();
+        application.MapStaticAssets();
+        application.MapRazorComponents<Application>()
+            .AddInteractiveServerRenderMode()
+            .AllowAnonymous();
 
         application.Run();
     }

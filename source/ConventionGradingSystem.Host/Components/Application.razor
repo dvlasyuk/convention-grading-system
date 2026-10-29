@@ -1,15 +1,29 @@
-@using ConventionGradingSystem.Host.Components.Shared.Components
-@using ConventionGradingSystem.Host.Components.Shared.Layouts
-@using ConventionGradingSystem.Host.Components.Shared.Pages
-@using Microsoft.AspNetCore.Components.Authorization
-@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+<!DOCTYPE html>
+<html lang="ru">
+<head>
 
-<Router AppAssembly="@typeof(Program).Assembly" NotFoundPage="@typeof(NotFoundPage)">
-    <Found Context="routeData">
-        <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
-            <NotAuthorized>
-                <UnathorizedView />
-            </NotAuthorized>
-        </AuthorizeRouteView>
-    </Found>
-</Router>
+    <base href="/" />
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <ResourcePreloader />
+    <ImportMap />
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" />
+    <link rel="stylesheet" href="@Assets["_content/MudBlazor/MudBlazor.min.css"]" />
+    <link rel="icon" type="image/png" href="favicon-16.png" />
+
+    <HeadOutlet @rendermode="@(new InteractiveServerRenderMode(prerender: false))" />
+
+</head>
+<body>
+
+    <Routes @rendermode="@(new InteractiveServerRenderMode(prerender: false))" />
+
+    <script src="@Assets["_framework/blazor.web.js"]"></script>
+    <script src="@Assets["_content/MudBlazor/MudBlazor.min.js"]"></script>
+
+</body>
+</html>
