@@ -1,0 +1,41 @@
+﻿@using MudBlazor
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="@Typo.h6" Color="@Color.Primary">@ViewModel.EventName</MudText>
+        <MudText Color="@Color.Primary">@ViewModel.ContestName</MudText>
+        <MudText>Мероприятие конкурса</MudText>
+    </TitleContent>
+    <DialogContent>
+
+        <MudGrid Justify="@Justify.SpaceBetween" Class="align-center">
+            <MudItem><MudText>Имеются зарегистрированные участники</MudText></MudItem>
+            <MudItem>
+                <MudChip T="@string"
+                         Text="@(ViewModel.ParticipantsRegistered ? "Да" : "Нет")"
+                         Color="@(ViewModel.ParticipantsRegistered ? Color.Success : @Color.Error)"
+                         Variant="@Variant.Outlined" />
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Justify="@Justify.SpaceBetween" Class="mb-3">
+            <MudItem><MudText>Связанные отряды</MudText></MudItem>
+            <MudItem>
+                @if (ViewModel.Brigades.Count > 0)
+                {
+                    <MudStack Spacing="0">
+                        @foreach (var brigadeName in ViewModel.Brigades)
+                        {
+                            <MudChip T="@string" Text="@brigadeName" Color="@Color.Primary" Variant="@Variant.Outlined" />
+                        }
+                    </MudStack>
+                }
+                else
+                {
+                    <MudChip T="@string" Text="Нет" Color="@Color.Error" Variant="@Variant.Outlined" />
+                }
+            </MudItem>
+        </MudGrid>
+
+    </DialogContent>
+</MudDialog>

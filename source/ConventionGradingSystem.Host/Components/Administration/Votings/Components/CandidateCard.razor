@@ -1,0 +1,54 @@
+﻿@using ConventionGradingSystem.Host.Components.Shared.Components
+@using ConventionGradingSystem.Host.Components.Shared.Models
+@using MudBlazor
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="@Typo.h6" Color="@Color.Primary">@ViewModel.CandidateName</MudText>
+        <MudText Color="@Color.Primary">@ViewModel.VotingName</MudText>
+        <MudText>Мероприятие конкурса</MudText>
+    </TitleContent>
+    <DialogContent>
+
+        <MudGrid Justify="@Justify.SpaceBetween" Class="mb-3">
+            <MudItem><MudText>Связанные отряды</MudText></MudItem>
+            <MudItem>
+                @if (ViewModel.Brigades.Count > 0)
+                {
+                    <MudStack Spacing="0">
+                        @foreach (var brigadeName in ViewModel.Brigades)
+                        {
+                            <MudChip T="@string" Text="@brigadeName" Color="@Color.Primary" Variant="@Variant.Outlined" />
+                        }
+                    </MudStack>
+                }
+                else
+                {
+                    <MudChip T="@string" Text="Нет" Color="@Color.Error" Variant="@Variant.Outlined" />
+                }
+            </MudItem>
+        </MudGrid>
+
+        <FeatureView Feature="@ApplicationFeature.Teams">
+            <MudGrid Justify="@Justify.SpaceBetween" Class="mb-3">
+                <MudItem><MudText>Связанные команды</MudText></MudItem>
+                <MudItem>
+                    @if (ViewModel.Teams.Count > 0)
+                    {
+                        <MudStack Spacing="0">
+                            @foreach (var teamName in ViewModel.Teams)
+                            {
+                                <MudChip T="@string" Text="@teamName" Color="@Color.Primary" Variant="@Variant.Outlined" />
+                            }
+                        </MudStack>
+                    }
+                    else
+                    {
+                        <MudChip T="@string" Text="Нет" Color="@Color.Error" Variant="@Variant.Outlined" />
+                    }
+                </MudItem>
+            </MudGrid>
+        </FeatureView>
+
+    </DialogContent>
+</MudDialog>

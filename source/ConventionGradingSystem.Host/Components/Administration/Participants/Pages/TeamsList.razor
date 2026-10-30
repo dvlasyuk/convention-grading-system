@@ -26,18 +26,21 @@
           Hover="true">
 
     <ToolBarContent>
-        <MudText Typo="@Typo.h6">Команды участников</MudText>
-        <MudSpacer />
-        <MudTextField @bind-Value="@ViewModel.SearchFilter"
-                      MaxLength="50"
-                      Clearable="true"
-                      Placeholder="Поиск"
-                      Adornment="@Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" />
+        <MudGrid Justify="@Justify.SpaceBetween">
+            <MudItem><MudText Typo="@Typo.h6">Команды участников</MudText></MudItem>
+            <MudItem xs="4">
+                <MudTextField @bind-Value="@ViewModel.SearchFilter"
+                              MaxLength="50"
+                              Clearable="true"
+                              Placeholder="Поиск"
+                              Adornment="@Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search" />
+            </MudItem>
+        </MudGrid>
     </ToolBarContent>
 
     <HeaderContent>
-        <MudTh>#</MudTh>
+        <MudTh />
         <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectNameField">Название команды</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectMembersField">Количество участников</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel T="@TeamsListModel.TeamModel" SortBy="@SelectRegistrationsField">Количество регистраций</MudTableSortLabel></MudTh>

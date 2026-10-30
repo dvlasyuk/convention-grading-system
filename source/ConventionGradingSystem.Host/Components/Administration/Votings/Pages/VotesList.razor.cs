@@ -3,12 +3,15 @@ using System.Globalization;
 
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
+using ConventionGradingSystem.Host.Components.Administration.Votings.Components;
 using ConventionGradingSystem.Host.Components.Administration.Votings.Models;
 using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+
+using MudBlazor;
 
 namespace ConventionGradingSystem.Host.Components.Administration.Votings.Pages;
 
@@ -17,16 +20,19 @@ public partial class VotesList
 {
     private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
+    private readonly IDialogService _dialogService;
 
     [Parameter]
     public string? CandidateId { get; set; }
 
     public VotesList(
         IDbContextFactory<DatabaseContext> databaseContextFactory,
-        IOptions<DataConfiguration> dataConfiguration)
+        IOptions<DataConfiguration> dataConfiguration,
+        IDialogService dialogService)
     {
         _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
+        _dialogService = dialogService;
     }
 
     protected override async Task<ContentState<VotesListModel>> LoadContent()
@@ -40,22 +46,23 @@ public partial class VotesList
             return Shared.Models.LoadingError.CandidateNotFound;
         }
 
-        using var databaseContext = _databaseContextFactory.CreateDbContext();
-        var savedVotes = await databaseContext.ParticipantVotes
-            .Where(item => item.CandidateId == CandidateId)
-            .ToListAsync();
-
         var voting = _dataConfiguration.Value.Votings.First(item => item.Candidates.Contains(candidate));
         var brigades = _dataConfiguration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
         var teams = _dataConfiguration.Value.Teams.ToDictionary(team => team.Identifier);
-
         var viewCandidate = new VotesListModel.CandidateModel(
             CandidateName: candidate.Name,
             VotingName: voting.Name,
             Brigades: [.. candidate.Brigades
                 .Select(identifier => brigades[identifier])
                 .Select(brigade => brigade.Name)],
-            VotesQuantity: savedVotes.Count);
+            Teams: [.. candidate.Teams
+                .Select(identifier => teams[identifier])
+                .Select(team => team.Name)]);
+
+        using var databaseContext = _databaseContextFactory.CreateDbContext();
+        var savedVotes = await databaseContext.ParticipantVotes
+            .Where(item => item.CandidateId == candidate.Identifier)
+            .ToArrayAsync();
 
         var participants = _dataConfiguration.Value.Participants.ToDictionary(item => item.Identifier);
         var viewVotes = savedVotes
@@ -75,6 +82,23 @@ public partial class VotesList
             Candidate: viewCandidate,
             Votes: viewVotes,
             SearchFilter: null);
+    }
+
+    private void OpenCandidateCard()
+    {
+        var dialogViewModel = new CandidateCardModel(
+            CandidateName: ViewModel.Candidate.CandidateName,
+            VotingName: ViewModel.Candidate.VotingName,
+            Brigades: ViewModel.Candidate.Brigades,
+            Teams: ViewModel.Candidate.Teams);
+
+        var dialogOptions = new DialogOptions { CloseButton = true };
+        var dialogParameters = new DialogParameters<CandidateCard>
+        {
+            { dialog => dialog.ViewModel, dialogViewModel }
+        };
+
+        _dialogService.ShowAsync<CandidateCard>(dialogParameters, dialogOptions);
     }
 
     private bool FilterRecords(VotesListModel.VoteModel vote)

@@ -3,12 +3,15 @@ using System.Globalization;
 
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
+using ConventionGradingSystem.Host.Components.Administration.Contests.Components;
 using ConventionGradingSystem.Host.Components.Administration.Contests.Models;
 using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+
+using MudBlazor;
 
 namespace ConventionGradingSystem.Host.Components.Administration.Contests.Pages;
 
@@ -17,16 +20,19 @@ public partial class ExpertFeedbacksList
 {
     private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
+    private readonly IDialogService _dialogService;
 
     [Parameter]
     public string? EventId { get; set; }
 
     public ExpertFeedbacksList(
         IDbContextFactory<DatabaseContext> databaseContextFactory,
-        IOptions<DataConfiguration> dataConfiguration)
+        IOptions<DataConfiguration> dataConfiguration,
+        IDialogService dialogService)
     {
         _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
+        _dialogService = dialogService;
     }
 
     protected override async Task<ContentState<ExpertFeedbacksListModel>> LoadContent()
@@ -40,28 +46,26 @@ public partial class ExpertFeedbacksList
             return Shared.Models.LoadingError.EventNotFound;
         }
 
-        using var databaseContext = _databaseContextFactory.CreateDbContext();
-        var feedbacks = await databaseContext.ExpertFeedbacks
-            .Where(item => item.EventId == EventId)
-            .Include(item => item.Grades)
-            .ToListAsync();
-
         var contest = _dataConfiguration.Value.Contests.First(item => item.Events.Contains(contestEvent));
+        var brigades = _dataConfiguration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
         var viewEvent = new ExpertFeedbacksListModel.EventModel(
             EventName: contestEvent.Name,
             ContestName: contest.Name,
-            IsGraded: contest.ExpertCriterions.Count > 0,
-            FeedbacksQuantity: feedbacks.Count,
+            ExpertGrading: contest.ExpertCriterions.Count > 0,
+            ParticipantsRegistered: contestEvent.Participants.Count > 0,
+            Brigades: [.. @contestEvent.Brigades
+                .Select(identifier => brigades[identifier])
+                .Select(brigade => brigade.Name)],
             GradeCriterions: [.. contest.ExpertCriterions
                 .Select(criterion => new ExpertFeedbacksListModel.CriterionModel(
                     Identifier: criterion.Identifier,
-                    Name: criterion.Name,
-                    TotalGrade: feedbacks.Count == 0 ? 0f :
-                        feedbacks
-                            .SelectMany(feedback => feedback.Grades)
-                            .Where(grade => grade.CriterionId == criterion.Identifier)
-                            .Sum(grade => grade.GradeValue) /
-                        (float)feedbacks.Count))]);
+                    Name: criterion.Name))]);
+
+        using var databaseContext = _databaseContextFactory.CreateDbContext();
+        var feedbacks = await databaseContext.ExpertFeedbacks
+            .Where(item => item.EventId == contestEvent.Identifier)
+            .Include(item => item.Grades)
+            .ToArrayAsync();
 
         var experts = _dataConfiguration.Value.Experts.ToDictionary(item => item.Identifier);
         var viewFeedbacks = feedbacks
@@ -80,6 +84,23 @@ public partial class ExpertFeedbacksList
             Event: viewEvent,
             Feedbacks: viewFeedbacks,
             SearchFilter: null);
+    }
+
+    private void OpenEventCard()
+    {
+        var dialogViewModel = new EventCardModel(
+            EventName: ViewModel.Event.EventName,
+            ContestName: ViewModel.Event.ContestName,
+            ParticipantsRegistered: ViewModel.Event.ParticipantsRegistered,
+            Brigades: ViewModel.Event.Brigades);
+
+        var dialogOptions = new DialogOptions { CloseButton = true };
+        var dialogParameters = new DialogParameters<EventCard>
+        {
+            { dialog => dialog.ViewModel, dialogViewModel }
+        };
+
+        _dialogService.ShowAsync<EventCard>(dialogParameters, dialogOptions);
     }
 
     private bool FilterRecords(ExpertFeedbacksListModel.FeedbackModel feedback)

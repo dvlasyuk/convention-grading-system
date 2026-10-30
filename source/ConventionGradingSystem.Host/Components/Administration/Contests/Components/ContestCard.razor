@@ -1,0 +1,87 @@
+﻿@using ConventionGradingSystem.Host.Components.Shared.Components
+@using ConventionGradingSystem.Host.Components.Shared.Models
+@using MudBlazor
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="@Typo.h6" Color="@Color.Primary">@ViewModel.ContestName</MudText>
+        <MudText>Конкурс мероприятий</MudText>
+    </TitleContent>
+    <DialogContent>
+
+        <MudGrid Justify="@Justify.SpaceBetween" Class="align-center">
+            <MudItem><MudText>Отзывы экспертов принимаются</MudText></MudItem>
+            <MudItem>
+                <MudChip T="@string"
+                         Text="@(ViewModel.ExpertGrading ? "Да" : "Нет")"
+                         Color="@(ViewModel.ExpertGrading ? Color.Success : @Color.Error)"
+                         Variant="@Variant.Outlined" />
+            </MudItem>
+        </MudGrid>
+
+        <MudGrid Justify="@Justify.SpaceBetween" Class="align-center">
+            <MudItem><MudText>Отзывы участников принимаются</MudText></MudItem>
+            <MudItem>
+                <MudChip T="@string"
+                         Text="@(ViewModel.ParticipantGrading ? "Да" : "Нет")"
+                         Color="@(ViewModel.ParticipantGrading ? Color.Success : @Color.Error)"
+                         Variant="@Variant.Outlined" />
+            </MudItem>
+        </MudGrid>
+
+        @if (ViewModel.ParticipantGrading)
+        {
+            <MudGrid Justify="@Justify.SpaceBetween" Class="align-center">
+                <MudItem><MudText>Разрешены отзывы без регистрации</MudText></MudItem>
+                <MudItem>
+                    <MudChip T="@string"
+                            Text="@(ViewModel.RegisteredGrading ? "Да" : "Нет")"
+                            Color="@(ViewModel.RegisteredGrading ? Color.Success : @Color.Error)"
+                            Variant="@Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+
+            <MudGrid Justify="@Justify.SpaceBetween" Class="align-center">
+                <MudItem><MudText>Разрешены отзывы за свой отряд</MudText></MudItem>
+                <MudItem>
+                    <MudChip T="@string"
+                            Text="@(ViewModel.FriendlyGrading ? "Да" : "Нет")"
+                            Color="@(ViewModel.FriendlyGrading ? Color.Success : @Color.Error)"
+                            Variant="@Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        }
+
+        <MudGrid Justify="@Justify.SpaceBetween" Class="align-center mb-1">
+            <MudItem><MudText>Посещаемость контролируется</MudText></MudItem>
+            <MudItem>
+                <MudChip T="@string"
+                         Text="@(ViewModel.AttendanceControl ? "Да" : "Нет")"
+                         Color="@(ViewModel.AttendanceControl ? Color.Success : @Color.Error)"
+                         Variant="@Variant.Outlined" />
+            </MudItem>
+        </MudGrid>
+
+        <FeatureView Feature="@ApplicationFeature.Teams">
+            <MudGrid Justify="@Justify.SpaceBetween" Class="mb-3">
+                <MudItem><MudText>Исключённые команды</MudText></MudItem>
+                <MudItem>
+                    @if (ViewModel.BannedTeams.Count > 0)
+                    {
+                        <MudStack Spacing="0">
+                            @foreach (var teamName in ViewModel.BannedTeams)
+                            {
+                                <MudChip T="@string" Text="@teamName" Color="@Color.Error" Variant="@Variant.Outlined" />
+                            }
+                        </MudStack>
+                    }
+                    else
+                    {
+                        <MudChip T="@string" Text="Нет" Color="@Color.Error" Variant="@Variant.Outlined" />
+                    }
+                </MudItem>
+            </MudGrid>
+        </FeatureView>
+
+    </DialogContent>
+</MudDialog>

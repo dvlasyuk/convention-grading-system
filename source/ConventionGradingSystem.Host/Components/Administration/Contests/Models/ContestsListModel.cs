@@ -10,6 +10,12 @@ public record class ContestsListModel(
         int Number,
         string Identifier,
         string Name,
+        bool ExpertGrading,
+        bool ParticipantGrading,
+        bool RegisteredGrading,
+        bool FriendlyGrading,
+        bool AttendanceControl,
+        IReadOnlyCollection<string> BannedTeams,
         int EventsQuantity,
         int ExpertFeedbaksQuantity,
         int ParticiapntFeedbaksQuantity);

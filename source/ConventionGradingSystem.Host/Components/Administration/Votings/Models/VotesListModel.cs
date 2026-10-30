@@ -11,7 +11,7 @@ public record class VotesListModel(
         string CandidateName,
         string VotingName,
         IReadOnlyCollection<string> Brigades,
-        int VotesQuantity);
+        IReadOnlyCollection<string> Teams);
 
     public record VoteModel(
         int Number,

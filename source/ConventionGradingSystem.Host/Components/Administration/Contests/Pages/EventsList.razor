@@ -15,54 +15,10 @@
 <FeaturePageView Feature="@ApplicationFeature.Contests">
 <ContentPageView LoadingStatus="@LoadingStatus"
                  LoadingError="@LoadingError"
-                 ContentType="@ContentType.TableWithCard"
-                 DefaultPageTitle="Конкурс мероприятий">
+                 ContentType="@ContentType.Table"
+                 DefaultPageTitle="Мероприятия конкурса">
 
-<PageTitle>Конкурс мероприятий @ViewModel.Contest.Name</PageTitle>
-
-<MudExpansionPanels Class="mb-3">
-    <MudExpansionPanel>
-        <TitleContent>
-            <div class="d-flex">
-                <MudIcon Color="@Color.Primary" Icon="@Icons.Material.Filled.Info" />
-                <MudText Color="@Color.Primary" Class="ml-3">Конкурс мероприятий <strong>@ViewModel.Contest.Name</strong></MudText>
-            </div>
-        </TitleContent>
-        <ChildContent>
-
-            <MudText>Принимаются ли отзывы экспертов: <strong>@(ViewModel.Contest.ExpertCriterionsQuantity > 0 ? "Да" : "Нет")</strong></MudText>
-            <MudText>Принимаются ли отзывы участников: <strong>@(ViewModel.Contest.ParticipantCriterionsQuantity > 0 ? "Да" : "Нет")</strong></MudText>
-
-            @if (ViewModel.Contest.ParticipantCriterionsQuantity > 0)
-            {
-                <MudText>Принимаются ли отзывы от любых участников: <strong>@(!ViewModel.Contest.RegisteredGrading ? "Да" : "Нет")</strong></MudText>
-                <MudText>Принимаются ли отзывы участников на свой отряд: <strong>@(ViewModel.Contest.FriendlyGrading ? "Да" : "Нет")</strong></MudText>
-            }
-
-            @if (ViewModel.Contest.ExpertCriterionsQuantity > 0)
-            {
-                <MudText>Количество критериев оценивания экспертами: <strong>@ViewModel.Contest.ExpertCriterionsQuantity</strong></MudText>
-            }
-            @if (ViewModel.Contest.ParticipantCriterionsQuantity > 0)
-            {
-                <MudText>Количество критериев оценивания участниками: <strong>@ViewModel.Contest.ParticipantCriterionsQuantity</strong></MudText>
-            }
-
-            <MudText>Контролируется ли посещаемость мероприятий: <strong>@(ViewModel.Contest.AttendanceControl ? "Да" : "Нет")</strong></MudText>
-            <MudText>Общее число мероприятий в конкурсе: <strong>@ViewModel.Contest.EventsQuantity</strong></MudText>
-
-            @if (ViewModel.Contest.ExpertCriterionsQuantity > 0)
-            {
-                <MudText>Число отзывов, оставленных экспертами: <strong>@ViewModel.Contest.ExpertFeedbacksQuantity</strong></MudText>
-            }
-            @if (ViewModel.Contest.ParticipantCriterionsQuantity > 0)
-            {
-                <MudText>Число отзывов, оставленных участниками: <strong>@ViewModel.Contest.ParticipantFeedbacksQuantity</strong></MudText>
-            }
-
-        </ChildContent>
-    </MudExpansionPanel>
-</MudExpansionPanels>
+<PageTitle>@ViewModel.Contest.Name - Мероприятия конкурса</PageTitle>
 
 <MudTable Items="@ViewModel.Events"
           Filter="@FilterRecords"
@@ -71,28 +27,40 @@
           HorizontalScrollbar="true">
 
     <ToolBarContent>
-        <MudText Typo="@Typo.h6">Мероприятия конкурса</MudText>
-        <MudSpacer />
-        <MudTextField @bind-Value="@ViewModel.SearchFilter"
-                      MaxLength="50"
-                      Clearable="true"
-                      Placeholder="Поиск"
-                      Adornment="@Adornment.Start"
-                      AdornmentIcon="@Icons.Material.Filled.Search" />
+        <MudGrid Justify="@Justify.SpaceBetween">
+            <MudItem>
+                <MudGrid Spacing="0" Class="align-center">
+                    <MudItem><MudText Typo="@Typo.h6">Мероприятия конкурса</MudText></MudItem>
+                    <MudItem>
+                        <MudIconButton OnClick="@OpenContestCard"
+                                       Color="@Color.Primary"
+                                       Icon="@Icons.Material.Filled.Info" />
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem xs="4">
+                <MudTextField @bind-Value="@ViewModel.SearchFilter"
+                              MaxLength="50"
+                              Clearable="true"
+                              Placeholder="Поиск"
+                              Adornment="@Adornment.Start"
+                              AdornmentIcon="@Icons.Material.Filled.Search" />
+            </MudItem>
+        </MudGrid>
     </ToolBarContent>
 
     <HeaderContent>
 
-        <MudTh>#</MudTh>
+        <MudTh />
         <MudTh><MudTableSortLabel T="@EventsListModel.EventModel" SortBy="@SelectNameField">Название мероприятия</MudTableSortLabel></MudTh>
         <MudTh>Связанные отряды</MudTh>
 
-        @if (ViewModel.Contest.ExpertCriterionsQuantity > 0)
+        @if (ViewModel.Contest.ExpertGrading)
         {
             <MudTh><MudTableSortLabel T="@EventsListModel.EventModel" SortBy="@SelectExpertFeedbacksField">Отзывы экспертов</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel T="@EventsListModel.EventModel" SortBy="@SelectExpertGradeField">Оценка экспертов</MudTableSortLabel></MudTh>
         }
-        @if (ViewModel.Contest.ParticipantCriterionsQuantity > 0)
+        @if (ViewModel.Contest.ParticipantGrading)
         {
             <MudTh><MudTableSortLabel T="@EventsListModel.EventModel" SortBy="@SelectParticipantFeedbacksField">Отзывы участников</MudTableSortLabel></MudTh>
             <MudTh><MudTableSortLabel T="@EventsListModel.EventModel" SortBy="@SelectParticipantGradeField">Оценка участников</MudTableSortLabel></MudTh>
@@ -114,12 +82,12 @@
             }
         </MudTd>
 
-        @if (ViewModel.Contest.ExpertCriterionsQuantity > 0)
+        @if (ViewModel.Contest.ExpertGrading)
         {
             <MudTd>@context.ExprertFeedbacksQuantity</MudTd>
             <MudTd>@context.ExpertGrade.ToString("0.0")</MudTd>
         }
-        @if (ViewModel.Contest.ParticipantCriterionsQuantity > 0)
+        @if (ViewModel.Contest.ParticipantGrading)
         {
             <MudTd>@context.ParticipantFeedbacksQuantity</MudTd>
             <MudTd>@context.ParticipantGrade.ToString("0.0")</MudTd>
@@ -127,64 +95,42 @@
 
         <MudTd>@context.TotalGrade.ToString("0.0")</MudTd>
         <MudTd>
-
-            @if (ViewModel.Contest.ExpertCriterionsQuantity > 0)
-            {
-                <MudButton Href="@NavigationHelper.Administration.ExpertFeedbacksList(context.Identifier)"
-                           Variant="@Variant.Outlined"
-                           Color="@Color.Primary"
-                           StartIcon="@Icons.Material.Filled.Info"
-                           Class="mr-3 mb-3">
-                    Отзывы экспертов
-                </MudButton>
-            }
-            @if (ViewModel.Contest.ParticipantCriterionsQuantity > 0)
-            {
-                <MudButton Href="@NavigationHelper.Administration.ParticipantFeedbacksList(context.Identifier)"
-                           Variant="@Variant.Outlined"
-                           Color="@Color.Primary"
-                           StartIcon="@Icons.Material.Filled.Info"
-                           Class="mr-3 mb-3">
-                    Отзывы участников
-                </MudButton>
-            }
-
-            <br/>
-
-            @if (ViewModel.Contest.ExpertCriterionsQuantity > 0)
-            {
-                <MudButton Href="@NavigationHelper.Grading.ExpertFeedbackForm(context.Identifier)"
-                           Variant="@Variant.Outlined"
-                           Color="@Color.Secondary"
-                           StartIcon="@Icons.Material.Filled.QrCode"
-                           Class="mr-3 mb-3">
-                    Форма эксперта
-                </MudButton>
-            }
-            @if (ViewModel.Contest.ParticipantCriterionsQuantity > 0)
-            {
-                <MudButton Href="@NavigationHelper.Grading.ParticipantFeedbackForm(context.Identifier)"
-                           Variant="@Variant.Outlined"
-                           Color="@Color.Secondary"
-                           StartIcon="@Icons.Material.Filled.QrCode"
-                           Class="mr-3 mb-3">
-                    Форма участника
-                </MudButton>
-            }
-
-            <br />
-
-            @if (ViewModel.Contest.AttendanceControl)
-            {
-                <MudButton Href="@NavigationHelper.Grading.FacilitatorAttendanceForm(context.Identifier)"
-                           Variant="@Variant.Outlined"
-                           Color="@Color.Tertiary"
-                           StartIcon="@Icons.Material.Filled.QrCode"
-                           Class="mr-3 mb-3">
-                    Форма посещаемости
-                </MudButton>
-            }
-
+            <MudMenu Color="@Color.Primary" Icon="@Icons.Material.Filled.Settings">
+                <MudMenuItem OnClick="@(() => OpenEventCard(context))"
+                             Icon="@Icons.Material.Filled.Info"
+                             Label="Общая информация" />
+                @if (ViewModel.Contest.ExpertGrading)
+                {
+                    <MudMenuItem Href="@NavigationHelper.Administration.ExpertFeedbacksList(context.Identifier)"
+                                 Icon="@Icons.Material.Filled.Link"
+                                 Label="Отзывы экспертов" />
+                }
+                @if (ViewModel.Contest.ParticipantGrading)
+                {
+                    <MudMenuItem Href="@NavigationHelper.Administration.ParticipantFeedbacksList(context.Identifier)"
+                                 Icon="@Icons.Material.Filled.Link"
+                                 Label="Отзывы участников" />
+                }
+                <MudDivider />
+                @if (ViewModel.Contest.ExpertGrading)
+                {
+                    <MudMenuItem Href="@NavigationHelper.Grading.ExpertFeedbackForm(context.Identifier)"
+                                 Icon="@Icons.Material.Filled.QrCode"
+                                 Label="Форма эксперта" />
+                }
+                @if (ViewModel.Contest.ParticipantGrading)
+                {
+                    <MudMenuItem Href="@NavigationHelper.Grading.ParticipantFeedbackForm(context.Identifier)"
+                                 Icon="@Icons.Material.Filled.QrCode"
+                                 Label="Форма участника" />
+                }
+                @if (ViewModel.Contest.AttendanceControl)
+                {
+                    <MudMenuItem Href="@NavigationHelper.Grading.FacilitatorAttendanceForm(context.Identifier)"
+                                 Icon="@Icons.Material.Filled.QrCode"
+                                 Label="Форма посещаемости" />
+                }
+            </MudMenu>
         </MudTd>
 
     </RowTemplate>
