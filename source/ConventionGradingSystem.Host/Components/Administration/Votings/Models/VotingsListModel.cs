@@ -10,6 +10,10 @@ public record class VotingsListModel(
         int Number,
         string Identifier,
         string Name,
+        bool BrigadeFriendlyVoting,
+        bool TeamFriendlyVoting,
+        int VotesQuantity,
+        IReadOnlyCollection<string> BannedTeams,
         int CandidatesQuantity,
         int TotalVotesQuantity);
 }

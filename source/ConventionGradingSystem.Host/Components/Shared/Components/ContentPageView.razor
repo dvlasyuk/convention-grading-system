@@ -65,50 +65,6 @@
 
                 break;
 
-            case ContentType.TableWithCard:
-
-                <MudPaper Class="mb-3">
-                    <MudExpansionPanel>
-                        <TitleContent>
-                            <MudText><MudSkeleton SkeletonType="@SkeletonType.Text"  Width="30%" /></MudText>
-                        </TitleContent>
-                        <ChildContent>
-                            <MudText><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudText>
-                            <MudText><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudText>
-                            <MudText><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudText>
-                        </ChildContent>
-                    </MudExpansionPanel>
-                </MudPaper>
-
-                <MudTable Items="@(new object[5])"
-                        Breakpoint="@Breakpoint.None"
-                        Hover="true">
-
-                    <ToolBarContent>
-                        <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Width="30%" />
-                        <MudSpacer />
-                        <MudSkeleton SkeletonType="@SkeletonType.Rectangle" Width="50%" />
-                    </ToolBarContent>
-
-                    <HeaderContent>
-                        <MudTh width="10%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
-                        <MudTh width="30%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
-                        <MudTh width="20%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
-                        <MudTh width="20%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
-                        <MudTh width="20%"><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTh>
-                    </HeaderContent>
-
-                    <RowTemplate>
-                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
-                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
-                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
-                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
-                        <MudTd><MudSkeleton SkeletonType="@SkeletonType.Text" /></MudTd>
-                    </RowTemplate>
-                </MudTable>
-
-                break;
-
             case ContentType.Form:
 
                 <MudPaper Class="pa-3">

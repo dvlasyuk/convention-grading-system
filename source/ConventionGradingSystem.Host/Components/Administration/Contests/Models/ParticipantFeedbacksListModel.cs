@@ -10,15 +10,12 @@ public record class ParticipantFeedbacksListModel(
     public record EventModel(
         string EventName,
         string ContestName,
-        bool IsGraded,
+        bool ParticipantGrading,
+        bool ParticipantsRegistered,
         IReadOnlyCollection<string> Brigades,
-        int FeedbacksQuantity,
         IReadOnlyList<CriterionModel> GradeCriterions);
 
-    public record CriterionModel(
-        string Identifier,
-        string Name,
-        float TotalGrade);
+    public record CriterionModel(string Identifier, string Name);
 
     public record FeedbackModel(
         int Number,

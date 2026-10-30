@@ -27,7 +27,7 @@ public partial class TeamsList
     protected override async Task<ContentState<TeamsListModel>> LoadContent()
     {
         using var databaseContext = _databaseContextFactory.CreateDbContext();
-        var attendanceMarks = await databaseContext.AttendanceMarks.ToListAsync();
+        var attendanceMarks = await databaseContext.AttendanceMarks.ToArrayAsync();
 
         var viewTeams = _dataConfiguration.Value.Teams
             .OrderBy(team => team.Identifier)

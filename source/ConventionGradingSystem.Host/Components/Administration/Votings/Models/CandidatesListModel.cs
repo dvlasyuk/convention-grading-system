@@ -12,8 +12,7 @@ public record class CandidatesListModel(
         bool BrigadeFriendlyVoting,
         bool TeamFriendlyVoting,
         int VotesQuantity,
-        int CandidatesQuantity,
-        int TotalVotesQuantity);
+        IReadOnlyCollection<string> BannedTeams);
 
     public record CandidateModel(
         int Number,

@@ -2,12 +2,15 @@ using System.Diagnostics.CodeAnalysis;
 
 using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
+using ConventionGradingSystem.Host.Components.Administration.Votings.Components;
 using ConventionGradingSystem.Host.Components.Administration.Votings.Models;
 using ConventionGradingSystem.Host.Components.Shared.Models;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+
+using MudBlazor;
 
 namespace ConventionGradingSystem.Host.Components.Administration.Votings.Pages;
 
@@ -16,16 +19,19 @@ public partial class CandidatesList
 {
     private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
+    private readonly IDialogService _dialogService;
 
     [Parameter]
     public string? VotingId { get; set; }
 
     public CandidatesList(
         IDbContextFactory<DatabaseContext> databaseContextFactory,
-        IOptions<DataConfiguration> dataConfiguration)
+        IOptions<DataConfiguration> dataConfiguration,
+        IDialogService dialogService)
     {
         _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
+        _dialogService = dialogService;
     }
 
     protected override async Task<ContentState<CandidatesListModel>> LoadContent()
@@ -36,26 +42,27 @@ public partial class CandidatesList
             return Shared.Models.LoadingError.VotingNotFound;
         }
 
-        var candidateIds = voting.Candidates
-            .Select(item => item.Identifier)
-            .ToList();
-
-        using var databaseContext = _databaseContextFactory.CreateDbContext();
-        var savedVotes = await databaseContext.ParticipantVotes
-            .Where(item => candidateIds.Contains(item.CandidateId))
-            .ToListAsync();
-
+        var teams = _dataConfiguration.Value.Teams.ToDictionary(team => team.Identifier);
         var viewVoting = new CandidatesListModel.VotingModel(
             Name: voting.Name,
             BrigadeFriendlyVoting: voting.BrigadeFriendlyVoting,
             TeamFriendlyVoting: voting.TeamFriendlyVoting,
             VotesQuantity: voting.VotesQuantity,
-            CandidatesQuantity: voting.Candidates.Count,
-            TotalVotesQuantity: savedVotes.Count);
+            BannedTeams: [.. voting.BannedTeams
+                .Select(identifier => teams[identifier])
+                .Select(team => team.Name)]);
+
+        using var databaseContext = _databaseContextFactory.CreateDbContext();
+
+        var candidateIds = voting.Candidates
+            .Select(item => item.Identifier)
+            .ToList();
+
+        var savedVotes = await databaseContext.ParticipantVotes
+            .Where(item => candidateIds.Contains(item.CandidateId))
+            .ToArrayAsync();
 
         var brigades = _dataConfiguration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
-        var teams = _dataConfiguration.Value.Teams.ToDictionary(team => team.Identifier);
-
         var viewCandidates = voting.Candidates
             .OrderBy(candidate => candidate.Identifier)
             .Select((candidate, index) => new CandidatesListModel.CandidateModel(
@@ -76,6 +83,39 @@ public partial class CandidatesList
             Voting: viewVoting,
             Candidates: viewCandidates,
             SearchFilter: null);
+    }
+
+    private async Task OpenVotingCard()
+    {
+        var parameters = new VotingCardParameters(
+            VotingName: ViewModel.Voting.Name,
+            BrigadeFriendlyVoting: ViewModel.Voting.BrigadeFriendlyVoting,
+            TeamFriendlyVoting: ViewModel.Voting.TeamFriendlyVoting,
+            VotesQuantity: ViewModel.Voting.VotesQuantity,
+            BannedTeams: ViewModel.Voting.BannedTeams);
+
+        var dialogParameters = new DialogParameters<VotingCard>
+        {
+            { dialog => dialog.Parameters, parameters }
+        };
+
+        await _dialogService.ShowAsync<VotingCard>(dialogParameters);
+    }
+
+    private async Task OpenCandidateCard(CandidatesListModel.CandidateModel candidate)
+    {
+        var parameters = new CandidateCardParameters(
+            CandidateName: candidate.Name,
+            VotingName: ViewModel.Voting.Name,
+            Brigades: candidate.Brigades,
+            Teams: candidate.Teams);
+
+        var dialogParameters = new DialogParameters<CandidateCard>
+        {
+            { dialog => dialog.Parameters, parameters }
+        };
+
+        await _dialogService.ShowAsync<CandidateCard>(dialogParameters);
     }
 
     private bool FilterRecords(CandidatesListModel.CandidateModel voting)

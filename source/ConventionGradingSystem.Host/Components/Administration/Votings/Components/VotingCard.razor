@@ -1,0 +1,68 @@
+﻿@using ConventionGradingSystem.Host.Components.Shared.Components
+@using ConventionGradingSystem.Host.Components.Shared.Models
+@using MudBlazor
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="@Typo.h6" Color="@Color.Primary">@Parameters.VotingName</MudText>
+        <MudText>Зрительское голосование</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudPaper Outlined="true" Class="mb-3 pa-3">
+
+            <MudGrid Justify="@Justify.SpaceBetween" Class="align-center">
+                <MudItem><MudText>Разрешено голосование за свой отряд</MudText></MudItem>
+                <MudItem>
+                    <MudChip T="@string"
+                             Text="@(Parameters.BrigadeFriendlyVoting ? "Да" : "Нет")"
+                             Color="@(Parameters.BrigadeFriendlyVoting ? Color.Success : @Color.Error)"
+                             Variant="@Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+
+            <FeatureView Feature="@ApplicationFeature.Teams">
+                <MudGrid Justify="@Justify.SpaceBetween" Class="align-center">
+                    <MudItem><MudText>Разрешено голосование за свою команду</MudText></MudItem>
+                    <MudItem>
+                        <MudChip T="@string"
+                                 Text="@(Parameters.TeamFriendlyVoting ? "Да" : "Нет")"
+                                 Color="@(Parameters.TeamFriendlyVoting ? Color.Success : @Color.Error)"
+                                 Variant="@Variant.Outlined" />
+                    </MudItem>
+                </MudGrid>
+            </FeatureView>
+
+            <MudGrid Justify="@Justify.SpaceBetween" Class="align-center mb-1">
+                <MudItem><MudText>Количество голосов от одного зрителя</MudText></MudItem>
+                <MudItem>
+                    <MudChip T="@string"
+                             Text="@Parameters.VotesQuantity.ToString()"
+                             Color="@Color.Primary"
+                             Variant="@Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+
+            <FeatureView Feature="@ApplicationFeature.Teams">
+                <MudGrid Justify="@Justify.SpaceBetween">
+                    <MudItem><MudText>Исключённые команды</MudText></MudItem>
+                    <MudItem>
+                        @if (Parameters.BannedTeams.Count > 0)
+                        {
+                            <MudStack Spacing="0">
+                                @foreach (var teamName in Parameters.BannedTeams)
+                                {
+                                    <MudChip T="@string" Text="@teamName" Color="@Color.Error" Variant="@Variant.Outlined" />
+                                }
+                            </MudStack>
+                        }
+                        else
+                        {
+                            <MudChip T="@string" Text="Нет" Color="@Color.Error" Variant="@Variant.Outlined" />
+                        }
+                    </MudItem>
+                </MudGrid>
+            </FeatureView>
+
+        </MudPaper>
+    </DialogContent>
+</MudDialog>

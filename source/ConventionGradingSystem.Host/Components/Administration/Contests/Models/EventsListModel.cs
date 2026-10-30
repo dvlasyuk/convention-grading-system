@@ -9,19 +9,18 @@ public record class EventsListModel(
 
     public record ContestModel(
         string Name,
+        bool ExpertGrading,
+        bool ParticipantGrading,
         bool RegisteredGrading,
         bool FriendlyGrading,
         bool AttendanceControl,
-        int ExpertCriterionsQuantity,
-        int ParticipantCriterionsQuantity,
-        int EventsQuantity,
-        int ExpertFeedbacksQuantity,
-        int ParticipantFeedbacksQuantity);
+        IReadOnlyCollection<string> BannedTeams);
 
     public record EventModel(
         int Number,
         string Identifier,
         string Name,
+        bool ParticipantsRegistered,
         IReadOnlyCollection<string> Brigades,
         int ExprertFeedbacksQuantity,
         int ParticipantFeedbacksQuantity,
