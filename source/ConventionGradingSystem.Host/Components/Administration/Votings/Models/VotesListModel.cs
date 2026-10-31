@@ -8,6 +8,7 @@ public record class VotesListModel(
     public string? SearchFilter { get; set; } = SearchFilter;
 
     public record CandidateModel(
+        string Identifier,
         string CandidateName,
         string VotingName,
         IReadOnlyCollection<string> Brigades,

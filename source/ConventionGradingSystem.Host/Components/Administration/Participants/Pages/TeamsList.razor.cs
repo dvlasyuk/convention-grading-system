@@ -4,6 +4,8 @@ using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Administration.Participants.Models;
 using ConventionGradingSystem.Host.Components.Shared.Models;
+using ConventionGradingSystem.Host.Services;
+using ConventionGradingSystem.Host.Services.Export.Participants;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -15,13 +17,19 @@ public partial class TeamsList
 {
     private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
+    private readonly TeamsListExporter _teamsListExporter;
+    private readonly FileDownloader _fileDownloader;
 
     public TeamsList(
         IDbContextFactory<DatabaseContext> databaseContextFactory,
-        IOptions<DataConfiguration> dataConfiguration)
+        IOptions<DataConfiguration> dataConfiguration,
+        TeamsListExporter teamsListExporter,
+        FileDownloader fileDownloader)
     {
         _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
+        _teamsListExporter = teamsListExporter;
+        _fileDownloader = fileDownloader;
     }
 
     protected override async Task<ContentState<TeamsListModel>> LoadContent()
@@ -70,6 +78,14 @@ public partial class TeamsList
             .ToArray();
 
         return new TeamsListModel(Teams: viewTeams, SearchFilter: null);
+    }
+
+    private async Task ExportDataToExcel()
+    {
+        var fileName = "Команды участников";
+        var fileData = await _teamsListExporter.ExportToExcel();
+
+        await _fileDownloader.DownloadExcelFile(fileName, fileData);
     }
 
     private bool FilterRecords(TeamsListModel.TeamModel team)

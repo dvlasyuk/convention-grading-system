@@ -28,13 +28,22 @@
     <ToolBarContent>
         <MudGrid Justify="@Justify.SpaceBetween">
             <MudItem><MudText Typo="@Typo.h6">Команды участников</MudText></MudItem>
-            <MudItem xs="4">
-                <MudTextField @bind-Value="@ViewModel.SearchFilter"
-                              MaxLength="50"
-                              Clearable="true"
-                              Placeholder="Поиск"
-                              Adornment="@Adornment.Start"
-                              AdornmentIcon="@Icons.Material.Filled.Search" />
+            <MudItem xs="5">
+                <MudGrid Justify="@Justify.FlexEnd" Spacing="3" Class="align-center">
+                    <MudItem>
+                        <MudTooltip Text="Экспортировать данные в Excel">
+                            <MudIconButton OnClick="ExportDataToExcel" Icon="@Icons.Custom.FileFormats.FileExcel" />
+                        </MudTooltip>
+                    </MudItem>
+                    <MudItem xs="10">
+                        <MudTextField @bind-Value="@ViewModel.SearchFilter"
+                                      MaxLength="50"
+                                      Clearable="true"
+                                      Placeholder="Поиск"
+                                      Adornment="@Adornment.Start"
+                                      AdornmentIcon="@Icons.Material.Filled.Search" />
+                    </MudItem>
+                </MudGrid>
             </MudItem>
         </MudGrid>
     </ToolBarContent>

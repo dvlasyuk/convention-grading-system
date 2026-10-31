@@ -5,6 +5,9 @@ using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components;
 using ConventionGradingSystem.Host.Configuration;
 using ConventionGradingSystem.Host.Services;
+using ConventionGradingSystem.Host.Services.Export.Contests;
+using ConventionGradingSystem.Host.Services.Export.Participants;
+using ConventionGradingSystem.Host.Services.Export.Votings;
 
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Localization;
@@ -39,6 +42,15 @@ public static class Program
         applicationBuilder.Services.AddDataAccess(
             configurationSection: "DataConfiguration",
             connectionString: "ApplicationDatabase");
+
+        applicationBuilder.Services.AddScoped<EventsListExporter>();
+        applicationBuilder.Services.AddScoped<ExpertFeedbacksListExporter>();
+        applicationBuilder.Services.AddScoped<ParticipantFeedbacksListExporter>();
+        applicationBuilder.Services.AddScoped<TeamsListExporter>();
+        applicationBuilder.Services.AddScoped<CandidatesListExporter>();
+        applicationBuilder.Services.AddScoped<VotesListExporter>();
+
+        applicationBuilder.Services.AddScoped<FileDownloader>();
 
         var application = applicationBuilder.Build();
 
