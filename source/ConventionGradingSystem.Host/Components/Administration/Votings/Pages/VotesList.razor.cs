@@ -114,7 +114,7 @@ public partial class VotesList
         var fileName = $"{ViewModel.Candidate.CandidateName} - Голоса за кандидата.xlsx";
         var fileData = await _votesListExporter.ExportToExcel(ViewModel.Candidate.Identifier);
 
-        await _fileDownloader.DownloadExcelFile(fileName, fileData);
+        await _fileDownloader.DownloadExcelFile(new FileDownloader.File(fileName, fileData));
     }
 
     private bool FilterRecords(VotesListModel.VoteModel vote)

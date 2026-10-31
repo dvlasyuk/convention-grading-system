@@ -132,7 +132,7 @@ public partial class CandidatesList
         var fileName = $"{ViewModel.Voting.Name} - Кандидаты голосования.xlsx";
         var fileData = await _candidatesListExporter.ExportToExcel(ViewModel.Voting.Identifier);
 
-        await _fileDownloader.DownloadExcelFile(fileName, fileData);
+        await _fileDownloader.DownloadExcelFile(new FileDownloader.File(fileName, fileData));
     }
 
     private bool FilterRecords(CandidatesListModel.CandidateModel voting)

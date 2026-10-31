@@ -1,0 +1,41 @@
+﻿@using MudBlazor
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="@Typo.h6" Color="@Color.Primary">@Parameters.EntityName</MudText>
+        <MudText>@Parameters.FormType</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (QRCodeImage is not null)
+        {
+            <MudImage Src="@QRCodeImage" Fluid="true" />
+        }
+        else
+        {
+            <MudPaper Outlined="true"
+                      Class="d-flex justify-center align-center"
+                      Style="aspect-ratio: 1/1">
+                <MudProgressCircular Indeterminate="true" />
+            </MudPaper>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@DownloadQRCode"
+                   Disabled="@(QRCodeImage is null)"
+                   Variant="@Variant.Outlined"
+                   Size="@Size.Large"
+                   StartIcon="@Icons.Material.Filled.Download"
+                   Class="mt-3">
+            Скачать
+        </MudButton>
+        <MudButton Href="@Parameters.FormLink"
+                   Disabled="@(QRCodeImage is null)"
+                   Variant="@Variant.Outlined"
+                   Size="@Size.Large"
+                   Color="@Color.Primary"
+                   StartIcon="@Icons.Material.Filled.Forward"
+                   Class="mt-3">
+            Перейти
+        </MudButton>
+    </DialogActions>
+</MudDialog>

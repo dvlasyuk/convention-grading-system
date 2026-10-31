@@ -121,7 +121,7 @@ public partial class ParticipantFeedbacksList
         var fileName = $"{ViewModel.Event.EventName} - Отзывы участников.xlsx";
         var fileData = await _participantFeedbacksListExporter.ExportToExcel(ViewModel.Event.Identifier);
 
-        await _fileDownloader.DownloadExcelFile(fileName, fileData);
+        await _fileDownloader.DownloadExcelFile(new FileDownloader.File(fileName, fileData));
     }
 
     private bool FilterRecords(ParticipantFeedbacksListModel.FeedbackModel feedback)

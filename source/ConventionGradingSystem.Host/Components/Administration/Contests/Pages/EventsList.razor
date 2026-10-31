@@ -41,9 +41,33 @@
             <MudItem xs="5">
                 <MudGrid Justify="@Justify.FlexEnd" Spacing="3" Class="align-center">
                     <MudItem>
-                        <MudTooltip Text="Экспортировать данные в Excel">
-                            <MudIconButton OnClick="ExportDataToExcel" Icon="@Icons.Custom.FileFormats.FileExcel" />
-                        </MudTooltip>
+                        <MudGrid Spacing="0">
+                            <MudItem>
+                                <MudMenu Icon="@Icons.Material.Filled.QrCode">
+                                    @if (ViewModel.Contest.ExpertGrading)
+                                    {
+                                        <MudMenuItem OnClick="@DownloadExpertFeedbackFormQRCodes"
+                                                     Icon="@Icons.Material.Filled.QrCode"
+                                                     Label="Формы экспертов" />
+                                    }
+                                    @if (ViewModel.Contest.ParticipantGrading)
+                                    {
+                                        <MudMenuItem OnClick="@DownloadParicipantFeedbackFormQRCodes"
+                                                     Icon="@Icons.Material.Filled.QrCode"
+                                                     Label="Формы участников" />
+                                    }
+                                    @if (ViewModel.Contest.AttendanceControl)
+                                    {
+                                        <MudMenuItem OnClick="@DownloadFacilitatorAttendanceFormQRCodes"
+                                                     Icon="@Icons.Material.Filled.QrCode"
+                                                     Label="Формы посещаемости" />
+                                    }
+                                </MudMenu>
+                            </MudItem>
+                            <MudItem>
+                                <MudIconButton OnClick="ExportDataToExcel" Icon="@Icons.Custom.FileFormats.FileExcel" />
+                            </MudItem>
+                        </MudGrid>
                     </MudItem>
                     <MudItem xs="10">
                         <MudTextField @bind-Value="@ViewModel.SearchFilter"
@@ -123,19 +147,19 @@
                 <MudDivider />
                 @if (ViewModel.Contest.ExpertGrading)
                 {
-                    <MudMenuItem Href="@NavigationHelper.Grading.ExpertFeedbackForm(context.Identifier)"
+                    <MudMenuItem OnClick="@(() => OpenExpertFeedbackFormCard(context))"
                                  Icon="@Icons.Material.Filled.QrCode"
                                  Label="Форма эксперта" />
                 }
                 @if (ViewModel.Contest.ParticipantGrading)
                 {
-                    <MudMenuItem Href="@NavigationHelper.Grading.ParticipantFeedbackForm(context.Identifier)"
+                    <MudMenuItem OnClick="@(() => OpenParicipantFeedbackFormCard(context))"
                                  Icon="@Icons.Material.Filled.QrCode"
                                  Label="Форма участника" />
                 }
                 @if (ViewModel.Contest.AttendanceControl)
                 {
-                    <MudMenuItem Href="@NavigationHelper.Grading.FacilitatorAttendanceForm(context.Identifier)"
+                    <MudMenuItem OnClick="@(() => OpenFacilitatorAttendanceFormCard(context))"
                                  Icon="@Icons.Material.Filled.QrCode"
                                  Label="Форма посещаемости" />
                 }

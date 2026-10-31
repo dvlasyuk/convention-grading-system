@@ -4,8 +4,11 @@ using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Administration.Votings.Components;
 using ConventionGradingSystem.Host.Components.Administration.Votings.Models;
+using ConventionGradingSystem.Host.Components.Shared.Components;
 using ConventionGradingSystem.Host.Components.Shared.Models;
+using ConventionGradingSystem.Host.Services;
 
+using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
@@ -18,15 +21,24 @@ public partial class VotingsList
 {
     private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
+    private readonly QRCodeGenerator _qrCodeGenerator;
+    private readonly FileDownloader _fileDownloader;
+    private readonly NavigationManager _navigationManager;
     private readonly IDialogService _dialogService;
 
     public VotingsList(
         IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration,
+        QRCodeGenerator qrCodeGenerator,
+        FileDownloader fileDownloader,
+        NavigationManager navigationManager,
         IDialogService dialogService)
     {
         _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
+        _qrCodeGenerator = qrCodeGenerator;
+        _fileDownloader = fileDownloader;
+        _navigationManager = navigationManager;
         _dialogService = dialogService;
     }
 
@@ -71,6 +83,39 @@ public partial class VotingsList
         };
 
         await _dialogService.ShowAsync<VotingCard>(dialogParameters);
+    }
+
+    private async Task OpenParticipantVotingFormCard(VotingsListModel.VotingModel voting)
+    {
+        var parameters = new FormLinkCardParameters(
+            EntityName: voting.Name,
+            FormType: "Форма голосования",
+            FormLink: NavigationHelper.Grading.ParticipantVotingForm(voting.Identifier));
+
+        var dialogParameters = new DialogParameters<FormLinkCard>
+        {
+            { dialog => dialog.Parameters, parameters }
+        };
+
+        await _dialogService.ShowAsync<FormLinkCard>(dialogParameters);
+    }
+
+    private async Task DownloadParticipantVotingFormQRCodes()
+    {
+        var archiveFiles = new List<FileDownloader.File>();
+        foreach (var voting in ViewModel.Votings)
+        {
+            var relativeFormUri = NavigationHelper.Grading.ParticipantVotingForm(voting.Identifier);
+            var absoluteFormUri = _navigationManager.ToAbsoluteUri(relativeFormUri);
+
+            var fileName = $"{voting.Name}.png";
+            var fileData = await _qrCodeGenerator.GeneratePNGImage(absoluteFormUri.ToString());
+
+            archiveFiles.Add(new FileDownloader.File(fileName, fileData));
+        }
+
+        var archiveName = $"Формы голосования.zip";
+        await _fileDownloader.DownloadZIPArhive(archiveName, archiveFiles);
     }
 
     private bool FilterRecords(VotingsListModel.VotingModel voting)

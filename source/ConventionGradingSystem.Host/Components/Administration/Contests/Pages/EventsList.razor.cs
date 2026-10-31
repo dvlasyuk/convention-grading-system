@@ -4,6 +4,7 @@ using ConventionGradingSystem.DataAccess.Configuration;
 using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Administration.Contests.Components;
 using ConventionGradingSystem.Host.Components.Administration.Contests.Models;
+using ConventionGradingSystem.Host.Components.Shared.Components;
 using ConventionGradingSystem.Host.Components.Shared.Models;
 using ConventionGradingSystem.Host.Services;
 using ConventionGradingSystem.Host.Services.Export.Contests;
@@ -22,7 +23,9 @@ public partial class EventsList
     private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
     private readonly EventsListExporter _eventsListExporter;
+    private readonly QRCodeGenerator _qrCodeGenerator;
     private readonly FileDownloader _fileDownloader;
+    private readonly NavigationManager _navigationManager;
     private readonly IDialogService _dialogService;
 
     [Parameter]
@@ -32,13 +35,17 @@ public partial class EventsList
         IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration,
         EventsListExporter eventsListExporter,
+        QRCodeGenerator qrCodeGenerator,
         FileDownloader fileDownloader,
+        NavigationManager navigationManager,
         IDialogService dialogService)
     {
         _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
         _eventsListExporter = eventsListExporter;
+        _qrCodeGenerator = qrCodeGenerator;
         _fileDownloader = fileDownloader;
+        _navigationManager = navigationManager;
         _dialogService = dialogService;
     }
 
@@ -158,12 +165,84 @@ public partial class EventsList
         await _dialogService.ShowAsync<EventCard>(dialogParameters);
     }
 
+    private async Task OpenExpertFeedbackFormCard(EventsListModel.EventModel contestEvent)
+    {
+        await OpenFormCard(new FormLinkCardParameters(
+            EntityName: contestEvent.Name,
+            FormType: "Форма эксперта",
+            FormLink: NavigationHelper.Grading.ExpertFeedbackForm(contestEvent.Identifier)));
+    }
+
+    private async Task OpenParicipantFeedbackFormCard(EventsListModel.EventModel contestEvent)
+    {
+        await OpenFormCard(new FormLinkCardParameters(
+            EntityName: contestEvent.Name,
+            FormType: "Форма участника",
+            FormLink: NavigationHelper.Grading.ParticipantFeedbackForm(contestEvent.Identifier)));
+    }
+
+    private async Task OpenFacilitatorAttendanceFormCard(EventsListModel.EventModel contestEvent)
+    {
+        await OpenFormCard(new FormLinkCardParameters(
+            EntityName: contestEvent.Name,
+            FormType: "Форма посещаемости",
+            FormLink: NavigationHelper.Grading.FacilitatorAttendanceForm(contestEvent.Identifier)));
+    }
+
+    private async Task OpenFormCard(FormLinkCardParameters parameters)
+    {
+        var dialogParameters = new DialogParameters<FormLinkCard>
+        {
+            { dialog => dialog.Parameters, parameters }
+        };
+
+        await _dialogService.ShowAsync<FormLinkCard>(dialogParameters);
+    }
+
+    private async Task DownloadExpertFeedbackFormQRCodes()
+    {
+        await DownloadFormQRCodes(
+            archiveName: $"{ViewModel.Contest.Name} - Формы экспертов.zip",
+            formLinkFactory: contestEvent => NavigationHelper.Grading.ExpertFeedbackForm(contestEvent.Identifier));
+    }
+
+    private async Task DownloadParicipantFeedbackFormQRCodes()
+    {
+        await DownloadFormQRCodes(
+            archiveName: $"{ViewModel.Contest.Name} - Формы участников.zip",
+            formLinkFactory: contestEvent => NavigationHelper.Grading.ParticipantFeedbackForm(contestEvent.Identifier));
+    }
+
+    private async Task DownloadFacilitatorAttendanceFormQRCodes()
+    {
+        await DownloadFormQRCodes(
+            archiveName: $"{ViewModel.Contest.Name} - Формы посещаемости.zip",
+            formLinkFactory: contestEvent => NavigationHelper.Grading.FacilitatorAttendanceForm(contestEvent.Identifier));
+    }
+
+    private async Task DownloadFormQRCodes(string archiveName, Func<EventsListModel.EventModel, string> formLinkFactory)
+    {
+        var archiveFiles = new List<FileDownloader.File>();
+        foreach (var contestEvent in ViewModel.Events)
+        {
+            var relativeFormUri = formLinkFactory(contestEvent);
+            var absoluteFormUri = _navigationManager.ToAbsoluteUri(relativeFormUri);
+
+            var fileName = $"{contestEvent.Name}.png";
+            var fileData = await _qrCodeGenerator.GeneratePNGImage(absoluteFormUri.ToString());
+
+            archiveFiles.Add(new FileDownloader.File(fileName, fileData));
+        }
+
+        await _fileDownloader.DownloadZIPArhive(archiveName, archiveFiles);
+    }
+
     private async Task ExportDataToExcel()
     {
         var fileName = $"{ViewModel.Contest.Name} - Мероприятия конкурса.xlsx";
         var fileData = await _eventsListExporter.ExportToExcel(ViewModel.Contest.Identifier);
 
-        await _fileDownloader.DownloadExcelFile(fileName, fileData);
+        await _fileDownloader.DownloadExcelFile(new FileDownloader.File(fileName, fileData));
     }
 
     private bool FilterRecords(EventsListModel.EventModel contestEvent)

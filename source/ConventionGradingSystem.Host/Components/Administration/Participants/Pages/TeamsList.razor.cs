@@ -85,7 +85,7 @@ public partial class TeamsList
         var fileName = "Команды участников";
         var fileData = await _teamsListExporter.ExportToExcel();
 
-        await _fileDownloader.DownloadExcelFile(fileName, fileData);
+        await _fileDownloader.DownloadExcelFile(new FileDownloader.File(fileName, fileData));
     }
 
     private bool FilterRecords(TeamsListModel.TeamModel team)

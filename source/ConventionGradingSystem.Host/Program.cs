@@ -51,6 +51,7 @@ public static class Program
         applicationBuilder.Services.AddScoped<VotesListExporter>();
 
         applicationBuilder.Services.AddScoped<FileDownloader>();
+        applicationBuilder.Services.AddScoped<QRCodeGenerator>();
 
         var application = applicationBuilder.Build();
 

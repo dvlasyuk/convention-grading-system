@@ -116,7 +116,7 @@ public partial class ExpertFeedbacksList
         var fileName = $"{ViewModel.Event.EventName} - Отзывы экспертов.xlsx";
         var fileData = await _expertFeedbacksListExporter.ExportToExcel(ViewModel.Event.Identifier);
 
-        await _fileDownloader.DownloadExcelFile(fileName, fileData);
+        await _fileDownloader.DownloadExcelFile(new FileDownloader.File(fileName, fileData));
     }
 
     private bool FilterRecords(ExpertFeedbacksListModel.FeedbackModel feedback)
