@@ -8,6 +8,7 @@ public record class ParticipantFeedbacksListModel(
     public string? SearchFilter { get; set; } = SearchFilter;
 
     public record EventModel(
+        string Identifier,
         string EventName,
         string ContestName,
         bool ParticipantGrading,

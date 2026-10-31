@@ -6,6 +6,8 @@ using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Administration.Contests.Components;
 using ConventionGradingSystem.Host.Components.Administration.Contests.Models;
 using ConventionGradingSystem.Host.Components.Shared.Models;
+using ConventionGradingSystem.Host.Services;
+using ConventionGradingSystem.Host.Services.Export.Contests;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +22,8 @@ public partial class ExpertFeedbacksList
 {
     private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
+    private readonly ExpertFeedbacksListExporter _expertFeedbacksListExporter;
+    private readonly FileDownloader _fileDownloader;
     private readonly IDialogService _dialogService;
 
     [Parameter]
@@ -28,10 +32,14 @@ public partial class ExpertFeedbacksList
     public ExpertFeedbacksList(
         IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration,
+        ExpertFeedbacksListExporter expertFeedbacksListExporter,
+        FileDownloader fileDownloader,
         IDialogService dialogService)
     {
         _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
+        _expertFeedbacksListExporter = expertFeedbacksListExporter;
+        _fileDownloader = fileDownloader;
         _dialogService = dialogService;
     }
 
@@ -49,6 +57,7 @@ public partial class ExpertFeedbacksList
         var contest = _dataConfiguration.Value.Contests.First(item => item.Events.Contains(contestEvent));
         var brigades = _dataConfiguration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
         var viewEvent = new ExpertFeedbacksListModel.EventModel(
+            Identifier: contestEvent.Identifier,
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             ExpertGrading: contest.ExpertCriterions.Count > 0,
@@ -101,6 +110,14 @@ public partial class ExpertFeedbacksList
         };
 
         _dialogService.ShowAsync<EventCard>(dialogParameters, dialogOptions);
+    }
+
+    private async Task ExportDataToExcel()
+    {
+        var fileName = $"{ViewModel.Event.EventName} - Отзывы экспертов.xlsx";
+        var fileData = await _expertFeedbacksListExporter.ExportToExcel(ViewModel.Event.Identifier);
+
+        await _fileDownloader.DownloadExcelFile(fileName, fileData);
     }
 
     private bool FilterRecords(ExpertFeedbacksListModel.FeedbackModel feedback)

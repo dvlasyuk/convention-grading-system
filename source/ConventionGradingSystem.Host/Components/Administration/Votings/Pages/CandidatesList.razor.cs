@@ -5,6 +5,8 @@ using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Administration.Votings.Components;
 using ConventionGradingSystem.Host.Components.Administration.Votings.Models;
 using ConventionGradingSystem.Host.Components.Shared.Models;
+using ConventionGradingSystem.Host.Services;
+using ConventionGradingSystem.Host.Services.Export.Votings;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +21,8 @@ public partial class CandidatesList
 {
     private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
+    private readonly CandidatesListExporter _candidatesListExporter;
+    private readonly FileDownloader _fileDownloader;
     private readonly IDialogService _dialogService;
 
     [Parameter]
@@ -27,10 +31,14 @@ public partial class CandidatesList
     public CandidatesList(
         IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration,
+        CandidatesListExporter candidatesListExporter,
+        FileDownloader fileDownloader,
         IDialogService dialogService)
     {
         _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
+        _candidatesListExporter = candidatesListExporter;
+        _fileDownloader = fileDownloader;
         _dialogService = dialogService;
     }
 
@@ -44,6 +52,7 @@ public partial class CandidatesList
 
         var teams = _dataConfiguration.Value.Teams.ToDictionary(team => team.Identifier);
         var viewVoting = new CandidatesListModel.VotingModel(
+            Identifier: voting.Identifier,
             Name: voting.Name,
             BrigadeFriendlyVoting: voting.BrigadeFriendlyVoting,
             TeamFriendlyVoting: voting.TeamFriendlyVoting,
@@ -118,6 +127,14 @@ public partial class CandidatesList
         };
 
         _dialogService.ShowAsync<CandidateCard>(dialogParameters, dialogOptions);
+    }
+
+    private async Task ExportDataToExcel()
+    {
+        var fileName = $"{ViewModel.Voting.Name} - Кандидаты голосования.xlsx";
+        var fileData = await _candidatesListExporter.ExportToExcel(ViewModel.Voting.Identifier);
+
+        await _fileDownloader.DownloadExcelFile(fileName, fileData);
     }
 
     private bool FilterRecords(CandidatesListModel.CandidateModel voting)

@@ -6,6 +6,8 @@ using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Administration.Contests.Components;
 using ConventionGradingSystem.Host.Components.Administration.Contests.Models;
 using ConventionGradingSystem.Host.Components.Shared.Models;
+using ConventionGradingSystem.Host.Services;
+using ConventionGradingSystem.Host.Services.Export.Contests;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +22,8 @@ public partial class ParticipantFeedbacksList
 {
     private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
+    private readonly ParticipantFeedbacksListExporter _participantFeedbacksListExporter;
+    private readonly FileDownloader _fileDownloader;
     private readonly IDialogService _dialogService;
 
     [Parameter]
@@ -28,10 +32,14 @@ public partial class ParticipantFeedbacksList
     public ParticipantFeedbacksList(
         IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration,
+        ParticipantFeedbacksListExporter participantFeedbacksListExporter,
+        FileDownloader fileDownloader,
         IDialogService dialogService)
     {
         _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
+        _participantFeedbacksListExporter = participantFeedbacksListExporter;
+        _fileDownloader = fileDownloader;
         _dialogService = dialogService;
     }
 
@@ -50,6 +58,7 @@ public partial class ParticipantFeedbacksList
         var brigades = _dataConfiguration.Value.Brigades.ToDictionary(brigade => brigade.Identifier);
         var teams = _dataConfiguration.Value.Teams.ToDictionary(team => team.Identifier);
         var viewEvent = new ParticipantFeedbacksListModel.EventModel(
+            Identifier: contestEvent.Identifier,
             EventName: contestEvent.Name,
             ContestName: contest.Name,
             ParticipantGrading: contest.ParticipantCriterions.Count > 0,
@@ -106,6 +115,14 @@ public partial class ParticipantFeedbacksList
         };
 
         _dialogService.ShowAsync<EventCard>(dialogParameters, dialogOptions);
+    }
+
+    private async Task ExportDataToExcel()
+    {
+        var fileName = $"{ViewModel.Event.EventName} - Отзывы участников.xlsx";
+        var fileData = await _participantFeedbacksListExporter.ExportToExcel(ViewModel.Event.Identifier);
+
+        await _fileDownloader.DownloadExcelFile(fileName, fileData);
     }
 
     private bool FilterRecords(ParticipantFeedbacksListModel.FeedbackModel feedback)

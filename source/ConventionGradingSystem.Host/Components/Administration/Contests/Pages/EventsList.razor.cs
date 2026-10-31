@@ -5,6 +5,8 @@ using ConventionGradingSystem.DataAccess.Database;
 using ConventionGradingSystem.Host.Components.Administration.Contests.Components;
 using ConventionGradingSystem.Host.Components.Administration.Contests.Models;
 using ConventionGradingSystem.Host.Components.Shared.Models;
+using ConventionGradingSystem.Host.Services;
+using ConventionGradingSystem.Host.Services.Export.Contests;
 
 using Microsoft.AspNetCore.Components;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +21,8 @@ public partial class EventsList
 {
     private readonly IDbContextFactory<DatabaseContext> _databaseContextFactory;
     private readonly IOptions<DataConfiguration> _dataConfiguration;
+    private readonly EventsListExporter _eventsListExporter;
+    private readonly FileDownloader _fileDownloader;
     private readonly IDialogService _dialogService;
 
     [Parameter]
@@ -27,10 +31,14 @@ public partial class EventsList
     public EventsList(
         IDbContextFactory<DatabaseContext> databaseContextFactory,
         IOptions<DataConfiguration> dataConfiguration,
+        EventsListExporter eventsListExporter,
+        FileDownloader fileDownloader,
         IDialogService dialogService)
     {
         _databaseContextFactory = databaseContextFactory;
         _dataConfiguration = dataConfiguration;
+        _eventsListExporter = eventsListExporter;
+        _fileDownloader = fileDownloader;
         _dialogService = dialogService;
     }
 
@@ -44,6 +52,7 @@ public partial class EventsList
 
         var teams = _dataConfiguration.Value.Teams.ToDictionary(team => team.Identifier);
         var viewContest = new EventsListModel.ContestModel(
+            Identifier: contest.Identifier,
             Name: contest.Name,
             ExpertGrading: contest.ExpertCriterions.Count > 0,
             ParticipantGrading: contest.ParticipantCriterions.Count > 0,
@@ -149,6 +158,14 @@ public partial class EventsList
         };
 
         _dialogService.ShowAsync<EventCard>(dialogParameters, dialogOptions);
+    }
+
+    private async Task ExportDataToExcel()
+    {
+        var fileName = $"{ViewModel.Contest.Name} - Мероприятия конкурса.xlsx";
+        var fileData = await _eventsListExporter.ExportToExcel(ViewModel.Contest.Identifier);
+
+        await _fileDownloader.DownloadExcelFile(fileName, fileData);
     }
 
     private bool FilterRecords(EventsListModel.EventModel contestEvent)
